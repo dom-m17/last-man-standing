@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -20,7 +22,7 @@ func setupRouter() *gin.Engine {
 
 	// Ping test
 	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, getAllClubs())
+		c.JSON(http.StatusOK, getAllClubs())
 	})
 
 	// Get user value
@@ -78,7 +80,7 @@ func main() {
 	r.Run(":8080")
 }
 
-func getAllClubs() string {
+func getAllClubs() interface{} {
 	godotenv.Load()
 
 	client := &http.Client{}
@@ -96,5 +98,14 @@ func getAllClubs() string {
 		log.Fatal(err)
 	}
 
-	return string(responseData)
+	var teamsAsJSON map[string]interface{}
+	json.Unmarshal(responseData, &teamsAsJSON)
+
+	// I don't know how to get the values out of here :(
+	teams := teamsAsJSON["teams"]
+
+	fmt.Println(reflect.TypeOf(teamsAsJSON))
+	fmt.Println(reflect.TypeOf(teams))
+
+	return teams
 }
