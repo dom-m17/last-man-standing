@@ -12,15 +12,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var db = make(map[string]string)
-
 func setupRouter() *gin.Engine {
-	// Disable Console Color
-	// gin.DisableConsoleColor()
 	r := gin.Default()
 
-	// Ping test
 	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, getAllData())
+	})
+	r.GET("/teams", func(c *gin.Context) {
 		c.JSON(http.StatusOK, getAllClubs())
 	})
 
@@ -28,13 +26,36 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
+	godotenv.Load()
 	r := setupRouter()
-	// Listen and Server in 0.0.0.0:8080
-	r.Run(":8080")
+	r.Run(":" + os.Getenv("PORT"))
+}
+
+func getAllData() interface{} {
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://api.football-data.org/v4/competitions/PL/teams", nil)
+	req.Header.Set("X-Auth-Token", os.Getenv("FOOTBALL_DATA_API_KEY"))
+
+	response, err := client.Do(req)
+	if err != nil {
+		fmt.Print(err.Error())
+		os.Exit(1)
+	}
+
+	responseData, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer response.Body.Close()
+
+	var teamInfo map[string]interface{}
+	json.Unmarshal(responseData, &teamInfo)
+
+	return teamInfo
 }
 
 func getAllClubs() interface{} {
-	godotenv.Load()
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", "http://api.football-data.org/v4/competitions/PL/teams", nil)
