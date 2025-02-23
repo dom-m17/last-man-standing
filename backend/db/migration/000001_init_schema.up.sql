@@ -23,7 +23,7 @@ CREATE TABLE "users" (
 );
 
 CREATE TABLE "teams" (
-  "id" smallserial PRIMARY KEY,
+  "id" int PRIMARY KEY,
   "long_name" varchar UNIQUE NOT NULL,
   "short_name" varchar UNIQUE NOT NULL,
   "tla" varchar UNIQUE NOT NULL,
@@ -33,14 +33,13 @@ CREATE TABLE "teams" (
 CREATE TABLE "competitions" (
   "id" SMALLSERIAL PRIMARY KEY,
   "name" varchar NOT NULL,
-  "start_date" date NOT NULL,
   "start_matchday" int NOT NULL,
   "status" comp_status,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "matches" (
-  "id" serial PRIMARY KEY,
+  "id" int PRIMARY KEY,
   "home_team" bigint NOT NULL,
   "away_team" bigint NOT NULL,
   "matchday" int NOT NULL,
@@ -69,7 +68,7 @@ CREATE TABLE "selections" (
 CREATE TABLE "competition_matches" (
   "competition_id" bigint NOT NULL,
   "match_id" bigint NOT NULL,
-  PRIMARY KEY (competition_id,match_id)
+  PRIMARY KEY ("competition_id", "match_id")
 );
 
 CREATE INDEX ON "entries" ("user_id");

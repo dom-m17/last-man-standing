@@ -1,0 +1,2 @@
+-- Not sure what to do here because this table is 
+-- purely used to link a match to a competition
