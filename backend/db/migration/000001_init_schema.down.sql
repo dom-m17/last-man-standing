@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS teams;
+DROP TABLE IF EXISTS competitions;
+DROP TABLE IF EXISTS matches;
+DROP TABLE IF EXISTS entries;
+DROP TABLE IF EXISTS selections;
+DROP TABLE IF EXISTS competition_matches;
