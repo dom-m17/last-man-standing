@@ -10,16 +10,21 @@ import (
 
 type Querier interface {
 	CreateCompetition(ctx context.Context, arg CreateCompetitionParams) (Competition, error)
+	CreateCompetitionMatch(ctx context.Context, arg CreateCompetitionMatchParams) (CompetitionMatch, error)
 	CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error)
+	CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error)
 	CreateSelection(ctx context.Context, arg CreateSelectionParams) (Selection, error)
 	CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetCompetition(ctx context.Context, id int16) (Competition, error)
 	GetEntry(ctx context.Context, id int64) (Entry, error)
+	GetMatch(ctx context.Context, id int32) (Match, error)
 	GetSelection(ctx context.Context, id int32) (Selection, error)
 	GetTeam(ctx context.Context, id int32) (Team, error)
 	GetUser(ctx context.Context, id int32) (User, error)
+	ListCompetitionMatches(ctx context.Context, competitionID int64) ([]CompetitionMatch, error)
 	ListEntries(ctx context.Context, arg ListEntriesParams) ([]Entry, error)
+	ListMatches(ctx context.Context, matchday int32) ([]Match, error)
 	ListSelections(ctx context.Context, arg ListSelectionsParams) ([]Selection, error)
 	ListTeams(ctx context.Context) ([]Team, error)
 }
