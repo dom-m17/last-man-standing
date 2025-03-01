@@ -27,6 +27,7 @@ type Querier interface {
 	ListMatches(ctx context.Context, matchday int32) ([]Match, error)
 	ListSelections(ctx context.Context, arg ListSelectionsParams) ([]Selection, error)
 	ListTeams(ctx context.Context) ([]Team, error)
+	UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match, error)
 }
 
 var _ Querier = (*Queries)(nil)

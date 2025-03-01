@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -27,17 +26,17 @@ RETURNING id, username, hashed_password, first_name, last_name, email, phone_num
 `
 
 type CreateUserParams struct {
-	Username       string      `json:"username"`
-	HashedPassword string      `json:"hashed_password"`
-	FirstName      string      `json:"first_name"`
-	LastName       string      `json:"last_name"`
-	Email          string      `json:"email"`
-	PhoneNumber    pgtype.Text `json:"phone_number"`
-	FavouriteTeam  pgtype.Int8 `json:"favourite_team"`
+	Username       string         `json:"username"`
+	HashedPassword string         `json:"hashed_password"`
+	FirstName      string         `json:"first_name"`
+	LastName       string         `json:"last_name"`
+	Email          string         `json:"email"`
+	PhoneNumber    sql.NullString `json:"phone_number"`
+	FavouriteTeam  sql.NullInt64  `json:"favourite_team"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser,
+	row := q.db.QueryRowContext(ctx, createUser,
 		arg.Username,
 		arg.HashedPassword,
 		arg.FirstName,
@@ -67,7 +66,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, id)
+	row := q.db.QueryRowContext(ctx, getUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,

@@ -25,7 +25,7 @@ type CreateCompetitionMatchParams struct {
 }
 
 func (q *Queries) CreateCompetitionMatch(ctx context.Context, arg CreateCompetitionMatchParams) (CompetitionMatch, error) {
-	row := q.db.QueryRow(ctx, createCompetitionMatch, arg.CompetitionID, arg.MatchID)
+	row := q.db.QueryRowContext(ctx, createCompetitionMatch, arg.CompetitionID, arg.MatchID)
 	var i CompetitionMatch
 	err := row.Scan(&i.CompetitionID, &i.MatchID)
 	return i, err
@@ -38,7 +38,7 @@ ORDER BY competition_id
 `
 
 func (q *Queries) ListCompetitionMatches(ctx context.Context, competitionID int64) ([]CompetitionMatch, error) {
-	rows, err := q.db.Query(ctx, listCompetitionMatches, competitionID)
+	rows, err := q.db.QueryContext(ctx, listCompetitionMatches, competitionID)
 	if err != nil {
 		return nil, err
 	}
@@ -50,6 +50,9 @@ func (q *Queries) ListCompetitionMatches(ctx context.Context, competitionID int6
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

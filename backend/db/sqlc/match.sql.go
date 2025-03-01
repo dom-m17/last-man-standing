@@ -7,8 +7,8 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
+	"time"
 )
 
 const createMatch = `-- name: CreateMatch :one
@@ -25,15 +25,15 @@ RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals
 `
 
 type CreateMatchParams struct {
-	ID        int32            `json:"id"`
-	HomeTeam  int64            `json:"home_team"`
-	AwayTeam  int64            `json:"away_team"`
-	Matchday  int32            `json:"matchday"`
-	MatchDate pgtype.Timestamp `json:"match_date"`
+	ID        int32     `json:"id"`
+	HomeTeam  int64     `json:"home_team"`
+	AwayTeam  int64     `json:"away_team"`
+	Matchday  int32     `json:"matchday"`
+	MatchDate time.Time `json:"match_date"`
 }
 
 func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error) {
-	row := q.db.QueryRow(ctx, createMatch,
+	row := q.db.QueryRowContext(ctx, createMatch,
 		arg.ID,
 		arg.HomeTeam,
 		arg.AwayTeam,
@@ -60,7 +60,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetMatch(ctx context.Context, id int32) (Match, error) {
-	row := q.db.QueryRow(ctx, getMatch, id)
+	row := q.db.QueryRowContext(ctx, getMatch, id)
 	var i Match
 	err := row.Scan(
 		&i.ID,
@@ -82,7 +82,7 @@ ORDER BY id
 `
 
 func (q *Queries) ListMatches(ctx context.Context, matchday int32) ([]Match, error) {
-	rows, err := q.db.Query(ctx, listMatches, matchday)
+	rows, err := q.db.QueryContext(ctx, listMatches, matchday)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +104,41 @@ func (q *Queries) ListMatches(ctx context.Context, matchday int32) ([]Match, err
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateMatch = `-- name: UpdateMatch :one
+UPDATE matches
+SET home_goals = $1,
+ away_goals = $2
+WHERE id = $3
+RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals, has_finished
+`
+
+type UpdateMatchParams struct {
+	HomeGoals sql.NullInt32 `json:"home_goals"`
+	AwayGoals sql.NullInt32 `json:"away_goals"`
+	ID        int32         `json:"id"`
+}
+
+func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match, error) {
+	row := q.db.QueryRowContext(ctx, updateMatch, arg.HomeGoals, arg.AwayGoals, arg.ID)
+	var i Match
+	err := row.Scan(
+		&i.ID,
+		&i.HomeTeam,
+		&i.AwayTeam,
+		&i.Matchday,
+		&i.MatchDate,
+		&i.HomeGoals,
+		&i.AwayGoals,
+		&i.HasFinished,
+	)
+	return i, err
 }

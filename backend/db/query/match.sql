@@ -18,3 +18,10 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM matches
 WHERE matchday = $1
 ORDER BY id;
+
+-- name: UpdateMatch :one
+UPDATE matches
+SET home_goals = $1,
+ away_goals = $2
+WHERE id = $3
+RETURNING *;

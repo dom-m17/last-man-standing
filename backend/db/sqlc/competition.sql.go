@@ -27,7 +27,7 @@ type CreateCompetitionParams struct {
 }
 
 func (q *Queries) CreateCompetition(ctx context.Context, arg CreateCompetitionParams) (Competition, error) {
-	row := q.db.QueryRow(ctx, createCompetition, arg.Name, arg.StartMatchday, arg.Status)
+	row := q.db.QueryRowContext(ctx, createCompetition, arg.Name, arg.StartMatchday, arg.Status)
 	var i Competition
 	err := row.Scan(
 		&i.ID,
@@ -45,7 +45,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetCompetition(ctx context.Context, id int16) (Competition, error) {
-	row := q.db.QueryRow(ctx, getCompetition, id)
+	row := q.db.QueryRowContext(ctx, getCompetition, id)
 	var i Competition
 	err := row.Scan(
 		&i.ID,

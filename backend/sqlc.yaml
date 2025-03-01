@@ -7,7 +7,7 @@ sql:
       go:
         package: "db"
         out: "./db/sqlc/"
-        sql_package: "pgx/v5"
+        sql_package: "database/sql" # "pgx/v5" had different behaviour- didn't include context
         emit_json_tags: true
         emit_empty_slices: true
         emit_interface: true

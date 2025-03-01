@@ -5,10 +5,10 @@
 package db
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 type CompStatus string
@@ -98,11 +98,11 @@ func (ns NullEntryStatus) Value() (driver.Value, error) {
 }
 
 type Competition struct {
-	ID            int16              `json:"id"`
-	Name          string             `json:"name"`
-	StartMatchday int32              `json:"start_matchday"`
-	Status        NullCompStatus     `json:"status"`
-	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	ID            int16          `json:"id"`
+	Name          string         `json:"name"`
+	StartMatchday int32          `json:"start_matchday"`
+	Status        NullCompStatus `json:"status"`
+	CreatedAt     time.Time      `json:"created_at"`
 }
 
 type CompetitionMatch struct {
@@ -122,38 +122,38 @@ type Match struct {
 	HomeTeam int64 `json:"home_team"`
 	AwayTeam int64 `json:"away_team"`
 	// between 1 and 38
-	Matchday    int32            `json:"matchday"`
-	MatchDate   pgtype.Timestamp `json:"match_date"`
-	HomeGoals   pgtype.Int4      `json:"home_goals"`
-	AwayGoals   pgtype.Int4      `json:"away_goals"`
-	HasFinished bool             `json:"has_finished"`
+	Matchday    int32         `json:"matchday"`
+	MatchDate   time.Time     `json:"match_date"`
+	HomeGoals   sql.NullInt32 `json:"home_goals"`
+	AwayGoals   sql.NullInt32 `json:"away_goals"`
+	HasFinished bool          `json:"has_finished"`
 }
 
 type Selection struct {
-	ID        int32              `json:"id"`
-	EntryID   int64              `json:"entry_id"`
-	MatchID   int64              `json:"match_id"`
-	TeamID    int64              `json:"team_id"`
-	IsCorrect pgtype.Bool        `json:"is_correct"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	ID        int32        `json:"id"`
+	EntryID   int64        `json:"entry_id"`
+	MatchID   int64        `json:"match_id"`
+	TeamID    int64        `json:"team_id"`
+	IsCorrect sql.NullBool `json:"is_correct"`
+	CreatedAt time.Time    `json:"created_at"`
 }
 
 type Team struct {
-	ID        int32       `json:"id"`
-	LongName  string      `json:"long_name"`
-	ShortName string      `json:"short_name"`
-	Tla       string      `json:"tla"`
-	CrestUrl  pgtype.Text `json:"crest_url"`
+	ID        int32          `json:"id"`
+	LongName  string         `json:"long_name"`
+	ShortName string         `json:"short_name"`
+	Tla       string         `json:"tla"`
+	CrestUrl  sql.NullString `json:"crest_url"`
 }
 
 type User struct {
-	ID             int32              `json:"id"`
-	Username       string             `json:"username"`
-	HashedPassword string             `json:"hashed_password"`
-	FirstName      string             `json:"first_name"`
-	LastName       string             `json:"last_name"`
-	Email          string             `json:"email"`
-	PhoneNumber    pgtype.Text        `json:"phone_number"`
-	FavouriteTeam  pgtype.Int8        `json:"favourite_team"`
-	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	ID             int32          `json:"id"`
+	Username       string         `json:"username"`
+	HashedPassword string         `json:"hashed_password"`
+	FirstName      string         `json:"first_name"`
+	LastName       string         `json:"last_name"`
+	Email          string         `json:"email"`
+	PhoneNumber    sql.NullString `json:"phone_number"`
+	FavouriteTeam  sql.NullInt64  `json:"favourite_team"`
+	CreatedAt      time.Time      `json:"created_at"`
 }

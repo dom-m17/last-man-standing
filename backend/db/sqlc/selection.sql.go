@@ -27,7 +27,7 @@ type CreateSelectionParams struct {
 }
 
 func (q *Queries) CreateSelection(ctx context.Context, arg CreateSelectionParams) (Selection, error) {
-	row := q.db.QueryRow(ctx, createSelection, arg.EntryID, arg.MatchID, arg.TeamID)
+	row := q.db.QueryRowContext(ctx, createSelection, arg.EntryID, arg.MatchID, arg.TeamID)
 	var i Selection
 	err := row.Scan(
 		&i.ID,
@@ -46,7 +46,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetSelection(ctx context.Context, id int32) (Selection, error) {
-	row := q.db.QueryRow(ctx, getSelection, id)
+	row := q.db.QueryRowContext(ctx, getSelection, id)
 	var i Selection
 	err := row.Scan(
 		&i.ID,
@@ -74,7 +74,7 @@ type ListSelectionsParams struct {
 }
 
 func (q *Queries) ListSelections(ctx context.Context, arg ListSelectionsParams) ([]Selection, error) {
-	rows, err := q.db.Query(ctx, listSelections, arg.EntryID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listSelections, arg.EntryID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +93,9 @@ func (q *Queries) ListSelections(ctx context.Context, arg ListSelectionsParams) 
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

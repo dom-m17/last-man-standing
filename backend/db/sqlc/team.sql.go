@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 const createTeam = `-- name: CreateTeam :one
@@ -25,15 +24,15 @@ RETURNING id, long_name, short_name, tla, crest_url
 `
 
 type CreateTeamParams struct {
-	ID        int32       `json:"id"`
-	LongName  string      `json:"long_name"`
-	ShortName string      `json:"short_name"`
-	Tla       string      `json:"tla"`
-	CrestUrl  pgtype.Text `json:"crest_url"`
+	ID        int32          `json:"id"`
+	LongName  string         `json:"long_name"`
+	ShortName string         `json:"short_name"`
+	Tla       string         `json:"tla"`
+	CrestUrl  sql.NullString `json:"crest_url"`
 }
 
 func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, error) {
-	row := q.db.QueryRow(ctx, createTeam,
+	row := q.db.QueryRowContext(ctx, createTeam,
 		arg.ID,
 		arg.LongName,
 		arg.ShortName,
@@ -57,7 +56,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetTeam(ctx context.Context, id int32) (Team, error) {
-	row := q.db.QueryRow(ctx, getTeam, id)
+	row := q.db.QueryRowContext(ctx, getTeam, id)
 	var i Team
 	err := row.Scan(
 		&i.ID,
@@ -75,7 +74,7 @@ LIMIT 20
 `
 
 func (q *Queries) ListTeams(ctx context.Context) ([]Team, error) {
-	rows, err := q.db.Query(ctx, listTeams)
+	rows, err := q.db.QueryContext(ctx, listTeams)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +92,9 @@ func (q *Queries) ListTeams(ctx context.Context) ([]Team, error) {
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
