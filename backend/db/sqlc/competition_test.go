@@ -14,7 +14,18 @@ func TestCreateCompetition(t *testing.T) {
 	createTestCompetition(t, q)
 }
 
-// TODO: Get competition test
+func TestGetCompetition(t *testing.T) {
+	q, cleanup := setupTestTransaction(t)
+	defer cleanup()
+
+	newCompetition := createTestCompetition(t, q)
+	foundCompetition, err := q.GetCompetition(context.Background(), newCompetition.ID)
+
+	require.NoError(t, err)
+	require.Equal(t, foundCompetition.Name, newCompetition.Name)
+	require.Equal(t, foundCompetition.StartMatchday, newCompetition.StartMatchday)
+	require.Equal(t, foundCompetition.Status, newCompetition.Status)
+}
 
 func createTestCompetition(t *testing.T, q *Queries) Competition {
 	ctx := context.Background()

@@ -17,7 +17,23 @@ func TestCreateTeam(t *testing.T) {
 	createTestTeam(t, q)
 }
 
-// TODO: Get team and List team tests
+func TestGetTeam(t *testing.T) {
+	q, cleanup := setupTestTransaction(t)
+	defer cleanup()
+
+	newTeam := createTestTeam(t, q)
+	foundTeam, err := q.GetTeam(context.Background(), newTeam.ID)
+
+	require.NoError(t, err)
+	require.Equal(t, foundTeam.ID, newTeam.ID)
+	require.Equal(t, foundTeam.LongName, newTeam.LongName)
+	require.Equal(t, foundTeam.ShortName, newTeam.ShortName)
+	require.Equal(t, foundTeam.Tla, newTeam.Tla)
+	require.Equal(t, foundTeam.CrestUrl, newTeam.CrestUrl)
+}
+
+// TODO: List teams is a bit more complicated because it gets all teams from DB so it doesn't work if there are already teams there
+// I want the test to work even if there are already existing teams
 
 func createTestTeam(t *testing.T, q *Queries) Team {
 	ctx := context.Background()
@@ -35,11 +51,11 @@ func createTestTeam(t *testing.T, q *Queries) Team {
 	createdTeam, err := q.CreateTeam(ctx, newTeam)
 
 	require.NoError(t, err)
-	require.Equal(t, newTeam.ID, createdTeam.ID)
-	require.Equal(t, newTeam.LongName, createdTeam.LongName)
-	require.Equal(t, newTeam.ShortName, createdTeam.ShortName)
-	require.Equal(t, newTeam.Tla, createdTeam.Tla)
-	require.Equal(t, newTeam.CrestUrl, createdTeam.CrestUrl)
+	require.Equal(t, createdTeam.ID, newTeam.ID)
+	require.Equal(t, createdTeam.LongName, newTeam.LongName)
+	require.Equal(t, createdTeam.ShortName, newTeam.ShortName)
+	require.Equal(t, createdTeam.Tla, newTeam.Tla)
+	require.Equal(t, createdTeam.CrestUrl, newTeam.CrestUrl)
 
 	return createdTeam
 }
