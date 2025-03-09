@@ -45,7 +45,7 @@ SELECT id, entry_id, match_id, team_id, is_correct, created_at FROM selections
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetSelection(ctx context.Context, id int32) (Selection, error) {
+func (q *Queries) GetSelection(ctx context.Context, id int64) (Selection, error) {
 	row := q.db.QueryRowContext(ctx, getSelection, id)
 	var i Selection
 	err := row.Scan(

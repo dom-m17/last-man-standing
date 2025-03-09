@@ -44,7 +44,7 @@ SELECT id, name, start_matchday, status, created_at FROM competitions
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetCompetition(ctx context.Context, id int16) (Competition, error) {
+func (q *Queries) GetCompetition(ctx context.Context, id int64) (Competition, error) {
 	row := q.db.QueryRowContext(ctx, getCompetition, id)
 	var i Competition
 	err := row.Scan(

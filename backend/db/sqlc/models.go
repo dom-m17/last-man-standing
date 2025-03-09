@@ -98,7 +98,7 @@ func (ns NullEntryStatus) Value() (driver.Value, error) {
 }
 
 type Competition struct {
-	ID            int16          `json:"id"`
+	ID            int64          `json:"id"`
 	Name          string         `json:"name"`
 	StartMatchday int32          `json:"start_matchday"`
 	Status        NullCompStatus `json:"status"`
@@ -118,7 +118,7 @@ type Entry struct {
 }
 
 type Match struct {
-	ID       int32 `json:"id"`
+	ID       int64 `json:"id"`
 	HomeTeam int64 `json:"home_team"`
 	AwayTeam int64 `json:"away_team"`
 	// between 1 and 38
@@ -130,7 +130,7 @@ type Match struct {
 }
 
 type Selection struct {
-	ID        int32        `json:"id"`
+	ID        int64        `json:"id"`
 	EntryID   int64        `json:"entry_id"`
 	MatchID   int64        `json:"match_id"`
 	TeamID    int64        `json:"team_id"`
@@ -139,7 +139,7 @@ type Selection struct {
 }
 
 type Team struct {
-	ID        int32          `json:"id"`
+	ID        int64          `json:"id"`
 	LongName  string         `json:"long_name"`
 	ShortName string         `json:"short_name"`
 	Tla       string         `json:"tla"`
@@ -147,7 +147,7 @@ type Team struct {
 }
 
 type User struct {
-	ID             int32          `json:"id"`
+	ID             int64          `json:"id"`
 	Username       string         `json:"username"`
 	HashedPassword string         `json:"hashed_password"`
 	FirstName      string         `json:"first_name"`

@@ -11,7 +11,7 @@ CREATE TYPE "entry_status" AS ENUM (
 );
 
 CREATE TABLE "users" (
-  "id" SERIAL PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "username" varchar UNIQUE NOT NULL,
   "hashed_password" varchar NOT NULL,
   "first_name" varchar NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE "users" (
 );
 
 CREATE TABLE "teams" (
-  "id" int PRIMARY KEY,
+  "id" bigint PRIMARY KEY,
   "long_name" varchar UNIQUE NOT NULL,
   "short_name" varchar UNIQUE NOT NULL,
   "tla" varchar UNIQUE NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE "teams" (
 );
 
 CREATE TABLE "competitions" (
-  "id" SMALLSERIAL PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "name" varchar NOT NULL,
   "start_matchday" int NOT NULL,
   "status" comp_status,
@@ -39,7 +39,7 @@ CREATE TABLE "competitions" (
 );
 
 CREATE TABLE "matches" (
-  "id" int PRIMARY KEY,
+  "id" bigint PRIMARY KEY,
   "home_team" bigint NOT NULL,
   "away_team" bigint NOT NULL,
   "matchday" int NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE "entries" (
 );
 
 CREATE TABLE "selections" (
-  "id" SERIAL PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "entry_id" bigint NOT NULL,
   "match_id" bigint NOT NULL,
   "team_id" bigint NOT NULL,

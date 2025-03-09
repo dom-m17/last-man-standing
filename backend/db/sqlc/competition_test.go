@@ -8,6 +8,15 @@ import (
 )
 
 func TestCreateCompetition(t *testing.T) {
+	q, cleanup := setupTestTransaction(t)
+	defer cleanup()
+
+	createTestCompetition(t, q)
+}
+
+// TODO: Get competition test
+
+func createTestCompetition(t *testing.T, q *Queries) Competition {
 	ctx := context.Background()
 
 	newCompetition := CreateCompetitionParams{
@@ -16,12 +25,12 @@ func TestCreateCompetition(t *testing.T) {
 		Status:        NullCompStatus{CompStatus: "open", Valid: true},
 	}
 
-	createdCompetition, err := testQueries.CreateCompetition(ctx, newCompetition)
+	createdCompetition, err := q.CreateCompetition(ctx, newCompetition)
 
 	require.NoError(t, err)
 	require.Equal(t, createdCompetition.Name, newCompetition.Name)
 	require.Equal(t, createdCompetition.StartMatchday, newCompetition.StartMatchday)
 	require.Equal(t, createdCompetition.Status, newCompetition.Status)
-}
 
-// TODO: Get competition test
+	return createdCompetition
+}

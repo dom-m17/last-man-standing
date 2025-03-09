@@ -24,7 +24,7 @@ RETURNING id, long_name, short_name, tla, crest_url
 `
 
 type CreateTeamParams struct {
-	ID        int32          `json:"id"`
+	ID        int64          `json:"id"`
 	LongName  string         `json:"long_name"`
 	ShortName string         `json:"short_name"`
 	Tla       string         `json:"tla"`
@@ -55,7 +55,7 @@ SELECT id, long_name, short_name, tla, crest_url FROM teams
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetTeam(ctx context.Context, id int32) (Team, error) {
+func (q *Queries) GetTeam(ctx context.Context, id int64) (Team, error) {
 	row := q.db.QueryRowContext(ctx, getTeam, id)
 	var i Team
 	err := row.Scan(

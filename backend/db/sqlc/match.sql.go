@@ -25,7 +25,7 @@ RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals
 `
 
 type CreateMatchParams struct {
-	ID        int32     `json:"id"`
+	ID        int64     `json:"id"`
 	HomeTeam  int64     `json:"home_team"`
 	AwayTeam  int64     `json:"away_team"`
 	Matchday  int32     `json:"matchday"`
@@ -59,7 +59,7 @@ SELECT id, home_team, away_team, matchday, match_date, home_goals, away_goals, h
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetMatch(ctx context.Context, id int32) (Match, error) {
+func (q *Queries) GetMatch(ctx context.Context, id int64) (Match, error) {
 	row := q.db.QueryRowContext(ctx, getMatch, id)
 	var i Match
 	err := row.Scan(
@@ -124,7 +124,7 @@ RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals
 type UpdateMatchParams struct {
 	HomeGoals sql.NullInt32 `json:"home_goals"`
 	AwayGoals sql.NullInt32 `json:"away_goals"`
-	ID        int32         `json:"id"`
+	ID        int64         `json:"id"`
 }
 
 func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match, error) {
