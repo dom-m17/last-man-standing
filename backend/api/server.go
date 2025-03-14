@@ -17,17 +17,22 @@ func NewServer(store db.Store) *Server {
 	server := &Server{store: store}
 	router := gin.Default()
 
-	// Teams
+	// teams
 	router.GET("/teams/:id", server.getTeam)
-	// router.GET("/teams/", server.listTeams)
-	// router.POST("/team/:id", server.createTeam) // Is this even needed? Teams get created once a season
 
-	// Users
+	// competitions
+
+	// users
 	router.GET("/users/:id", server.getUser)
 	router.POST("/users", server.createUser)
-	// competitions
+
 	// matches
-	//
+
+	// entries
+
+	// competition_matches
+
+	// selections
 
 	server.router = router
 	return server
