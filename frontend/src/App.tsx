@@ -1,6 +1,6 @@
 import './App.css'
-import { Button } from "@/components/ui/Buttontmp"
-import Header from "@/components/ui/Header_tmp"
+import { Button } from "@/components/ui/Button"
+import Header from "@/components/ui/Header"
 
 function App() {
 
