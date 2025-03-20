@@ -1,11 +1,12 @@
 import './App.css'
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/Buttontmp"
+import Header from "@/components/ui/Header_tmp"
 
 function App() {
 
   return (
     <>
-      <header className="App-header">Last Man Standing</header>
+      <Header></Header>
       <div className="flex flex-col items-center justify-center min-h-svh">
         <Button>Click me</Button>
       </div>
