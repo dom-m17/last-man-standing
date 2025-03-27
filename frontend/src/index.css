@@ -118,3 +118,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+.active {
+  background-color: blue;
+}
+
+.match {
+  display: inline-flex;
+  justify-content: space-around;
+}
+
+#header {
+  display: inline-flex;
+  justify-content: space-around;
+}
+/* 
+#menu {
+  align-self: flex-end;
+} */
