@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Match from "@/components/Match";
 
 const matches = [
@@ -9,6 +10,9 @@ const matches = [
     ];
 
 export default function Matches({...props}) {
+
+    const [ selectedTeam, setSelectedTeam ] = useState("")
+
     return (
         <>
             {matches.map(
@@ -16,6 +20,8 @@ export default function Matches({...props}) {
                       <Match
                       {...props}
                       key={match.id}
+                      onSelect={setSelectedTeam}
+                      selectedTeam={selectedTeam}
                       {...match}>
                       </Match>
                     )}

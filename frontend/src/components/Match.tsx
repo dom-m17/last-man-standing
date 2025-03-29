@@ -1,24 +1,20 @@
-import { useState } from 'react'; 
+// import { useState } from 'react';
 
 interface matchProps {
     children?: string
     homeTeam: string
     awayTeam: string
+    onSelect: (team: string) => void
+    selectedTeam: string
   }
 
-export default function Match({ homeTeam, awayTeam, ...props }: matchProps) {
-
-  const [ active, setActive ] = useState(0)
-
-  function handleClick(val: number) {
-    setActive(val)
-  }
+export default function Match({ homeTeam, awayTeam, onSelect, selectedTeam, ...props }: matchProps) {
   
 return (
     <span className="match" {...props}>
-    <button className={active==1 ? "active" : ""} onClick={() => handleClick(active == 1 ? 0 : 1)}>{homeTeam}</button>
+    <button className={selectedTeam === homeTeam ? "active" : ""} onClick={() => {onSelect(homeTeam)}}>{homeTeam}</button>
     <div>v</div>
-    <button className={active==2 ? "active" : ""} onClick={() => handleClick(active == 2 ? 0 : 2)}>{awayTeam}</button>
+    <button className={selectedTeam === awayTeam ? "active" : ""} onClick={() => {onSelect(awayTeam)}}>{awayTeam}</button>
     </span>
 )
 }
