@@ -25,6 +25,9 @@ export default function Matches({...props}) {
                       {...match}>
                       </Match>
                     )}
+            <button onClick={() => console.log(selectedTeam)}>
+                Click me
+            </button>
         </>
     )
 }
