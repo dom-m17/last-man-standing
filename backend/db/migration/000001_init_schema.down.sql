@@ -1,9 +1,0 @@
-DROP TABLE IF EXISTS selections;
-DROP TABLE IF EXISTS entries;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS competition_matches;
-DROP TABLE IF EXISTS competitions;
-DROP TABLE IF EXISTS matches;
-DROP TABLE IF EXISTS teams;
-DROP TYPE IF EXISTS "comp_status";
-DROP TYPE IF EXISTS "entry_status";
