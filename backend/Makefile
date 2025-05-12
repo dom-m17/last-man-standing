@@ -1,7 +1,25 @@
-.PHONY: gen gen-all
+.PHONY: gen gen-all start postgres createdb dropdb migrate-up migrate-down
 
 gen: ## Generate GraphQL code
 	go get github.com/99designs/gqlgen; go run github.com/99designs/gqlgen generate --config gqlgen.yml
 
 gen-all: ## Generate everything in the project
 	go generate ./...
+
+start:
+	air 
+
+postgres:
+	docker run --name postgres17.4 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -d postgres:17.4-alpine
+
+createdb:
+	docker exec -it postgres17.4 createdb --username=root --owner=root lms
+
+dropdb:
+	docker exec -it postgres17.4 dropdb --username=root --owner=root lms
+
+migrate-up:
+	migrate -path db/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose up
+
+migrate-down:
+	migrate -path db/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose down
