@@ -21,6 +21,11 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	panic(fmt.Errorf("not implemented: Todos - todos"))
 }
 
+// Hello is the resolver for the hello field.
+func (r *queryResolver) Hello(ctx context.Context) (string, error) {
+	return "hello world", nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
