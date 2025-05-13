@@ -1,3 +1,5 @@
+BEGIN;
+
 CREATE TYPE "comp_status" AS ENUM (
   'open',
   'in_progress',
@@ -11,7 +13,7 @@ CREATE TYPE "entry_status" AS ENUM (
 );
 
 CREATE TABLE "users" (
-  "id" BIGSERIAL PRIMARY KEY,
+  "id" text PRIMARY KEY,
   "username" varchar UNIQUE NOT NULL,
   "hashed_password" varchar NOT NULL,
   "first_name" varchar NOT NULL,
@@ -51,7 +53,7 @@ CREATE TABLE "matches" (
 
 CREATE TABLE "entries" (
   "id" BIGSERIAL PRIMARY KEY,
-  "user_id" bigint NOT NULL,
+  "user_id" text NOT NULL,
   "competition_id" bigint NOT NULL,
   "status" entry_status NOT NULL DEFAULT 'active'
 );
@@ -102,3 +104,7 @@ ALTER TABLE "selections" ADD FOREIGN KEY ("team_id") REFERENCES "teams" ("id");
 ALTER TABLE "competition_matches" ADD FOREIGN KEY ("competition_id") REFERENCES "competitions" ("id");
 
 ALTER TABLE "competition_matches" ADD FOREIGN KEY ("match_id") REFERENCES "matches" ("id");
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+COMMIT;

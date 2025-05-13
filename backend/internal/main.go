@@ -14,7 +14,7 @@ import (
 func run() error {
 	ctx := context.Background()
 
-	conn, err := pgx.Connect(ctx, "user=pqgotest dbname=pqgotest sslmode=verify-full")
+	conn, err := pgx.Connect(ctx, "postgres://root:password@localhost:5432/lms?sslmode=disable")
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	log.Println(insertedUser)
+	log.Println(insertedUser.ID)
 
 	// get the author we just inserted
 	fetchedUser, err := queries.GetUser(ctx, insertedUser.ID)

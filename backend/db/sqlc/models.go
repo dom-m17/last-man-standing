@@ -112,7 +112,7 @@ type CompetitionMatch struct {
 
 type Entry struct {
 	ID            int64       `json:"id"`
-	UserID        int64       `json:"user_id"`
+	UserID        string      `json:"user_id"`
 	CompetitionID int64       `json:"competition_id"`
 	Status        EntryStatus `json:"status"`
 }
@@ -147,7 +147,7 @@ type Team struct {
 }
 
 type User struct {
-	ID             int64              `json:"id"`
+	ID             string             `json:"id"`
 	Username       string             `json:"username"`
 	HashedPassword string             `json:"hashed_password"`
 	FirstName      string             `json:"first_name"`

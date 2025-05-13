@@ -13,6 +13,7 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
+  id,
   username, 
   hashed_password, 
   first_name, 
@@ -21,7 +22,7 @@ INSERT INTO users (
   phone_number, 
   favourite_team
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7
+  uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7
 )
 RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, favourite_team, created_at
 `
@@ -66,7 +67,7 @@ SELECT id, username, hashed_password, first_name, last_name, email, phone_number
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
+func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 	row := q.db.QueryRow(ctx, getUser, id)
 	var i User
 	err := row.Scan(

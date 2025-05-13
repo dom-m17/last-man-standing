@@ -7,3 +7,4 @@ DROP TABLE IF EXISTS matches;
 DROP TABLE IF EXISTS teams;
 DROP TYPE IF EXISTS "comp_status";
 DROP TYPE IF EXISTS "entry_status";
+DROP EXTENSION IF EXISTS "uuid-ossp";
