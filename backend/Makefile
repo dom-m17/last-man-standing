@@ -1,4 +1,4 @@
-.PHONY: gen gen-all start postgres createdb dropdb migrate-up migrate-down
+.PHONY: gen gen-all start postgres createdb dropdb migrate-up migrate-down test tests
 
 gen: ## Generate GraphQL code
 	go get github.com/99designs/gqlgen; go run github.com/99designs/gqlgen generate --config gqlgen.yml
@@ -23,3 +23,9 @@ migrate-up:
 
 migrate-down:
 	migrate -path db/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose down
+
+test: ## Run one particular test
+	go test -v -cover -race -run=$(name)
+
+tests: ## Run all tests in the project
+	go test -v -cover -race ./...

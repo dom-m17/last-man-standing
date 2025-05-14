@@ -20,11 +20,11 @@ RETURNING id, user_id, competition_id, status, created_at, updated_at
 
 type CreateEntryParams struct {
 	UserID        string `json:"user_id"`
-	CompetitionID int64  `json:"competition_id"`
+	CompetitionID string `json:"competition_id"`
 }
 
 func (q *Queries) CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error) {
-	row := q.db.QueryRow(ctx, createEntry, arg.UserID, arg.CompetitionID)
+	row := q.db.QueryRowContext(ctx, createEntry, arg.UserID, arg.CompetitionID)
 	var i Entry
 	err := row.Scan(
 		&i.ID,
@@ -43,7 +43,7 @@ WHERE id = $1
 `
 
 func (q *Queries) GetEntry(ctx context.Context, id string) (Entry, error) {
-	row := q.db.QueryRow(ctx, getEntry, id)
+	row := q.db.QueryRowContext(ctx, getEntry, id)
 	var i Entry
 	err := row.Scan(
 		&i.ID,
@@ -70,7 +70,7 @@ type UpdateEntryParams struct {
 }
 
 func (q *Queries) UpdateEntry(ctx context.Context, arg UpdateEntryParams) (Entry, error) {
-	row := q.db.QueryRow(ctx, updateEntry, arg.ID, arg.Status)
+	row := q.db.QueryRowContext(ctx, updateEntry, arg.ID, arg.Status)
 	var i Entry
 	err := row.Scan(
 		&i.ID,

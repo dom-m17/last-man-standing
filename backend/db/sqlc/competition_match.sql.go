@@ -18,11 +18,11 @@ INSERT INTO competition_matches (
 `
 
 type CreateCompetitionMatchParams struct {
-	CompetitionID int64 `json:"competition_id"`
-	MatchID       int64 `json:"match_id"`
+	CompetitionID string `json:"competition_id"`
+	MatchID       int64  `json:"match_id"`
 }
 
 func (q *Queries) CreateCompetitionMatch(ctx context.Context, arg CreateCompetitionMatchParams) error {
-	_, err := q.db.Exec(ctx, createCompetitionMatch, arg.CompetitionID, arg.MatchID)
+	_, err := q.db.ExecContext(ctx, createCompetitionMatch, arg.CompetitionID, arg.MatchID)
 	return err
 }

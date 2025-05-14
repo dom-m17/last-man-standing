@@ -16,7 +16,7 @@ WHERE id = $1
 `
 
 func (q *Queries) GetTeam(ctx context.Context, id int64) (Team, error) {
-	row := q.db.QueryRow(ctx, getTeam, id)
+	row := q.db.QueryRowContext(ctx, getTeam, id)
 	var i Team
 	err := row.Scan(
 		&i.ID,
@@ -34,7 +34,7 @@ FROM teams
 `
 
 func (q *Queries) ListTeams(ctx context.Context) ([]Team, error) {
-	rows, err := q.db.Query(ctx, listTeams)
+	rows, err := q.db.QueryContext(ctx, listTeams)
 	if err != nil {
 		return nil, err
 	}
@@ -52,6 +52,9 @@ func (q *Queries) ListTeams(ctx context.Context) ([]Team, error) {
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -1,5 +1,7 @@
 BEGIN;
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TYPE "comp_status" AS ENUM (
   'open',
   'in_progress',
@@ -56,7 +58,7 @@ CREATE TABLE "matches" (
 CREATE TABLE "entries" (
   "id" text DEFAULT concat('entry_', uuid_generate_v4()) PRIMARY KEY,
   "user_id" text NOT NULL REFERENCES users,
-  "competition_id" bigint NOT NULL REFERENCES competitions,
+  "competition_id" text NOT NULL REFERENCES competitions,
   "status" entry_status NOT NULL DEFAULT 'active',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
@@ -73,7 +75,7 @@ CREATE TABLE "selections" (
 );
 
 CREATE TABLE "competition_matches" (
-  "competition_id" bigint NOT NULL REFERENCES competitions,
+  "competition_id" text NOT NULL REFERENCES competitions,
   "match_id" bigint NOT NULL REFERENCES matches,
   PRIMARY KEY ("competition_id", "match_id")
 );
@@ -89,7 +91,5 @@ CREATE INDEX ON "selections" ("entry_id");
 CREATE UNIQUE INDEX ON "selections" ("entry_id", "team_id");
 
 COMMENT ON COLUMN "matches"."matchday" IS 'between 1 and 38';
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 COMMIT;

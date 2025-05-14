@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -27,17 +26,17 @@ RETURNING id, username, hashed_password, first_name, last_name, email, phone_num
 `
 
 type CreateUserParams struct {
-	Username       string      `json:"username"`
-	HashedPassword string      `json:"hashed_password"`
-	FirstName      string      `json:"first_name"`
-	LastName       string      `json:"last_name"`
-	Email          string      `json:"email"`
-	PhoneNumber    pgtype.Text `json:"phone_number"`
-	FavouriteTeam  pgtype.Int8 `json:"favourite_team"`
+	Username       string         `json:"username"`
+	HashedPassword string         `json:"hashed_password"`
+	FirstName      string         `json:"first_name"`
+	LastName       string         `json:"last_name"`
+	Email          string         `json:"email"`
+	PhoneNumber    sql.NullString `json:"phone_number"`
+	FavouriteTeam  sql.NullInt64  `json:"favourite_team"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser,
+	row := q.db.QueryRowContext(ctx, createUser,
 		arg.Username,
 		arg.HashedPassword,
 		arg.FirstName,
@@ -69,7 +68,7 @@ RETURNING id, username, hashed_password, first_name, last_name, email, phone_num
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id string) (User, error) {
-	row := q.db.QueryRow(ctx, deleteUser, id)
+	row := q.db.QueryRowContext(ctx, deleteUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -93,7 +92,7 @@ LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, id)
+	row := q.db.QueryRowContext(ctx, getUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -115,7 +114,7 @@ SELECT id, username, hashed_password, first_name, last_name, email, phone_number
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers)
+	rows, err := q.db.QueryContext(ctx, listUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -139,6 +138,9 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -160,18 +162,18 @@ RETURNING id, username, hashed_password, first_name, last_name, email, phone_num
 `
 
 type UpdateUserParams struct {
-	ID             string      `json:"id"`
-	Username       string      `json:"username"`
-	HashedPassword string      `json:"hashed_password"`
-	FirstName      string      `json:"first_name"`
-	LastName       string      `json:"last_name"`
-	Email          string      `json:"email"`
-	PhoneNumber    pgtype.Text `json:"phone_number"`
-	FavouriteTeam  pgtype.Int8 `json:"favourite_team"`
+	ID             string         `json:"id"`
+	Username       string         `json:"username"`
+	HashedPassword string         `json:"hashed_password"`
+	FirstName      string         `json:"first_name"`
+	LastName       string         `json:"last_name"`
+	Email          string         `json:"email"`
+	PhoneNumber    sql.NullString `json:"phone_number"`
+	FavouriteTeam  sql.NullInt64  `json:"favourite_team"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUser,
+	row := q.db.QueryRowContext(ctx, updateUser,
 		arg.ID,
 		arg.Username,
 		arg.HashedPassword,

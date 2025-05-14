@@ -7,8 +7,8 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
+	"time"
 )
 
 const createMatch = `-- name: CreateMatch :one
@@ -21,14 +21,14 @@ RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals
 `
 
 type CreateMatchParams struct {
-	HomeTeam  int64              `json:"home_team"`
-	AwayTeam  int64              `json:"away_team"`
-	Matchday  int32              `json:"matchday"`
-	MatchDate pgtype.Timestamptz `json:"match_date"`
+	HomeTeam  int64     `json:"home_team"`
+	AwayTeam  int64     `json:"away_team"`
+	Matchday  int32     `json:"matchday"`
+	MatchDate time.Time `json:"match_date"`
 }
 
 func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error) {
-	row := q.db.QueryRow(ctx, createMatch,
+	row := q.db.QueryRowContext(ctx, createMatch,
 		arg.HomeTeam,
 		arg.AwayTeam,
 		arg.Matchday,
@@ -54,7 +54,7 @@ WHERE id = $1
 `
 
 func (q *Queries) GetMatch(ctx context.Context, id int64) (Match, error) {
-	row := q.db.QueryRow(ctx, getMatch, id)
+	row := q.db.QueryRowContext(ctx, getMatch, id)
 	var i Match
 	err := row.Scan(
 		&i.ID,
@@ -75,7 +75,7 @@ WHERE matchday = $1
 `
 
 func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]Match, error) {
-	rows, err := q.db.Query(ctx, getMatchesByMatchday, matchday)
+	rows, err := q.db.QueryContext(ctx, getMatchesByMatchday, matchday)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +97,9 @@ func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]M
 		}
 		items = append(items, i)
 	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -116,16 +119,16 @@ RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals
 `
 
 type UpdateMatchParams struct {
-	ID          int64              `json:"id"`
-	Matchday    int32              `json:"matchday"`
-	MatchDate   pgtype.Timestamptz `json:"match_date"`
-	HomeGoals   pgtype.Int4        `json:"home_goals"`
-	AwayGoals   pgtype.Int4        `json:"away_goals"`
-	HasFinished bool               `json:"has_finished"`
+	ID          int64         `json:"id"`
+	Matchday    int32         `json:"matchday"`
+	MatchDate   time.Time     `json:"match_date"`
+	HomeGoals   sql.NullInt32 `json:"home_goals"`
+	AwayGoals   sql.NullInt32 `json:"away_goals"`
+	HasFinished bool          `json:"has_finished"`
 }
 
 func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match, error) {
-	row := q.db.QueryRow(ctx, updateMatch,
+	row := q.db.QueryRowContext(ctx, updateMatch,
 		arg.ID,
 		arg.Matchday,
 		arg.MatchDate,

@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 const changeSelection = `-- name: ChangeSelection :one
@@ -27,7 +26,7 @@ type ChangeSelectionParams struct {
 }
 
 func (q *Queries) ChangeSelection(ctx context.Context, arg ChangeSelectionParams) (Selection, error) {
-	row := q.db.QueryRow(ctx, changeSelection, arg.ID, arg.MatchID, arg.TeamID)
+	row := q.db.QueryRowContext(ctx, changeSelection, arg.ID, arg.MatchID, arg.TeamID)
 	var i Selection
 	err := row.Scan(
 		&i.ID,
@@ -57,7 +56,7 @@ type CreateSelectionParams struct {
 }
 
 func (q *Queries) CreateSelection(ctx context.Context, arg CreateSelectionParams) (Selection, error) {
-	row := q.db.QueryRow(ctx, createSelection, arg.EntryID, arg.MatchID, arg.TeamID)
+	row := q.db.QueryRowContext(ctx, createSelection, arg.EntryID, arg.MatchID, arg.TeamID)
 	var i Selection
 	err := row.Scan(
 		&i.ID,
@@ -77,7 +76,7 @@ WHERE id = $1
 `
 
 func (q *Queries) GetSelection(ctx context.Context, id string) (Selection, error) {
-	row := q.db.QueryRow(ctx, getSelection, id)
+	row := q.db.QueryRowContext(ctx, getSelection, id)
 	var i Selection
 	err := row.Scan(
 		&i.ID,
@@ -100,12 +99,12 @@ RETURNING id, entry_id, match_id, team_id, is_correct, created_at, updated_at
 `
 
 type UpdateSelectionParams struct {
-	ID        string      `json:"id"`
-	IsCorrect pgtype.Bool `json:"is_correct"`
+	ID        string       `json:"id"`
+	IsCorrect sql.NullBool `json:"is_correct"`
 }
 
 func (q *Queries) UpdateSelection(ctx context.Context, arg UpdateSelectionParams) (Selection, error) {
-	row := q.db.QueryRow(ctx, updateSelection, arg.ID, arg.IsCorrect)
+	row := q.db.QueryRowContext(ctx, updateSelection, arg.ID, arg.IsCorrect)
 	var i Selection
 	err := row.Scan(
 		&i.ID,
