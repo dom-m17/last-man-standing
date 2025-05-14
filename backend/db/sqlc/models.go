@@ -98,11 +98,12 @@ func (ns NullEntryStatus) Value() (driver.Value, error) {
 }
 
 type Competition struct {
-	ID            int64              `json:"id"`
+	ID            string             `json:"id"`
 	Name          string             `json:"name"`
 	StartMatchday int32              `json:"start_matchday"`
 	Status        NullCompStatus     `json:"status"`
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
 }
 
 type CompetitionMatch struct {
@@ -111,10 +112,12 @@ type CompetitionMatch struct {
 }
 
 type Entry struct {
-	ID            int64       `json:"id"`
-	UserID        string      `json:"user_id"`
-	CompetitionID int64       `json:"competition_id"`
-	Status        EntryStatus `json:"status"`
+	ID            string             `json:"id"`
+	UserID        string             `json:"user_id"`
+	CompetitionID int64              `json:"competition_id"`
+	Status        EntryStatus        `json:"status"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Match struct {
@@ -122,20 +125,21 @@ type Match struct {
 	HomeTeam int64 `json:"home_team"`
 	AwayTeam int64 `json:"away_team"`
 	// between 1 and 38
-	Matchday    int32            `json:"matchday"`
-	MatchDate   pgtype.Timestamp `json:"match_date"`
-	HomeGoals   pgtype.Int4      `json:"home_goals"`
-	AwayGoals   pgtype.Int4      `json:"away_goals"`
-	HasFinished bool             `json:"has_finished"`
+	Matchday    int32              `json:"matchday"`
+	MatchDate   pgtype.Timestamptz `json:"match_date"`
+	HomeGoals   pgtype.Int4        `json:"home_goals"`
+	AwayGoals   pgtype.Int4        `json:"away_goals"`
+	HasFinished bool               `json:"has_finished"`
 }
 
 type Selection struct {
-	ID        int64              `json:"id"`
-	EntryID   int64              `json:"entry_id"`
+	ID        string             `json:"id"`
+	EntryID   string             `json:"entry_id"`
 	MatchID   int64              `json:"match_id"`
 	TeamID    int64              `json:"team_id"`
 	IsCorrect pgtype.Bool        `json:"is_correct"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Team struct {
@@ -156,4 +160,5 @@ type User struct {
 	PhoneNumber    pgtype.Text        `json:"phone_number"`
 	FavouriteTeam  pgtype.Int8        `json:"favourite_team"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }

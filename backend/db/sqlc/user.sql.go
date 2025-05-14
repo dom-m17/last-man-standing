@@ -13,7 +13,6 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  id,
   username, 
   hashed_password, 
   first_name, 
@@ -22,9 +21,9 @@ INSERT INTO users (
   phone_number, 
   favourite_team
 ) VALUES (
-  uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7
+ $1, $2, $3, $4, $5, $6, $7
 )
-RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, favourite_team, created_at
+RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, favourite_team, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -58,13 +57,39 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.PhoneNumber,
 		&i.FavouriteTeam,
 		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const deleteUser = `-- name: DeleteUser :one
+DELETE FROM users
+WHERE id = $1
+RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, favourite_team, created_at, updated_at
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id string) (User, error) {
+	row := q.db.QueryRow(ctx, deleteUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.HashedPassword,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.PhoneNumber,
+		&i.FavouriteTeam,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, hashed_password, first_name, last_name, email, phone_number, favourite_team, created_at FROM users
-WHERE id = $1 LIMIT 1
+SELECT id, username, hashed_password, first_name, last_name, email, phone_number, favourite_team, created_at, updated_at FROM users
+WHERE id = $1 
+LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
@@ -80,6 +105,94 @@ func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 		&i.PhoneNumber,
 		&i.FavouriteTeam,
 		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, username, hashed_password, first_name, last_name, email, phone_number, favourite_team, created_at, updated_at FROM users
+`
+
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.HashedPassword,
+			&i.FirstName,
+			&i.LastName,
+			&i.Email,
+			&i.PhoneNumber,
+			&i.FavouriteTeam,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users
+SET 
+  username = $2,
+  hashed_password = $3,
+  first_name = $4,
+  last_name = $5,
+  email = $6,
+  phone_number = $7,
+  favourite_team = $8
+WHERE id = $1
+RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, favourite_team, created_at, updated_at
+`
+
+type UpdateUserParams struct {
+	ID             string      `json:"id"`
+	Username       string      `json:"username"`
+	HashedPassword string      `json:"hashed_password"`
+	FirstName      string      `json:"first_name"`
+	LastName       string      `json:"last_name"`
+	Email          string      `json:"email"`
+	PhoneNumber    pgtype.Text `json:"phone_number"`
+	FavouriteTeam  pgtype.Int8 `json:"favourite_team"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUser,
+		arg.ID,
+		arg.Username,
+		arg.HashedPassword,
+		arg.FirstName,
+		arg.LastName,
+		arg.Email,
+		arg.PhoneNumber,
+		arg.FavouriteTeam,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.HashedPassword,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.PhoneNumber,
+		&i.FavouriteTeam,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

@@ -9,8 +9,27 @@ import (
 )
 
 type Querier interface {
+	ChangeSelection(ctx context.Context, arg ChangeSelectionParams) (Selection, error)
+	CreateCompetition(ctx context.Context, arg CreateCompetitionParams) (Competition, error)
+	CreateCompetitionMatch(ctx context.Context, arg CreateCompetitionMatchParams) error
+	CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error)
+	CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error)
+	CreateSelection(ctx context.Context, arg CreateSelectionParams) (Selection, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteUser(ctx context.Context, id string) (User, error)
+	GetCompetition(ctx context.Context, id string) (Competition, error)
+	GetEntry(ctx context.Context, id string) (Entry, error)
+	GetMatch(ctx context.Context, id int64) (Match, error)
+	GetMatchesByMatchday(ctx context.Context, matchday int32) ([]Match, error)
+	GetSelection(ctx context.Context, id string) (Selection, error)
+	GetTeam(ctx context.Context, id int64) (Team, error)
 	GetUser(ctx context.Context, id string) (User, error)
+	ListTeams(ctx context.Context) ([]Team, error)
+	ListUsers(ctx context.Context) ([]User, error)
+	UpdateEntry(ctx context.Context, arg UpdateEntryParams) (Entry, error)
+	UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match, error)
+	UpdateSelection(ctx context.Context, arg UpdateSelectionParams) (Selection, error)
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)
