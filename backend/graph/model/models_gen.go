@@ -2,25 +2,27 @@
 
 package model
 
+type CreateUserInput struct {
+	Username      string `json:"username"`
+	FirstName     string `json:"firstName"`
+	LastName      string `json:"lastName"`
+	Email         string `json:"email"`
+	PhoneNumber   string `json:"phoneNumber"`
+	FavouriteTeam string `json:"favouriteTeam"`
+}
+
+type CreateUserResponse struct {
+	ID            string `json:"id"`
+	Username      string `json:"username"`
+	FirstName     string `json:"firstName"`
+	LastName      string `json:"lastName"`
+	Email         string `json:"email"`
+	PhoneNumber   string `json:"phoneNumber"`
+	FavouriteTeam string `json:"favouriteTeam"`
+}
+
 type Mutation struct {
 }
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
-}
-
 type Query struct {
-}
-
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
-}
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }
