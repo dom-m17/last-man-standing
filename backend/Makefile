@@ -19,10 +19,10 @@ dropdb:
 	docker exec -it postgres17.4 dropdb --username=root --owner=root lms
 
 migrate-up:
-	migrate -path db/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose up
+	migrate -path sql/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose up
 
 migrate-down:
-	migrate -path db/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose down
+	migrate -path sql/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose down
 
 test: ## Run one particular test
 	go test -v -cover -race -run=$(name)

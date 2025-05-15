@@ -3,22 +3,23 @@
 package model
 
 type CreateUserInput struct {
-	Username      string `json:"username"`
-	FirstName     string `json:"firstName"`
-	LastName      string `json:"lastName"`
-	Email         string `json:"email"`
-	PhoneNumber   string `json:"phoneNumber"`
-	FavouriteTeam string `json:"favouriteTeam"`
+	Username       string  `json:"username"`
+	HashedPassword string  `json:"hashedPassword"`
+	FirstName      string  `json:"firstName"`
+	LastName       string  `json:"lastName"`
+	Email          string  `json:"email"`
+	PhoneNumber    string  `json:"phoneNumber"`
+	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
 }
 
 type CreateUserResponse struct {
-	ID            string `json:"id"`
-	Username      string `json:"username"`
-	FirstName     string `json:"firstName"`
-	LastName      string `json:"lastName"`
-	Email         string `json:"email"`
-	PhoneNumber   string `json:"phoneNumber"`
-	FavouriteTeam string `json:"favouriteTeam"`
+	ID            string  `json:"id"`
+	Username      string  `json:"username"`
+	FirstName     string  `json:"firstName"`
+	LastName      string  `json:"lastName"`
+	Email         string  `json:"email"`
+	PhoneNumber   string  `json:"phoneNumber"`
+	FavouriteTeam *string `json:"favouriteTeam,omitempty"`
 }
 
 type Mutation struct {

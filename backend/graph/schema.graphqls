@@ -8,11 +8,12 @@ type Mutation {
 
 input CreateUserInput {
   username: String!
+  hashedPassword: String!
   firstName: String!
   lastName: String!
   email: String!
   phoneNumber: String!
-  favouriteTeam: ID!
+  favouriteTeam: ID
 }
 
 type CreateUserResponse {
@@ -22,5 +23,5 @@ type CreateUserResponse {
   lastName: String!
   email: String!
   phoneNumber: String!
-  favouriteTeam: ID!
+  favouriteTeam: ID
 }
