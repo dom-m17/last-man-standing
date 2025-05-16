@@ -26,7 +26,7 @@ func NewDB(t *testing.T) *sql.DB {
 		Options:    "sslmode=disable",
 	}
 	migrator := MigrateWrapper{
-		MigrationsDir: "../migration",
+		MigrationsDir: "../../sql/migration",
 	}
 	return pgtestdb.New(t, conf, migrator)
 }
