@@ -9,6 +9,7 @@ import (
 func TestAQuery(t *testing.T) {
 	t.Parallel()
 	db := NewDB(t)
+	defer db.Close()
 
 	var result string
 	err := db.QueryRow("SELECT 'hello world'").Scan(&result)

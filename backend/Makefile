@@ -25,7 +25,7 @@ migrate-down:
 	migrate -path sql/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose down
 
 test: ## Run one particular test
-	go test -v -cover -race -run=$(name)
+	docker-compose up -d; go test -v -cover -race -run=$(name); docker-compose down
 
 tests: ## Run all tests in the project
-	go test -v -cover -race ./...
+	docker-compose up -d; go test -v -cover -race ./...; docker-compose down
