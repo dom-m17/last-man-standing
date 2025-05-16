@@ -23,8 +23,8 @@ jobs:
         go-version: '1.24'
 
     - name: Set up PostgreSQL with Docker Compose
-      run: docker-compose -f docker-compose.yml up -d
-      working-directory: ./backend  # <-- change if your docker-compose is somewhere else
+      run: docker compose -f docker-compose.yml up -d
+      working-directory: ./backend
 
     - name: Wait for PostgreSQL to be ready
       run: |
