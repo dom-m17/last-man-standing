@@ -14,8 +14,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/dom-m17/lms/backend/graph"
 	"github.com/dom-m17/lms/backend/internal/db"
+	"github.com/dom-m17/lms/backend/internal/subgraph"
+	"github.com/dom-m17/lms/backend/internal/user"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -35,10 +36,13 @@ func main() {
 	}
 
 	queries := db.New(conn)
+	userService := user.NewService(queries)
 
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-		Querier: queries,
-	}}))
+	srv := handler.New(subgraph.NewExecutableSchema(subgraph.Config{
+		Resolvers: &subgraph.Resolver{
+			User: userService,
+		},
+	}))
 
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

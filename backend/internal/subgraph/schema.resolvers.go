@@ -1,4 +1,4 @@
-package graph
+package subgraph
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -6,31 +6,17 @@ package graph
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
-	"github.com/dom-m17/lms/backend/graph/model"
-	"github.com/dom-m17/lms/backend/internal/db"
+	"github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
-	user, err := r.Querier.CreateUser(ctx, db.CreateUserParams{
-		Username:       input.Username,
-		HashedPassword: input.HashedPassword,
-		FirstName:      input.FirstName,
-		LastName:       input.LastName,
-		Email:          input.Email,
-		PhoneNumber:    sql.NullString{String: input.PhoneNumber, Valid: input.PhoneNumber != ""},
-	})
+	user, err := r.User.CreateUser(ctx, input)
 	if err != nil {
-		fmt.Printf("DB error: %+v\n", err)
+		fmt.Printf("application error: %+v\n", err)
 		return &model.User{}, fmt.Errorf("creating user: %w", err)
-	}
-
-	var phoneNumber string
-	if user.PhoneNumber.Valid {
-		phoneNumber = user.PhoneNumber.String
 	}
 
 	return &model.User{
@@ -39,7 +25,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
 		Email:       user.Email,
-		PhoneNumber: phoneNumber,
+		PhoneNumber: user.PhoneNumber,
 	}, nil
 }
 
@@ -50,9 +36,9 @@ func (r *queryResolver) Hello(ctx context.Context) (string, error) {
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, input string) (*model.User, error) {
-	user, err := r.Querier.GetUser(ctx, input)
+	user, err := r.User.GetUser(ctx, input)
 	if err != nil {
-		fmt.Printf("DB error: %+v\n", err)
+		fmt.Printf("application error: %+v\n", err)
 		return &model.User{}, fmt.Errorf("getting user: %w", err)
 	}
 
@@ -62,7 +48,7 @@ func (r *queryResolver) GetUser(ctx context.Context, input string) (*model.User,
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
 		Email:       user.Email,
-		PhoneNumber: user.PhoneNumber.String,
+		PhoneNumber: user.PhoneNumber,
 	}, nil
 }
 
