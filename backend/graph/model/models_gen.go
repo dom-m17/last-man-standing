@@ -12,7 +12,13 @@ type CreateUserInput struct {
 	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
 }
 
-type CreateUserResponse struct {
+type Mutation struct {
+}
+
+type Query struct {
+}
+
+type User struct {
 	ID            string  `json:"id"`
 	Username      string  `json:"username"`
 	FirstName     string  `json:"firstName"`
@@ -20,10 +26,4 @@ type CreateUserResponse struct {
 	Email         string  `json:"email"`
 	PhoneNumber   string  `json:"phoneNumber"`
 	FavouriteTeam *string `json:"favouriteTeam,omitempty"`
-}
-
-type Mutation struct {
-}
-
-type Query struct {
 }

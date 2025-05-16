@@ -1,9 +1,11 @@
 type Query {
   hello: String!
+
+  getUser(input: ID!): User!
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): CreateUserResponse!
+  createUser(input: CreateUserInput!): User!
 }
 
 input CreateUserInput {
@@ -16,7 +18,7 @@ input CreateUserInput {
   favouriteTeam: ID
 }
 
-type CreateUserResponse {
+type User {
   id: ID!
   username: String!
   firstName: String!

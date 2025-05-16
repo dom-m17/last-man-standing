@@ -14,7 +14,7 @@ import (
 )
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.CreateUserResponse, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
 	user, err := r.Querier.CreateUser(ctx, db.CreateUserParams{
 		Username:       input.Username,
 		HashedPassword: input.HashedPassword,
@@ -25,7 +25,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 	})
 	if err != nil {
 		fmt.Printf("DB error: %+v\n", err)
-		return &model.CreateUserResponse{}, fmt.Errorf("creating user: %w", err)
+		return &model.User{}, fmt.Errorf("creating user: %w", err)
 	}
 
 	var phoneNumber string
@@ -33,7 +33,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 		phoneNumber = user.PhoneNumber.String
 	}
 
-	return &model.CreateUserResponse{
+	return &model.User{
 		ID:          user.ID,
 		Username:    user.Username,
 		FirstName:   user.FirstName,
@@ -46,6 +46,24 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 // Hello is the resolver for the hello field.
 func (r *queryResolver) Hello(ctx context.Context) (string, error) {
 	return "hello world", nil
+}
+
+// GetUser is the resolver for the getUser field.
+func (r *queryResolver) GetUser(ctx context.Context, input string) (*model.User, error) {
+	user, err := r.Querier.GetUser(ctx, input)
+	if err != nil {
+		fmt.Printf("DB error: %+v\n", err)
+		return &model.User{}, fmt.Errorf("getting user: %w", err)
+	}
+
+	return &model.User{
+		ID:          user.ID,
+		Username:    user.Username,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber.String,
+	}, nil
 }
 
 // Mutation returns MutationResolver implementation.
