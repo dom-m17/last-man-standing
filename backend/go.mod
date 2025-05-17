@@ -9,6 +9,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
 	github.com/peterldowns/pgtestdb v0.1.1
+	github.com/peterldowns/pgtestdb/migrators/golangmigrator v0.1.1
 	github.com/peterldowns/testy v0.0.1
 	github.com/rs/cors v1.11.1
 	github.com/vektah/gqlparser/v2 v2.5.26

@@ -11,6 +11,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/peterldowns/pgtestdb"
+	"github.com/peterldowns/pgtestdb/migrators/golangmigrator"
 )
 
 // NewDB is a helper that returns an open connection to a unique and isolated
@@ -25,10 +26,11 @@ func NewDB(t *testing.T) *sql.DB {
 		Port:       "5433",
 		Options:    "sslmode=disable",
 	}
-	migrator := MigrateWrapper{
-		MigrationsDir: "../../sql/migration",
-	}
-	return pgtestdb.New(t, conf, migrator)
+	gm := golangmigrator.New(
+		"../../sql/migration",
+	)
+
+	return pgtestdb.New(t, conf, gm)
 }
 
 type MigrateWrapper struct {
