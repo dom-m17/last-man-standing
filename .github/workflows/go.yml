@@ -39,5 +39,5 @@ jobs:
       working-directory: ./backend
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v -p 1 ./...
       working-directory: ./backend
