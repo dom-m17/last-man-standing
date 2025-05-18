@@ -33,6 +33,11 @@ func NewDB(t *testing.T) *sql.DB {
 	return pgtestdb.New(t, conf, gm)
 }
 
+func NewTestQuerier(t *testing.T) (Querier, func() error) {
+	db := NewDB(t)
+	return New(db), db.Close
+}
+
 type MigrateWrapper struct {
 	MigrationsDir string
 }

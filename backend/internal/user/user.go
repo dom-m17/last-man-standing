@@ -28,6 +28,7 @@ func (s *Service) GetUser(ctx context.Context, input string) (*models.User, erro
 }
 
 func (s *Service) CreateUser(ctx context.Context, input model.CreateUserInput) (*models.User, error) {
+	//TODO: Validation, hashing, etc (ie any logic needed before inserting to DB)
 	user, err := s.Querier.CreateUser(ctx, db.CreateUserParams{
 		Username:       input.Username,
 		HashedPassword: input.HashedPassword,
@@ -37,7 +38,6 @@ func (s *Service) CreateUser(ctx context.Context, input model.CreateUserInput) (
 		PhoneNumber:    sql.NullString{String: input.PhoneNumber, Valid: input.PhoneNumber != ""},
 	})
 	if err != nil {
-		fmt.Printf("DB error: %+v\n", err)
 		return &models.User{}, fmt.Errorf("creating user: %w", err)
 	}
 
