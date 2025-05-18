@@ -52,3 +52,18 @@ func Test_GetUser(t *testing.T) {
 	check.Nil(t, err)
 	check.Equal(t, createdUser, gotUser)
 }
+
+func Test_DeleteUser(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+
+	q, close := NewTestQuerier(t)
+	defer close()
+
+	createdUser := createTestUser(t, ctx, q)
+	deletedUser, err := q.DeleteUser(ctx, createdUser.ID)
+	check.Nil(t, err)
+	check.Equal(t, createdUser, deletedUser)
+	_, err = q.GetUser(ctx, deletedUser.ID)
+	check.Error(t, err)
+}
