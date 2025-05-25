@@ -1,4 +1,4 @@
-package subgraph
+package graphresolvers
 
 import (
 	"github.com/dom-m17/lms/backend/internal/user"

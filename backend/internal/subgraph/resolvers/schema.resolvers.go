@@ -1,4 +1,4 @@
-package subgraph
+package graphresolvers
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dom-m17/lms/backend/internal/subgraph"
 	"github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
@@ -72,11 +73,11 @@ func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*mode
 	panic(fmt.Errorf("not implemented: GetCompetition - getCompetition"))
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+// Mutation returns subgraph.MutationResolver implementation.
+func (r *Resolver) Mutation() subgraph.MutationResolver { return &mutationResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+// Query returns subgraph.QueryResolver implementation.
+func (r *Resolver) Query() subgraph.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

@@ -16,6 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/dom-m17/lms/backend/internal/db"
 	"github.com/dom-m17/lms/backend/internal/subgraph"
+	graphresolvers "github.com/dom-m17/lms/backend/internal/subgraph/resolvers"
 	"github.com/dom-m17/lms/backend/internal/user"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -39,7 +40,7 @@ func main() {
 	userService := user.NewService(queries)
 
 	srv := handler.New(subgraph.NewExecutableSchema(subgraph.Config{
-		Resolvers: &subgraph.Resolver{
+		Resolvers: &graphresolvers.Resolver{
 			User: userService,
 		},
 	}))

@@ -35,14 +35,14 @@ model:
 
 # Where should the resolver implementations go?
 resolver:
-  package: subgraph
+  package: graphresolvers
   layout: follow-schema # Only other option is "single-file."
 
   # Only for single-file layout:
   # filename: graph/resolver.go
 
   # Only for follow-schema layout:
-  dir: internal/subgraph
+  dir: internal/subgraph/resolvers
   filename_template: "{name}.resolvers.go"
 
   # Optional: turn on to not generate template comments above resolvers
@@ -65,10 +65,10 @@ resolver:
 # omit_complexity: false
 
 # Optional: turn on to not generate any file notice comments in generated files
-# omit_gqlgen_file_notice: false
+omit_gqlgen_file_notice: false
 
 # Optional: turn on to exclude the gqlgen version in the generated file notice. No effect if `omit_gqlgen_file_notice` is true.
-# omit_gqlgen_version_in_file_notice: false
+omit_gqlgen_version_in_file_notice: false
 
 # Optional: turn on to exclude root models such as Query and Mutation from the generated models file.
 # omit_root_models: false
@@ -121,7 +121,7 @@ call_argument_directives_with_null: true
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-#  - "github.com/dom-m17/lms/backend/graph/model"
+ - "github.com/dom-m17/lms/backend/internal/subgraph/model"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
