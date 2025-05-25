@@ -398,37 +398,10 @@ var sources = []*ast.Source{
   # Competition Queries
   getCompetition(input: ID!): Competition!
 }
-`, BuiltIn: false},
-	{Name: "../../graph/objects.graphqls", Input: `input UserInput {
-  username: String!
-  hashedPassword: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  phoneNumber: String!
-  favouriteTeam: ID
-}
-
-input UpdateUserInput {
-  id: ID!
-  user: UserInput!
-}
 
 input CompetitionInput {
   name: String!
   startMatchday: Int!
-}
-
-
-# TYPES
-type User {
-  id: ID!
-  username: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  phoneNumber: String!
-  favouriteTeam: ID
 }
 
 type Competition {
@@ -461,6 +434,30 @@ type Mutation {
   createUser(input: UserInput!): User!
   deleteUser(input: ID!): User!
   updateUser(input: UpdateUserInput!): User!
+}`, BuiltIn: false},
+	{Name: "../../graph/user.objects.graphqls", Input: `input UserInput {
+  username: String!
+  hashedPassword: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  favouriteTeam: ID
+}
+
+input UpdateUserInput {
+  id: ID!
+  user: UserInput!
+}
+
+type User {
+  id: ID!
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  favouriteTeam: ID
 }`, BuiltIn: false},
 	{Name: "../../graph/user.query.graphqls", Input: `extend type Query {
   # User Queries
