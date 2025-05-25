@@ -72,9 +72,49 @@ func Test_DeleteUser(t *testing.T) {
 }
 
 func Test_ListUsers(t *testing.T) {
-	// TODO
+	t.Parallel()
+	ctx := t.Context()
+
+	q, close := NewTestQuerier(t)
+	defer close()
+
+	for range 5 {
+		_ = createTestUser(t, ctx, q)
+	}
+
+	usersList, err := q.ListUsers(ctx)
+	check.Nil(t, err)
+	check.Equal(t, len(usersList), 5)
 }
 
 func Test_UpdateUsers(t *testing.T) {
-	// TODO
+	t.Parallel()
+	ctx := t.Context()
+
+	q, close := NewTestQuerier(t)
+	defer close()
+
+	createdUser := createTestUser(t, ctx, q)
+
+	userToUpdate := UpdateUserParams{
+		ID:             createdUser.ID,
+		Username:       utils.RandomUsername(),
+		HashedPassword: createdUser.HashedPassword,
+		FirstName:      utils.RandomString(5),
+		LastName:       createdUser.LastName,
+		Email:          utils.RandomEmail(),
+		PhoneNumber:    createdUser.PhoneNumber,
+		DateOfBirth:    utils.RandomDateOfBirth(),
+	}
+
+	updatedUser, err := q.UpdateUser(ctx, userToUpdate)
+	check.Nil(t, err)
+
+	check.Equal(t, updatedUser.Username, userToUpdate.Username)
+	check.Equal(t, updatedUser.HashedPassword, createdUser.HashedPassword)
+	check.Equal(t, updatedUser.FirstName, userToUpdate.FirstName)
+	check.Equal(t, updatedUser.LastName, createdUser.LastName)
+	check.Equal(t, updatedUser.Email, userToUpdate.Email)
+	check.Equal(t, updatedUser.PhoneNumber.String, createdUser.PhoneNumber.String)
+	check.Equal(t, updatedUser.DateOfBirth, userToUpdate.DateOfBirth)
 }
