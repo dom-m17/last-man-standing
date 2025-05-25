@@ -12,7 +12,7 @@ import (
 )
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput) (*model.User, error) {
 	user, err := r.User.CreateUser(ctx, input)
 	if err != nil {
 		fmt.Printf("application error: %+v\n", err)
@@ -29,9 +29,19 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 	}, nil
 }
 
-// Hello is the resolver for the hello field.
-func (r *queryResolver) Hello(ctx context.Context) (string, error) {
-	return "hello world", nil
+// DeleteUser is the resolver for the deleteUser field.
+func (r *mutationResolver) DeleteUser(ctx context.Context, input string) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
+}
+
+// UpdateUser is the resolver for the updateUser field.
+func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
+}
+
+// CreateCompetition is the resolver for the createCompetition field.
+func (r *mutationResolver) CreateCompetition(ctx context.Context, input model.CompetitionInput) (*model.Competition, error) {
+	panic(fmt.Errorf("not implemented: CreateCompetition - createCompetition"))
 }
 
 // GetUser is the resolver for the getUser field.
@@ -50,6 +60,16 @@ func (r *queryResolver) GetUser(ctx context.Context, input string) (*model.User,
 		Email:       user.Email,
 		PhoneNumber: user.PhoneNumber,
 	}, nil
+}
+
+// ListUsers is the resolver for the ListUsers field.
+func (r *queryResolver) ListUsers(ctx context.Context) ([]*model.User, error) {
+	panic(fmt.Errorf("not implemented: ListUsers - ListUsers"))
+}
+
+// GetCompetition is the resolver for the getCompetition field.
+func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*model.Competition, error) {
+	panic(fmt.Errorf("not implemented: GetCompetition - getCompetition"))
 }
 
 // Mutation returns MutationResolver implementation.

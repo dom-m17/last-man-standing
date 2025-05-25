@@ -14,7 +14,7 @@ type Service struct {
 
 type ServiceInterface interface {
 	GetUser(ctx context.Context, input string) (*models.User, error)
-	CreateUser(ctx context.Context, input model.CreateUserInput) (*models.User, error)
+	CreateUser(ctx context.Context, input model.UserInput) (*models.User, error)
 }
 
 func NewService(querier db.Querier) *Service {

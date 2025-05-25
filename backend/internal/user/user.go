@@ -27,7 +27,7 @@ func (s *Service) GetUser(ctx context.Context, input string) (*models.User, erro
 	}, nil
 }
 
-func (s *Service) CreateUser(ctx context.Context, input model.CreateUserInput) (*models.User, error) {
+func (s *Service) CreateUser(ctx context.Context, input model.UserInput) (*models.User, error) {
 	//TODO: Validation, hashing, casing, etc (ie any logic needed before inserting to DB)
 	user, err := s.Querier.CreateUser(ctx, db.CreateUserParams{
 		Username:       input.Username,

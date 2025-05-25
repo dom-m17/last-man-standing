@@ -1,14 +1,23 @@
 type Query {
-  hello: String!
-
+  # User Queries
   getUser(input: ID!): User!
+  listUsers: [User!]!
+
+  # Competition Queries
+  getCompetition(input: ID!): Competition!
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): User!
+  # User Mutations
+  createUser(input: UserInput!): User!
+  deleteUser(input: ID!): User!
+  updateUser(input: UpdateUserInput!): User!
+
+  # Competition Mutations
+  createCompetition(input: CompetitionInput!): Competition!
 }
 
-input CreateUserInput {
+input UserInput {
   username: String!
   hashedPassword: String!
   firstName: String!
@@ -18,6 +27,18 @@ input CreateUserInput {
   favouriteTeam: ID
 }
 
+input UpdateUserInput {
+  id: ID!
+  user: UserInput!
+}
+
+input CompetitionInput {
+  name: String!
+  startMatchday: Int!
+}
+
+
+# TYPES
 type User {
   id: ID!
   username: String!
@@ -26,4 +47,17 @@ type User {
   email: String!
   phoneNumber: String!
   favouriteTeam: ID
+}
+
+type Competition {
+  id: ID!
+  name: String!
+  startMatchday: Int!
+  status: CompStatus!
+}
+
+enum CompStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETE
 }

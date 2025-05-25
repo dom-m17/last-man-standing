@@ -2,20 +2,34 @@
 
 package model
 
-type CreateUserInput struct {
-	Username       string  `json:"username"`
-	HashedPassword string  `json:"hashedPassword"`
-	FirstName      string  `json:"firstName"`
-	LastName       string  `json:"lastName"`
-	Email          string  `json:"email"`
-	PhoneNumber    string  `json:"phoneNumber"`
-	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
+)
+
+type Competition struct {
+	ID            string     `json:"id"`
+	Name          string     `json:"name"`
+	StartMatchday int32      `json:"startMatchday"`
+	Status        CompStatus `json:"status"`
+}
+
+type CompetitionInput struct {
+	Name          string `json:"name"`
+	StartMatchday int32  `json:"startMatchday"`
 }
 
 type Mutation struct {
 }
 
 type Query struct {
+}
+
+type UpdateUserInput struct {
+	ID   string     `json:"id"`
+	User *UserInput `json:"user"`
 }
 
 type User struct {
@@ -26,4 +40,71 @@ type User struct {
 	Email         string  `json:"email"`
 	PhoneNumber   string  `json:"phoneNumber"`
 	FavouriteTeam *string `json:"favouriteTeam,omitempty"`
+}
+
+type UserInput struct {
+	Username       string  `json:"username"`
+	HashedPassword string  `json:"hashedPassword"`
+	FirstName      string  `json:"firstName"`
+	LastName       string  `json:"lastName"`
+	Email          string  `json:"email"`
+	PhoneNumber    string  `json:"phoneNumber"`
+	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
+}
+
+type CompStatus string
+
+const (
+	CompStatusOpen       CompStatus = "OPEN"
+	CompStatusInProgress CompStatus = "IN_PROGRESS"
+	CompStatusComplete   CompStatus = "COMPLETE"
+)
+
+var AllCompStatus = []CompStatus{
+	CompStatusOpen,
+	CompStatusInProgress,
+	CompStatusComplete,
+}
+
+func (e CompStatus) IsValid() bool {
+	switch e {
+	case CompStatusOpen, CompStatusInProgress, CompStatusComplete:
+		return true
+	}
+	return false
+}
+
+func (e CompStatus) String() string {
+	return string(e)
+}
+
+func (e *CompStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CompStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CompStatus", str)
+	}
+	return nil
+}
+
+func (e CompStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CompStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CompStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
