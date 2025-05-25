@@ -1,4 +1,0 @@
-extend type Query {
-  getUser(input: ID!): User!
-  listUsers: [User!]!
-}

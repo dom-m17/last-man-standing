@@ -516,7 +516,11 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../graph/competition.mutation.graphqls", Input: `extend type Mutation {
+	{Name: "../../graph/competition.graphqls", Input: `extend type Query {
+  getCompetition(input: ID!): Competition!
+}
+
+extend type Mutation {
   createCompetition(input: CompetitionInput!): Competition!
 }`, BuiltIn: false},
 	{Name: "../../graph/competition.objects.graphqls", Input: `# Types
@@ -540,14 +544,16 @@ enum CompStatus {
 }
 
 # Responses`, BuiltIn: false},
-	{Name: "../../graph/competition.query.graphqls", Input: `extend type Query {
-  getCompetition(input: ID!): Competition!
+	{Name: "../../graph/match.graphqls", Input: `extend type Query {
+    getMatch(input: ID!): Match!
+    getMatchesByMatchday(input: Int!): [Match!]!
 }
-`, BuiltIn: false},
-	{Name: "../../graph/match.mutation.graphqls", Input: `extend type Mutation {
+
+extend type Mutation {
     createMatch(input: createMatchInput!): Match!
     updateMatch(input: updateMatchInput!): Match!
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../../graph/match.objects.graphqls", Input: `# Types
 type Match {
     id: ID!
@@ -576,10 +582,6 @@ input updateMatchInput {
 }
 
 # Responses`, BuiltIn: false},
-	{Name: "../../graph/match.query.graphqls", Input: `extend type Query {
-    getMatch(input: ID!): Match!
-    getMatchesByMatchday(input: Int!): [Match!]!
-}`, BuiltIn: false},
 	{Name: "../../graph/objects.graphqls", Input: `scalar Time`, BuiltIn: false},
 	{Name: "../../graph/root.graphqls", Input: `schema {
     query: Query
@@ -594,7 +596,12 @@ type Mutation {
     _empty: Boolean
 }
 `, BuiltIn: false},
-	{Name: "../../graph/user.mutation.graphqls", Input: `extend type Mutation {
+	{Name: "../../graph/user.graphqls", Input: `extend type Query {
+  getUser(input: ID!): User!
+  listUsers: [User!]!
+}
+
+extend type Mutation {
   createUser(input: UserInput!): User!
   deleteUser(input: ID!): User!
   updateUser(input: UpdateUserInput!): User!
@@ -627,11 +634,6 @@ input UpdateUserInput {
 }
 
 # Responses`, BuiltIn: false},
-	{Name: "../../graph/user.query.graphqls", Input: `extend type Query {
-  getUser(input: ID!): User!
-  listUsers: [User!]!
-}
-`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 

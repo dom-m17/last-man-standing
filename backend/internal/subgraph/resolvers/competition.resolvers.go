@@ -15,3 +15,8 @@ import (
 func (r *mutationResolver) CreateCompetition(ctx context.Context, input model.CompetitionInput) (*model.Competition, error) {
 	panic(fmt.Errorf("not implemented: CreateCompetition - createCompetition"))
 }
+
+// GetCompetition is the resolver for the getCompetition field.
+func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*model.Competition, error) {
+	panic(fmt.Errorf("not implemented: GetCompetition - getCompetition"))
+}

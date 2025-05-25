@@ -1,3 +1,8 @@
+extend type Query {
+  getUser(input: ID!): User!
+  listUsers: [User!]!
+}
+
 extend type Mutation {
   createUser(input: UserInput!): User!
   deleteUser(input: ID!): User!

@@ -1,4 +1,0 @@
-extend type Query {
-    getMatch(input: ID!): Match!
-    getMatchesByMatchday(input: Int!): [Match!]!
-}

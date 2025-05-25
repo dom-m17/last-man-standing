@@ -11,6 +11,16 @@ import (
 	"github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
+// CreateMatch is the resolver for the createMatch field.
+func (r *mutationResolver) CreateMatch(ctx context.Context, input model.CreateMatchInput) (*model.Match, error) {
+	panic(fmt.Errorf("not implemented: CreateMatch - createMatch"))
+}
+
+// UpdateMatch is the resolver for the updateMatch field.
+func (r *mutationResolver) UpdateMatch(ctx context.Context, input model.UpdateMatchInput) (*model.Match, error) {
+	panic(fmt.Errorf("not implemented: UpdateMatch - updateMatch"))
+}
+
 // GetMatch is the resolver for the getMatch field.
 func (r *queryResolver) GetMatch(ctx context.Context, input string) (*model.Match, error) {
 	panic(fmt.Errorf("not implemented: GetMatch - getMatch"))
