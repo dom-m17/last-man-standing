@@ -17,14 +17,7 @@ func (s *Service) GetUser(ctx context.Context, input string) (*models.User, erro
 		return &models.User{}, fmt.Errorf("getting user: %w", err)
 	}
 
-	return &models.User{
-		ID:          user.ID,
-		Username:    user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		PhoneNumber: user.PhoneNumber.String,
-	}, nil
+	return convertDBUserToModelsUser(user), nil
 }
 
 func (s *Service) CreateUser(ctx context.Context, input model.UserInput) (*models.User, error) {
@@ -41,19 +34,7 @@ func (s *Service) CreateUser(ctx context.Context, input model.UserInput) (*model
 		return &models.User{}, fmt.Errorf("creating user: %w", err)
 	}
 
-	var phoneNumber string
-	if user.PhoneNumber.Valid {
-		phoneNumber = user.PhoneNumber.String
-	}
-
-	return &models.User{
-		ID:          user.ID,
-		Username:    user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		PhoneNumber: phoneNumber,
-	}, nil
+	return convertDBUserToModelsUser(user), nil
 }
 
 func (s *Service) DeleteUser(ctx context.Context, userID string) (*models.User, error) {
@@ -62,18 +43,5 @@ func (s *Service) DeleteUser(ctx context.Context, userID string) (*models.User, 
 		return &models.User{}, fmt.Errorf("deleting user: %w", err)
 	}
 
-	//TODO: This conversion is clearly overly complicated, I need to be able to return the same struct that the DB gives me
-	var phoneNumber string
-	if user.PhoneNumber.Valid {
-		phoneNumber = user.PhoneNumber.String
-	}
-
-	return &models.User{
-		ID:          user.ID,
-		Username:    user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		PhoneNumber: phoneNumber,
-	}, nil
+	return convertDBUserToModelsUser(user), nil
 }
