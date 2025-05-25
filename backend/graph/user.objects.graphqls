@@ -1,3 +1,15 @@
+# Types
+type User {
+  id: ID!
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  favouriteTeam: ID
+}
+
+# Inputs
 input UserInput {
   username: String!
   hashedPassword: String!
@@ -13,12 +25,4 @@ input UpdateUserInput {
   user: UserInput!
 }
 
-type User {
-  id: ID!
-  username: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  phoneNumber: String!
-  favouriteTeam: ID
-}
+# Responses

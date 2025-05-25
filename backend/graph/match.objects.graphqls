@@ -1,0 +1,28 @@
+# Types
+type Match {
+    id: ID!
+    homeTeam: ID!
+    awayTeam: ID!
+    matchday: Int!
+    matchDate: Time!
+    homeGoals: Int
+    awayGoals: Int
+    hasFinished: Boolean!
+}
+
+# Inputs
+input createMatchInput {
+    homeTeam: ID!
+    awayTeam: ID!
+    matchday: Int!
+    matchDate: Time!
+}
+
+input updateMatchInput {
+    homeGoals: Int!
+    awayGoals: Int!
+    matchday: Int!
+    matchDate: Time!
+}
+
+# Responses

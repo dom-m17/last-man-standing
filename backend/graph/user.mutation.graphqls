@@ -1,5 +1,4 @@
 extend type Mutation {
-  # User Mutations
   createUser(input: UserInput!): User!
   deleteUser(input: ID!): User!
   updateUser(input: UpdateUserInput!): User!

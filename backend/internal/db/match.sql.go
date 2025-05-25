@@ -113,18 +113,17 @@ SET
     match_date = $3,
     home_goals = $4,
     away_goals = $5,
-    has_finished = $6
+    has_finished = "TRUE"
 WHERE id = $1
 RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals, has_finished
 `
 
 type UpdateMatchParams struct {
-	ID          int64         `json:"id"`
-	Matchday    int32         `json:"matchday"`
-	MatchDate   time.Time     `json:"match_date"`
-	HomeGoals   sql.NullInt32 `json:"home_goals"`
-	AwayGoals   sql.NullInt32 `json:"away_goals"`
-	HasFinished bool          `json:"has_finished"`
+	ID        int64         `json:"id"`
+	Matchday  int32         `json:"matchday"`
+	MatchDate time.Time     `json:"match_date"`
+	HomeGoals sql.NullInt32 `json:"home_goals"`
+	AwayGoals sql.NullInt32 `json:"away_goals"`
 }
 
 func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match, error) {
@@ -134,7 +133,6 @@ func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match
 		arg.MatchDate,
 		arg.HomeGoals,
 		arg.AwayGoals,
-		arg.HasFinished,
 	)
 	var i Match
 	err := row.Scan(

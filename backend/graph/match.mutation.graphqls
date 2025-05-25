@@ -1,0 +1,4 @@
+extend type Mutation {
+    createMatch(input: createMatchInput!): Match!
+    updateMatch(input: updateMatchInput!): Match!
+}

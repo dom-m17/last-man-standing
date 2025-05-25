@@ -21,6 +21,6 @@ SET
     match_date = $3,
     home_goals = $4,
     away_goals = $5,
-    has_finished = $6
+    has_finished = "TRUE"
 WHERE id = $1
 RETURNING *;

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 )
 
 type Competition struct {
@@ -19,6 +20,17 @@ type Competition struct {
 type CompetitionInput struct {
 	Name          string `json:"name"`
 	StartMatchday int32  `json:"startMatchday"`
+}
+
+type Match struct {
+	ID          string    `json:"id"`
+	HomeTeam    string    `json:"homeTeam"`
+	AwayTeam    string    `json:"awayTeam"`
+	Matchday    int32     `json:"matchday"`
+	MatchDate   time.Time `json:"matchDate"`
+	HomeGoals   *int32    `json:"homeGoals,omitempty"`
+	AwayGoals   *int32    `json:"awayGoals,omitempty"`
+	HasFinished bool      `json:"hasFinished"`
 }
 
 type Mutation struct {
@@ -50,6 +62,20 @@ type UserInput struct {
 	Email          string  `json:"email"`
 	PhoneNumber    string  `json:"phoneNumber"`
 	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
+}
+
+type CreateMatchInput struct {
+	HomeTeam  string    `json:"homeTeam"`
+	AwayTeam  string    `json:"awayTeam"`
+	Matchday  int32     `json:"matchday"`
+	MatchDate time.Time `json:"matchDate"`
+}
+
+type UpdateMatchInput struct {
+	HomeGoals int32     `json:"homeGoals"`
+	AwayGoals int32     `json:"awayGoals"`
+	Matchday  int32     `json:"matchday"`
+	MatchDate time.Time `json:"matchDate"`
 }
 
 type CompStatus string

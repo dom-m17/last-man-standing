@@ -1,5 +1,4 @@
 extend type Query {
-  # User Queries
   getUser(input: ID!): User!
   listUsers: [User!]!
 }
