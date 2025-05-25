@@ -1,0 +1,30 @@
+extend type Query {
+  # User Queries
+  getUser(input: ID!): User!
+  listUsers: [User!]!
+}
+
+input UserInput {
+  username: String!
+  hashedPassword: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  favouriteTeam: ID
+}
+
+input UpdateUserInput {
+  id: ID!
+  user: UserInput!
+}
+
+type User {
+  id: ID!
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  favouriteTeam: ID
+}

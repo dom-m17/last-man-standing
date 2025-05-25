@@ -57,10 +57,12 @@ type ComplexityRoot struct {
 		CreateCompetition func(childComplexity int, input model.CompetitionInput) int
 		CreateUser        func(childComplexity int, input model.UserInput) int
 		DeleteUser        func(childComplexity int, input string) int
+		Empty             func(childComplexity int) int
 		UpdateUser        func(childComplexity int, input model.UpdateUserInput) int
 	}
 
 	Query struct {
+		Empty          func(childComplexity int) int
 		GetCompetition func(childComplexity int, input string) int
 		GetUser        func(childComplexity int, input string) int
 		ListUsers      func(childComplexity int) int
@@ -78,15 +80,17 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
+	Empty(ctx context.Context) (*bool, error)
+	CreateCompetition(ctx context.Context, input model.CompetitionInput) (*model.Competition, error)
 	CreateUser(ctx context.Context, input model.UserInput) (*model.User, error)
 	DeleteUser(ctx context.Context, input string) (*model.User, error)
 	UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error)
-	CreateCompetition(ctx context.Context, input model.CompetitionInput) (*model.Competition, error)
 }
 type QueryResolver interface {
+	Empty(ctx context.Context) (*bool, error)
+	GetCompetition(ctx context.Context, input string) (*model.Competition, error)
 	GetUser(ctx context.Context, input string) (*model.User, error)
 	ListUsers(ctx context.Context) ([]*model.User, error)
-	GetCompetition(ctx context.Context, input string) (*model.Competition, error)
 }
 
 type executableSchema struct {
@@ -172,6 +176,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.DeleteUser(childComplexity, args["input"].(string)), true
 
+	case "Mutation._empty":
+		if e.complexity.Mutation.Empty == nil {
+			break
+		}
+
+		return e.complexity.Mutation.Empty(childComplexity), true
+
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
 			break
@@ -183,6 +194,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(model.UpdateUserInput)), true
+
+	case "Query._empty":
+		if e.complexity.Query.Empty == nil {
+			break
+		}
+
+		return e.complexity.Query.Empty(childComplexity), true
 
 	case "Query.getCompetition":
 		if e.complexity.Query.GetCompetition == nil {
@@ -372,26 +390,16 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../graph/schema.graphqls", Input: `type Query {
-  # User Queries
-  getUser(input: ID!): User!
-  listUsers: [User!]!
-
+	{Name: "../../graph/competition.mutation.graphqls", Input: `extend type Mutation {
+    # Competition Mutations
+  createCompetition(input: CompetitionInput!): Competition!
+}`, BuiltIn: false},
+	{Name: "../../graph/competition.query.graphqls", Input: `extend type Query {
   # Competition Queries
   getCompetition(input: ID!): Competition!
 }
-
-type Mutation {
-  # User Mutations
-  createUser(input: UserInput!): User!
-  deleteUser(input: ID!): User!
-  updateUser(input: UpdateUserInput!): User!
-
-  # Competition Mutations
-  createCompetition(input: CompetitionInput!): Competition!
-}
-
-input UserInput {
+`, BuiltIn: false},
+	{Name: "../../graph/objects.graphqls", Input: `input UserInput {
   username: String!
   hashedPassword: String!
   firstName: String!
@@ -435,6 +443,31 @@ enum CompStatus {
   IN_PROGRESS
   COMPLETE
 }`, BuiltIn: false},
+	{Name: "../../graph/root.graphqls", Input: `schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    _empty: Boolean
+}
+
+type Mutation {
+    _empty: Boolean
+}
+`, BuiltIn: false},
+	{Name: "../../graph/user.mutation.graphqls", Input: `extend type Mutation {
+  # User Mutations
+  createUser(input: UserInput!): User!
+  deleteUser(input: ID!): User!
+  updateUser(input: UpdateUserInput!): User!
+}`, BuiltIn: false},
+	{Name: "../../graph/user.query.graphqls", Input: `extend type Query {
+  # User Queries
+  getUser(input: ID!): User!
+  listUsers: [User!]!
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -879,6 +912,112 @@ func (ec *executionContext) fieldContext_Competition_status(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation__empty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation__empty(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Empty(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation__empty(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createCompetition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createCompetition(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateCompetition(rctx, fc.Args["input"].(model.CompetitionInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Competition)
+	fc.Result = res
+	return ec.marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createCompetition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Competition_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Competition_name(ctx, field)
+			case "startMatchday":
+				return ec.fieldContext_Competition_startMatchday(ctx, field)
+			case "status":
+				return ec.fieldContext_Competition_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Competition", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createCompetition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createUser(ctx, field)
 	if err != nil {
@@ -1092,8 +1231,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createCompetition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createCompetition(ctx, field)
+func (ec *executionContext) _Query__empty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query__empty(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1106,7 +1245,48 @@ func (ec *executionContext) _Mutation_createCompetition(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCompetition(rctx, fc.Args["input"].(model.CompetitionInput))
+		return ec.resolvers.Query().Empty(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query__empty(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getCompetition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getCompetition(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCompetition(rctx, fc.Args["input"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1123,9 +1303,9 @@ func (ec *executionContext) _Mutation_createCompetition(ctx context.Context, fie
 	return ec.marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createCompetition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getCompetition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Mutation",
+		Object:     "Query",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -1150,7 +1330,7 @@ func (ec *executionContext) fieldContext_Mutation_createCompetition(ctx context.
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createCompetition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_getCompetition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1284,71 +1464,6 @@ func (ec *executionContext) fieldContext_Query_listUsers(_ context.Context, fiel
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_getCompetition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getCompetition(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetCompetition(rctx, fc.Args["input"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Competition)
-	fc.Result = res
-	return ec.marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_getCompetition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Competition_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Competition_name(ctx, field)
-			case "startMatchday":
-				return ec.fieldContext_Competition_startMatchday(ctx, field)
-			case "status":
-				return ec.fieldContext_Competition_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Competition", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getCompetition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -3958,6 +4073,17 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "_empty":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation__empty(ctx, field)
+			})
+		case "createCompetition":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createCompetition(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createUser(ctx, field)
@@ -3975,13 +4101,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateUser(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createCompetition":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createCompetition(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -4028,6 +4147,47 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "_empty":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query__empty(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getCompetition":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getCompetition(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getUser":
 			field := field
 
@@ -4060,28 +4220,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_listUsers(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getCompetition":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getCompetition(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

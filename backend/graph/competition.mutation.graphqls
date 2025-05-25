@@ -1,0 +1,4 @@
+extend type Mutation {
+    # Competition Mutations
+  createCompetition(input: CompetitionInput!): Competition!
+}

@@ -1,0 +1,22 @@
+extend type Query {
+  # Competition Queries
+  getCompetition(input: ID!): Competition!
+}
+
+input CompetitionInput {
+  name: String!
+  startMatchday: Int!
+}
+
+type Competition {
+  id: ID!
+  name: String!
+  startMatchday: Int!
+  status: CompStatus!
+}
+
+enum CompStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETE
+}
