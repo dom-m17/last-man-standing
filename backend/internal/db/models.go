@@ -158,6 +158,7 @@ type User struct {
 	LastName       string         `json:"last_name"`
 	Email          string         `json:"email"`
 	PhoneNumber    sql.NullString `json:"phone_number"`
+	DateOfBirth    time.Time      `json:"date_of_birth"`
 	FavouriteTeam  sql.NullInt64  `json:"favourite_team"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`

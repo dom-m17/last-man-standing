@@ -12,14 +12,13 @@ import (
 // This is a helper function because any other test will require creating a user first
 func createTestUser(t *testing.T, ctx context.Context, q Querier) User {
 	userToCreate := CreateUserParams{
-		Username: utils.RandomString(5),
-		//TODO: This should be RandomPassword
-		HashedPassword: utils.RandomString(5),
+		Username:       utils.RandomUsername(),
+		HashedPassword: utils.RandomPassword(),
 		FirstName:      utils.RandomString(5),
 		LastName:       utils.RandomString(5),
-		//TODO: This should be RandomEmail
-		Email:       utils.RandomString(5),
-		PhoneNumber: sql.NullString{String: utils.RandomPhoneNumber(), Valid: true},
+		Email:          utils.RandomEmail(),
+		PhoneNumber:    sql.NullString{String: utils.RandomPhoneNumber(), Valid: true},
+		DateOfBirth:    utils.RandomDateOfBirth(),
 	}
 
 	createdUser, err := q.CreateUser(ctx, userToCreate)
@@ -30,6 +29,7 @@ func createTestUser(t *testing.T, ctx context.Context, q Querier) User {
 	check.Equal(t, createdUser.LastName, userToCreate.LastName)
 	check.Equal(t, createdUser.Email, userToCreate.Email)
 	check.Equal(t, createdUser.PhoneNumber.String, userToCreate.PhoneNumber.String)
+	check.Equal(t, createdUser.DateOfBirth, userToCreate.DateOfBirth)
 
 	return createdUser
 }

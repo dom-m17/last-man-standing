@@ -30,6 +30,7 @@ CREATE TABLE "users" (
   "last_name" text NOT NULL,
   "email" text UNIQUE NOT NULL,
   "phone_number" text UNIQUE,
+  "date_of_birth" DATE NOT NULL,
   "favourite_team" bigint REFERENCES teams,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
