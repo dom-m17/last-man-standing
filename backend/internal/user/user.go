@@ -55,3 +55,25 @@ func (s *Service) CreateUser(ctx context.Context, input model.UserInput) (*model
 		PhoneNumber: phoneNumber,
 	}, nil
 }
+
+func (s *Service) DeleteUser(ctx context.Context, userID string) (*models.User, error) {
+	user, err := s.Querier.DeleteUser(ctx, userID)
+	if err != nil {
+		return &models.User{}, fmt.Errorf("deleting user: %w", err)
+	}
+
+	//TODO: This conversion is clearly overly complicated, I need to be able to return the same struct that the DB gives me
+	var phoneNumber string
+	if user.PhoneNumber.Valid {
+		phoneNumber = user.PhoneNumber.String
+	}
+
+	return &models.User{
+		ID:          user.ID,
+		Username:    user.Username,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		PhoneNumber: phoneNumber,
+	}, nil
+}

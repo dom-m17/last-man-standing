@@ -31,7 +31,21 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 
 // DeleteUser is the resolver for the deleteUser field.
 func (r *mutationResolver) DeleteUser(ctx context.Context, input string) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
+	//! THIS HAS NOT YET BEEN TESTED
+	user, err := r.User.DeleteUser(ctx, input)
+	if err != nil {
+		fmt.Printf("application error: %+v\n", err)
+		return &model.User{}, fmt.Errorf("getting user: %w", err)
+	}
+
+	return &model.User{
+		ID:          user.ID,
+		Username:    user.Username,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber,
+	}, nil
 }
 
 // UpdateUser is the resolver for the updateUser field.
