@@ -1,0 +1,8 @@
+extend type Query {
+    getEntry(input: ID!): Entry!
+}
+
+extend type Mutation {
+    createEntry(input: CreateEntryInput!): Entry!
+    updateEntry(input: UpdateEntryInput!): Entry!
+}

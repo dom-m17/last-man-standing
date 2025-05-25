@@ -1,0 +1,9 @@
+extend type Query {
+    getSelection(input: ID!): Selection!
+}
+
+extend type Mutation {
+    createSelection(input: CreateSelectionInput!): Selection!
+    changeSelection(input: ChangeSelectionInput!): Selection!
+    updateSelection(input: UpdateSelectionInput!): Selection!
+}

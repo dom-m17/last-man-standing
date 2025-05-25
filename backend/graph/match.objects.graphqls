@@ -8,6 +8,8 @@ type Match {
     homeGoals: Int
     awayGoals: Int
     hasFinished: Boolean!
+    createdAt: Time
+    updatedAt: Time
 }
 
 # Inputs

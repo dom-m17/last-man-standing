@@ -7,6 +7,8 @@ type User {
   email: String!
   phoneNumber: String!
   favouriteTeam: ID
+  createdAt: Time
+  updatedAt: Time
 }
 
 # Inputs

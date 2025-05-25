@@ -4,18 +4,21 @@ type Competition {
   name: String!
   startMatchday: Int!
   status: CompStatus!
+  createdAt: Time
+  updatedAt: Time
+}
+
+# Enums
+enum CompStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETE
 }
 
 # Inputs
 input CompetitionInput {
   name: String!
   startMatchday: Int!
-}
-
-enum CompStatus {
-  OPEN
-  IN_PROGRESS
-  COMPLETE
 }
 
 # Responses

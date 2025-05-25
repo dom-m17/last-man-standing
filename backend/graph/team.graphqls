@@ -1,0 +1,4 @@
+extend type Query {
+    getTeam(input: ID!): Team!
+    listTeams: [Team!]!
+}

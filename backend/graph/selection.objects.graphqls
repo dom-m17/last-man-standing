@@ -1,0 +1,28 @@
+# Types
+type Selection {
+    id: ID!
+    entryId: ID!
+    matchId: ID!
+    teamId: ID!
+    isCorrect: Boolean
+    createdAt: Time
+    updatedAt: Time
+}
+
+# Inputs
+input CreateSelectionInput {
+    entryId: ID!
+    matchId: ID!
+    teamId: ID!
+}
+
+input ChangeSelectionInput {
+    id: ID!
+    matchId: ID!
+    teamId: ID!
+}
+
+input UpdateSelectionInput {
+    id: ID!
+    isCorrect: Boolean
+}

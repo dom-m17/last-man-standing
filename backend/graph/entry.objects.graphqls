@@ -1,0 +1,29 @@
+# Types
+type Entry {
+    id: ID!
+    userId: ID!
+    competitionId: ID!
+    status: EntryStatus!
+    createdAt: Time
+    updatedAt: Time
+}
+
+# Enums
+enum EntryStatus {
+    ACTIVE
+    IN_PROGRESS
+    COMPLETE
+}
+
+# Inputs
+input UpdateEntryInput {
+    id: ID!
+    status: EntryStatus!
+}
+
+input CreateEntryInput {
+    userId: ID!
+    competitionId: ID!
+}
+
+# Responses

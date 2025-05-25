@@ -1,0 +1,8 @@
+#  Types
+type Team {
+    id: ID!
+    longName: String!
+    shortName: String!
+    tla: String!
+    crestUrl: String!
+}

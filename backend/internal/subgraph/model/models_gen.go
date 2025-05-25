@@ -10,11 +10,19 @@ import (
 	"time"
 )
 
+type ChangeSelectionInput struct {
+	ID      string `json:"id"`
+	MatchID string `json:"matchId"`
+	TeamID  string `json:"teamId"`
+}
+
 type Competition struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
 	StartMatchday int32      `json:"startMatchday"`
 	Status        CompStatus `json:"status"`
+	CreatedAt     *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt     *time.Time `json:"updatedAt,omitempty"`
 }
 
 type CompetitionInput struct {
@@ -22,15 +30,37 @@ type CompetitionInput struct {
 	StartMatchday int32  `json:"startMatchday"`
 }
 
+type CreateEntryInput struct {
+	UserID        string `json:"userId"`
+	CompetitionID string `json:"competitionId"`
+}
+
+type CreateSelectionInput struct {
+	EntryID string `json:"entryId"`
+	MatchID string `json:"matchId"`
+	TeamID  string `json:"teamId"`
+}
+
+type Entry struct {
+	ID            string      `json:"id"`
+	UserID        string      `json:"userId"`
+	CompetitionID string      `json:"competitionId"`
+	Status        EntryStatus `json:"status"`
+	CreatedAt     *time.Time  `json:"createdAt,omitempty"`
+	UpdatedAt     *time.Time  `json:"updatedAt,omitempty"`
+}
+
 type Match struct {
-	ID          string    `json:"id"`
-	HomeTeam    string    `json:"homeTeam"`
-	AwayTeam    string    `json:"awayTeam"`
-	Matchday    int32     `json:"matchday"`
-	MatchDate   time.Time `json:"matchDate"`
-	HomeGoals   *int32    `json:"homeGoals,omitempty"`
-	AwayGoals   *int32    `json:"awayGoals,omitempty"`
-	HasFinished bool      `json:"hasFinished"`
+	ID          string     `json:"id"`
+	HomeTeam    string     `json:"homeTeam"`
+	AwayTeam    string     `json:"awayTeam"`
+	Matchday    int32      `json:"matchday"`
+	MatchDate   time.Time  `json:"matchDate"`
+	HomeGoals   *int32     `json:"homeGoals,omitempty"`
+	AwayGoals   *int32     `json:"awayGoals,omitempty"`
+	HasFinished bool       `json:"hasFinished"`
+	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
 }
 
 type Mutation struct {
@@ -39,19 +69,49 @@ type Mutation struct {
 type Query struct {
 }
 
+type Selection struct {
+	ID        string     `json:"id"`
+	EntryID   string     `json:"entryId"`
+	MatchID   string     `json:"matchId"`
+	TeamID    string     `json:"teamId"`
+	IsCorrect *bool      `json:"isCorrect,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+type Team struct {
+	ID        string `json:"id"`
+	LongName  string `json:"longName"`
+	ShortName string `json:"shortName"`
+	Tla       string `json:"tla"`
+	CrestURL  string `json:"crestUrl"`
+}
+
+type UpdateEntryInput struct {
+	ID     string      `json:"id"`
+	Status EntryStatus `json:"status"`
+}
+
+type UpdateSelectionInput struct {
+	ID        string `json:"id"`
+	IsCorrect *bool  `json:"isCorrect,omitempty"`
+}
+
 type UpdateUserInput struct {
 	ID   string     `json:"id"`
 	User *UserInput `json:"user"`
 }
 
 type User struct {
-	ID            string  `json:"id"`
-	Username      string  `json:"username"`
-	FirstName     string  `json:"firstName"`
-	LastName      string  `json:"lastName"`
-	Email         string  `json:"email"`
-	PhoneNumber   string  `json:"phoneNumber"`
-	FavouriteTeam *string `json:"favouriteTeam,omitempty"`
+	ID            string     `json:"id"`
+	Username      string     `json:"username"`
+	FirstName     string     `json:"firstName"`
+	LastName      string     `json:"lastName"`
+	Email         string     `json:"email"`
+	PhoneNumber   string     `json:"phoneNumber"`
+	FavouriteTeam *string    `json:"favouriteTeam,omitempty"`
+	CreatedAt     *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt     *time.Time `json:"updatedAt,omitempty"`
 }
 
 type UserInput struct {
@@ -130,6 +190,63 @@ func (e *CompStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e CompStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type EntryStatus string
+
+const (
+	EntryStatusActive     EntryStatus = "ACTIVE"
+	EntryStatusInProgress EntryStatus = "IN_PROGRESS"
+	EntryStatusComplete   EntryStatus = "COMPLETE"
+)
+
+var AllEntryStatus = []EntryStatus{
+	EntryStatusActive,
+	EntryStatusInProgress,
+	EntryStatusComplete,
+}
+
+func (e EntryStatus) IsValid() bool {
+	switch e {
+	case EntryStatusActive, EntryStatusInProgress, EntryStatusComplete:
+		return true
+	}
+	return false
+}
+
+func (e EntryStatus) String() string {
+	return string(e)
+}
+
+func (e *EntryStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EntryStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EntryStatus", str)
+	}
+	return nil
+}
+
+func (e EntryStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *EntryStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e EntryStatus) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
