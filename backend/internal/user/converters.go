@@ -18,5 +18,6 @@ func convertDBUserToModelsUser(user db.User) *models.User {
 		LastName:    user.LastName,
 		Email:       user.Email,
 		PhoneNumber: phoneNumber,
+		DateOfBirth: user.DateOfBirth,
 	}
 }

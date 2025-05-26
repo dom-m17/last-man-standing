@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/dom-m17/lms/backend/internal/db"
 	"github.com/dom-m17/lms/backend/internal/models"
@@ -20,8 +21,9 @@ func (s *Service) GetUser(ctx context.Context, input string) (*models.User, erro
 	return convertDBUserToModelsUser(user), nil
 }
 
-func (s *Service) CreateUser(ctx context.Context, input model.UserInput) (*models.User, error) {
+func (s *Service) CreateUser(ctx context.Context, input model.CreateUserInput) (*models.User, error) {
 	//TODO: Validation, hashing, casing, etc (ie any logic needed before inserting to DB)
+	dob, _ := time.Parse("2006-01-02", input.DateOfBirth)
 	user, err := s.Querier.CreateUser(ctx, db.CreateUserParams{
 		Username:       input.Username,
 		HashedPassword: input.HashedPassword,
@@ -29,6 +31,7 @@ func (s *Service) CreateUser(ctx context.Context, input model.UserInput) (*model
 		LastName:       input.LastName,
 		Email:          input.Email,
 		PhoneNumber:    sql.NullString{String: input.PhoneNumber, Valid: input.PhoneNumber != ""},
+		DateOfBirth:    dob,
 	})
 	if err != nil {
 		return &models.User{}, fmt.Errorf("creating user: %w", err)

@@ -41,6 +41,17 @@ type CreateSelectionInput struct {
 	TeamID  string `json:"teamId"`
 }
 
+type CreateUserInput struct {
+	Username       string  `json:"username"`
+	HashedPassword string  `json:"hashedPassword"`
+	FirstName      string  `json:"firstName"`
+	LastName       string  `json:"lastName"`
+	Email          string  `json:"email"`
+	PhoneNumber    string  `json:"phoneNumber"`
+	DateOfBirth    string  `json:"dateOfBirth"`
+	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
+}
+
 type Entry struct {
 	ID            string      `json:"id"`
 	UserID        string      `json:"userId"`
@@ -98,8 +109,15 @@ type UpdateSelectionInput struct {
 }
 
 type UpdateUserInput struct {
-	ID   string     `json:"id"`
-	User *UserInput `json:"user"`
+	ID             string  `json:"id"`
+	Username       string  `json:"username"`
+	HashedPassword string  `json:"hashedPassword"`
+	FirstName      string  `json:"firstName"`
+	LastName       string  `json:"lastName"`
+	Email          string  `json:"email"`
+	PhoneNumber    string  `json:"phoneNumber"`
+	DateOfBirth    string  `json:"dateOfBirth"`
+	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
 }
 
 type User struct {
@@ -109,19 +127,10 @@ type User struct {
 	LastName      string     `json:"lastName"`
 	Email         string     `json:"email"`
 	PhoneNumber   string     `json:"phoneNumber"`
+	DateOfBirth   string     `json:"dateOfBirth"`
 	FavouriteTeam *string    `json:"favouriteTeam,omitempty"`
 	CreatedAt     *time.Time `json:"createdAt,omitempty"`
 	UpdatedAt     *time.Time `json:"updatedAt,omitempty"`
-}
-
-type UserInput struct {
-	Username       string  `json:"username"`
-	HashedPassword string  `json:"hashedPassword"`
-	FirstName      string  `json:"firstName"`
-	LastName       string  `json:"lastName"`
-	Email          string  `json:"email"`
-	PhoneNumber    string  `json:"phoneNumber"`
-	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
 }
 
 type CreateMatchInput struct {

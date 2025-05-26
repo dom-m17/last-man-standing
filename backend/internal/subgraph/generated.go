@@ -84,7 +84,7 @@ type ComplexityRoot struct {
 		CreateEntry       func(childComplexity int, input model.CreateEntryInput) int
 		CreateMatch       func(childComplexity int, input model.CreateMatchInput) int
 		CreateSelection   func(childComplexity int, input model.CreateSelectionInput) int
-		CreateUser        func(childComplexity int, input model.UserInput) int
+		CreateUser        func(childComplexity int, input model.CreateUserInput) int
 		DeleteUser        func(childComplexity int, input string) int
 		Empty             func(childComplexity int) int
 		UpdateEntry       func(childComplexity int, input model.UpdateEntryInput) int
@@ -126,6 +126,7 @@ type ComplexityRoot struct {
 
 	User struct {
 		CreatedAt     func(childComplexity int) int
+		DateOfBirth   func(childComplexity int) int
 		Email         func(childComplexity int) int
 		FavouriteTeam func(childComplexity int) int
 		FirstName     func(childComplexity int) int
@@ -147,7 +148,7 @@ type MutationResolver interface {
 	CreateSelection(ctx context.Context, input model.CreateSelectionInput) (*model.Selection, error)
 	ChangeSelection(ctx context.Context, input model.ChangeSelectionInput) (*model.Selection, error)
 	UpdateSelection(ctx context.Context, input model.UpdateSelectionInput) (*model.Selection, error)
-	CreateUser(ctx context.Context, input model.UserInput) (*model.User, error)
+	CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error)
 	DeleteUser(ctx context.Context, input string) (*model.User, error)
 	UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error)
 }
@@ -407,7 +408,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.UserInput)), true
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.CreateUserInput)), true
 
 	case "Mutation.deleteUser":
 		if e.complexity.Mutation.DeleteUser == nil {
@@ -672,6 +673,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.User.CreatedAt(childComplexity), true
 
+	case "User.dateOfBirth":
+		if e.complexity.User.DateOfBirth == nil {
+			break
+		}
+
+		return e.complexity.User.DateOfBirth(childComplexity), true
+
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
@@ -740,10 +748,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCompetitionInput,
 		ec.unmarshalInputCreateEntryInput,
 		ec.unmarshalInputCreateSelectionInput,
+		ec.unmarshalInputCreateUserInput,
 		ec.unmarshalInputUpdateEntryInput,
 		ec.unmarshalInputUpdateSelectionInput,
 		ec.unmarshalInputUpdateUserInput,
-		ec.unmarshalInputUserInput,
 		ec.unmarshalInputcreateMatchInput,
 		ec.unmarshalInputupdateMatchInput,
 	)
@@ -889,7 +897,7 @@ type Entry {
     competitionId: ID!
     status: EntryStatus!
     createdAt: Time
-  updatedAt: Time
+    updatedAt: Time
 }
 
 # Enums
@@ -1022,7 +1030,7 @@ type Team {
 }
 
 extend type Mutation {
-  createUser(input: UserInput!): User!
+  createUser(input: CreateUserInput!): User!
   deleteUser(input: ID!): User!
   updateUser(input: UpdateUserInput!): User!
 }`, BuiltIn: false},
@@ -1034,25 +1042,34 @@ type User {
   lastName: String!
   email: String!
   phoneNumber: String!
+  dateOfBirth: String!
   favouriteTeam: ID
   createdAt: Time
   updatedAt: Time
 }
 
 # Inputs
-input UserInput {
+input CreateUserInput {
   username: String!
   hashedPassword: String!
   firstName: String!
   lastName: String!
   email: String!
   phoneNumber: String!
+  dateOfBirth: String!
   favouriteTeam: ID
 }
 
 input UpdateUserInput {
   id: ID!
-  user: UserInput!
+  username: String!
+  hashedPassword: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  dateOfBirth: String!
+  favouriteTeam: ID
 }
 
 # Responses`, BuiltIn: false},
@@ -1191,13 +1208,13 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_createUser_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.UserInput, error) {
+) (model.CreateUserInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUserInput(ctx, tmp)
+		return ec.unmarshalNCreateUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateUserInput(ctx, tmp)
 	}
 
-	var zeroVal model.UserInput
+	var zeroVal model.CreateUserInput
 	return zeroVal, nil
 }
 
@@ -3173,7 +3190,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(model.UserInput))
+		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(model.CreateUserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3210,6 +3227,8 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 				return ec.fieldContext_User_email(ctx, field)
 			case "phoneNumber":
 				return ec.fieldContext_User_phoneNumber(ctx, field)
+			case "dateOfBirth":
+				return ec.fieldContext_User_dateOfBirth(ctx, field)
 			case "favouriteTeam":
 				return ec.fieldContext_User_favouriteTeam(ctx, field)
 			case "createdAt":
@@ -3285,6 +3304,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteUser(ctx context.Context
 				return ec.fieldContext_User_email(ctx, field)
 			case "phoneNumber":
 				return ec.fieldContext_User_phoneNumber(ctx, field)
+			case "dateOfBirth":
+				return ec.fieldContext_User_dateOfBirth(ctx, field)
 			case "favouriteTeam":
 				return ec.fieldContext_User_favouriteTeam(ctx, field)
 			case "createdAt":
@@ -3360,6 +3381,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context
 				return ec.fieldContext_User_email(ctx, field)
 			case "phoneNumber":
 				return ec.fieldContext_User_phoneNumber(ctx, field)
+			case "dateOfBirth":
+				return ec.fieldContext_User_dateOfBirth(ctx, field)
 			case "favouriteTeam":
 				return ec.fieldContext_User_favouriteTeam(ctx, field)
 			case "createdAt":
@@ -3962,6 +3985,8 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 				return ec.fieldContext_User_email(ctx, field)
 			case "phoneNumber":
 				return ec.fieldContext_User_phoneNumber(ctx, field)
+			case "dateOfBirth":
+				return ec.fieldContext_User_dateOfBirth(ctx, field)
 			case "favouriteTeam":
 				return ec.fieldContext_User_favouriteTeam(ctx, field)
 			case "createdAt":
@@ -4037,6 +4062,8 @@ func (ec *executionContext) fieldContext_Query_listUsers(_ context.Context, fiel
 				return ec.fieldContext_User_email(ctx, field)
 			case "phoneNumber":
 				return ec.fieldContext_User_phoneNumber(ctx, field)
+			case "dateOfBirth":
+				return ec.fieldContext_User_dateOfBirth(ctx, field)
 			case "favouriteTeam":
 				return ec.fieldContext_User_favouriteTeam(ctx, field)
 			case "createdAt":
@@ -4952,6 +4979,50 @@ func (ec *executionContext) _User_phoneNumber(ctx context.Context, field graphql
 }
 
 func (ec *executionContext) fieldContext_User_phoneNumber(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_dateOfBirth(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_dateOfBirth(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DateOfBirth, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_dateOfBirth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -7188,6 +7259,82 @@ func (ec *executionContext) unmarshalInputCreateSelectionInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, obj any) (model.CreateUserInput, error) {
+	var it model.CreateUserInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"username", "hashedPassword", "firstName", "lastName", "email", "phoneNumber", "dateOfBirth", "favouriteTeam"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "username":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = data
+		case "hashedPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hashedPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HashedPassword = data
+		case "firstName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstName = data
+		case "lastName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LastName = data
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "phoneNumber":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phoneNumber"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PhoneNumber = data
+		case "dateOfBirth":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateOfBirth"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateOfBirth = data
+		case "favouriteTeam":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("favouriteTeam"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FavouriteTeam = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateEntryInput(ctx context.Context, obj any) (model.UpdateEntryInput, error) {
 	var it model.UpdateEntryInput
 	asMap := map[string]any{}
@@ -7263,7 +7410,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "user"}
+	fieldsInOrder := [...]string{"id", "username", "hashedPassword", "firstName", "lastName", "email", "phoneNumber", "dateOfBirth", "favouriteTeam"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7277,33 +7424,6 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.ID = data
-		case "user":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			data, err := ec.unmarshalNUserInput2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUserInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.User = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj any) (model.UserInput, error) {
-	var it model.UserInput
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"username", "hashedPassword", "firstName", "lastName", "email", "phoneNumber", "favouriteTeam"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
 		case "username":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -7346,6 +7466,13 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj any
 				return it, err
 			}
 			it.PhoneNumber = data
+		case "dateOfBirth":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateOfBirth"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateOfBirth = data
 		case "favouriteTeam":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("favouriteTeam"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
@@ -8201,6 +8328,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "dateOfBirth":
+			out.Values[i] = ec._User_dateOfBirth(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "favouriteTeam":
 			out.Values[i] = ec._User_favouriteTeam(ctx, field, obj)
 		case "createdAt":
@@ -8625,6 +8757,11 @@ func (ec *executionContext) unmarshalNCreateSelectionInput2githubᚗcomᚋdomᚑ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateUserInput(ctx context.Context, v any) (model.CreateUserInput, error) {
+	res, err := ec.unmarshalInputCreateUserInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNEntry2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx context.Context, sel ast.SelectionSet, v model.Entry) graphql.Marshaler {
 	return ec._Entry(ctx, sel, &v)
 }
@@ -8914,16 +9051,6 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbac
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUserInput(ctx context.Context, v any) (model.UserInput, error) {
-	res, err := ec.unmarshalInputUserInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUserInput2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUserInput(ctx context.Context, v any) (*model.UserInput, error) {
-	res, err := ec.unmarshalInputUserInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

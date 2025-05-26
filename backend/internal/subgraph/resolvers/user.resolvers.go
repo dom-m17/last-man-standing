@@ -12,7 +12,7 @@ import (
 )
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput) (*model.User, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
 	user, err := r.User.CreateUser(ctx, input)
 	if err != nil {
 		fmt.Printf("application error: %+v\n", err)
@@ -26,6 +26,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput
 		LastName:    user.LastName,
 		Email:       user.Email,
 		PhoneNumber: user.PhoneNumber,
+		DateOfBirth: user.DateOfBirth.String(),
 	}, nil
 }
 
