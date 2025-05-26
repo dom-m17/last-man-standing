@@ -1,0 +1,22 @@
+package match
+
+import (
+	"context"
+
+	"github.com/dom-m17/lms/backend/internal/db"
+	"github.com/dom-m17/lms/backend/internal/models"
+)
+
+type Service struct {
+	Querier db.Querier
+}
+
+type ServiceInterface interface {
+	GetMatch(ctx context.Context, input string) (*models.Match, error)
+}
+
+func NewService(querier db.Querier) *Service {
+	return &Service{
+		Querier: querier,
+	}
+}

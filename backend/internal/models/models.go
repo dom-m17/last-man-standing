@@ -12,3 +12,29 @@ type User struct {
 	DateOfBirth   time.Time `json:"dateOfBirth"`
 	FavouriteTeam *string   `json:"favouriteTeam,omitempty"`
 }
+
+type CompStatus string
+
+const (
+	CompStatusOpen       CompStatus = "OPEN"
+	CompStatusInProgress CompStatus = "IN_PROGRESS"
+	CompStatusComplete   CompStatus = "COMPLETE"
+)
+
+type Competition struct {
+	ID            string `json:"id"`
+	Name          string
+	StartMatchday int
+	Status        CompStatus
+}
+
+type Match struct {
+	ID          string
+	HomeTeamID  int
+	AwayTeamID  int
+	Matchday    int
+	MatchDate   time.Time
+	HomeGoals   int
+	AwayGoals   int
+	HasFinished bool
+}

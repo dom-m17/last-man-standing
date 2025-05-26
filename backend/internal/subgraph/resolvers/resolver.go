@@ -1,6 +1,8 @@
 package graphresolvers
 
 import (
+	"github.com/dom-m17/lms/backend/internal/competition"
+	"github.com/dom-m17/lms/backend/internal/match"
 	"github.com/dom-m17/lms/backend/internal/user"
 )
 
@@ -9,5 +11,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	User user.ServiceInterface
+	User        user.ServiceInterface
+	Competition competition.ServiceInterface
+	Match       match.ServiceInterface
 }
