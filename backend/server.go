@@ -15,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/dom-m17/lms/backend/internal/db"
+	"github.com/dom-m17/lms/backend/internal/match"
 	"github.com/dom-m17/lms/backend/internal/subgraph"
 	graphresolvers "github.com/dom-m17/lms/backend/internal/subgraph/resolvers"
 	"github.com/dom-m17/lms/backend/internal/user"
@@ -38,10 +39,12 @@ func main() {
 
 	queries := db.New(conn)
 	userService := user.NewService(queries)
+	matchService := match.NewService(queries)
 
 	srv := handler.New(subgraph.NewExecutableSchema(subgraph.Config{
 		Resolvers: &graphresolvers.Resolver{
-			User: userService,
+			User:  userService,
+			Match: matchService,
 		},
 	}))
 

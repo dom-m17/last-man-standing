@@ -8,18 +8,18 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dom-m17/lms/backend/internal/subgraph/model"
+	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input graphmodels.CreateUserInput) (*graphmodels.User, error) {
 	user, err := r.User.CreateUser(ctx, input)
 	if err != nil {
 		fmt.Printf("application error: %+v\n", err)
-		return &model.User{}, fmt.Errorf("creating user: %w", err)
+		return &graphmodels.User{}, fmt.Errorf("creating user: %w", err)
 	}
 
-	return &model.User{
+	return &graphmodels.User{
 		ID:          user.ID,
 		Username:    user.Username,
 		FirstName:   user.FirstName,
@@ -31,15 +31,15 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 }
 
 // DeleteUser is the resolver for the deleteUser field.
-func (r *mutationResolver) DeleteUser(ctx context.Context, input string) (*model.User, error) {
+func (r *mutationResolver) DeleteUser(ctx context.Context, input string) (*graphmodels.User, error) {
 	//! THIS HAS NOT YET BEEN TESTED
 	user, err := r.User.DeleteUser(ctx, input)
 	if err != nil {
 		fmt.Printf("application error: %+v\n", err)
-		return &model.User{}, fmt.Errorf("getting user: %w", err)
+		return &graphmodels.User{}, fmt.Errorf("getting user: %w", err)
 	}
 
-	return &model.User{
+	return &graphmodels.User{
 		ID:          user.ID,
 		Username:    user.Username,
 		FirstName:   user.FirstName,
@@ -50,19 +50,19 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, input string) (*model
 }
 
 // UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, input graphmodels.UpdateUserInput) (*graphmodels.User, error) {
 	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
 }
 
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, input string) (*model.User, error) {
+func (r *queryResolver) GetUser(ctx context.Context, input string) (*graphmodels.User, error) {
 	user, err := r.User.GetUser(ctx, input)
 	if err != nil {
 		fmt.Printf("application error: %+v\n", err)
-		return &model.User{}, fmt.Errorf("getting user: %w", err)
+		return &graphmodels.User{}, fmt.Errorf("getting user: %w", err)
 	}
 
-	return &model.User{
+	return &graphmodels.User{
 		ID:          user.ID,
 		Username:    user.Username,
 		FirstName:   user.FirstName,
@@ -73,6 +73,6 @@ func (r *queryResolver) GetUser(ctx context.Context, input string) (*model.User,
 }
 
 // ListUsers is the resolver for the ListUsers field.
-func (r *queryResolver) ListUsers(ctx context.Context) ([]*model.User, error) {
+func (r *queryResolver) ListUsers(ctx context.Context) ([]*graphmodels.User, error) {
 	panic(fmt.Errorf("not implemented: ListUsers - ListUsers"))
 }

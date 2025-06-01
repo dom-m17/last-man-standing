@@ -8,25 +8,40 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dom-m17/lms/backend/internal/subgraph/model"
+	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 // CreateMatch is the resolver for the createMatch field.
-func (r *mutationResolver) CreateMatch(ctx context.Context, input model.CreateMatchInput) (*model.Match, error) {
+func (r *mutationResolver) CreateMatch(ctx context.Context, input graphmodels.CreateMatchInput) (*graphmodels.Match, error) {
 	panic(fmt.Errorf("not implemented: CreateMatch - createMatch"))
 }
 
 // UpdateMatch is the resolver for the updateMatch field.
-func (r *mutationResolver) UpdateMatch(ctx context.Context, input model.UpdateMatchInput) (*model.Match, error) {
+func (r *mutationResolver) UpdateMatch(ctx context.Context, input graphmodels.UpdateMatchInput) (*graphmodels.Match, error) {
 	panic(fmt.Errorf("not implemented: UpdateMatch - updateMatch"))
 }
 
 // GetMatch is the resolver for the getMatch field.
-func (r *queryResolver) GetMatch(ctx context.Context, input string) (*model.Match, error) {
+func (r *queryResolver) GetMatch(ctx context.Context, input string) (*graphmodels.Match, error) {
 	panic(fmt.Errorf("not implemented: GetMatch - getMatch"))
 }
 
 // GetMatchesByMatchday is the resolver for the getMatchesByMatchday field.
-func (r *queryResolver) GetMatchesByMatchday(ctx context.Context, input int32) ([]*model.Match, error) {
-	panic(fmt.Errorf("not implemented: GetMatchesByMatchday - getMatchesByMatchday"))
+func (r *queryResolver) GetMatchesByMatchday(ctx context.Context, input int32) ([]*graphmodels.Match, error) {
+	//! Not working just yet, fields coming back are blank
+	matches, err := r.Match.GetMatchesByMatchday(ctx, input)
+	if err != nil {
+		fmt.Printf("application error: %+v\n", err)
+		return []*graphmodels.Match{}, fmt.Errorf("getting matches by matchday: %w", err)
+	}
+
+	gMatches := make([]*graphmodels.Match, len(matches))
+	for i := range matches {
+		gMatches[i] = &graphmodels.Match{
+			ID:       matches[i].ID,
+			Matchday: int32(matches[i].Matchday),
+		}
+	}
+
+	return gMatches, nil
 }

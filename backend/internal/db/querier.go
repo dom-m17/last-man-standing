@@ -20,7 +20,7 @@ type Querier interface {
 	GetCompetition(ctx context.Context, id string) (Competition, error)
 	GetEntry(ctx context.Context, id string) (Entry, error)
 	GetMatch(ctx context.Context, id int64) (Match, error)
-	GetMatchesByMatchday(ctx context.Context, matchday int32) ([]Match, error)
+	GetMatchesByMatchday(ctx context.Context, matchday int32) ([]GetMatchesByMatchdayRow, error)
 	GetSelection(ctx context.Context, id string) (Selection, error)
 	GetTeam(ctx context.Context, id int64) (Team, error)
 	GetUser(ctx context.Context, id string) (User, error)

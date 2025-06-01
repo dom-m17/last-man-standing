@@ -28,7 +28,7 @@ exec:
 # Where should any generated models go?
 model:
   filename: internal/subgraph/model/models_gen.go
-  package: model
+  package: graphmodels
 
   # Optional: Pass in a path to a new gotpl template to use for generating the models
   # model_template: [your/path/model.gotpl]

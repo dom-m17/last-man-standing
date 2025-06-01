@@ -8,20 +8,20 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dom-m17/lms/backend/internal/subgraph/model"
+	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 // CreateEntry is the resolver for the createEntry field.
-func (r *mutationResolver) CreateEntry(ctx context.Context, input model.CreateEntryInput) (*model.Entry, error) {
+func (r *mutationResolver) CreateEntry(ctx context.Context, input graphmodels.CreateEntryInput) (*graphmodels.Entry, error) {
 	panic(fmt.Errorf("not implemented: CreateEntry - createEntry"))
 }
 
 // UpdateEntry is the resolver for the updateEntry field.
-func (r *mutationResolver) UpdateEntry(ctx context.Context, input model.UpdateEntryInput) (*model.Entry, error) {
+func (r *mutationResolver) UpdateEntry(ctx context.Context, input graphmodels.UpdateEntryInput) (*graphmodels.Entry, error) {
 	panic(fmt.Errorf("not implemented: UpdateEntry - updateEntry"))
 }
 
 // GetEntry is the resolver for the getEntry field.
-func (r *queryResolver) GetEntry(ctx context.Context, input string) (*model.Entry, error) {
+func (r *queryResolver) GetEntry(ctx context.Context, input string) (*graphmodels.Entry, error) {
 	panic(fmt.Errorf("not implemented: GetEntry - getEntry"))
 }

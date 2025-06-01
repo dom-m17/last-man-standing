@@ -70,21 +70,49 @@ func (q *Queries) GetMatch(ctx context.Context, id int64) (Match, error) {
 }
 
 const getMatchesByMatchday = `-- name: GetMatchesByMatchday :many
-SELECT id, home_team, away_team, matchday, match_date, home_goals, away_goals, has_finished FROM matches
+SELECT 
+    m.id AS match_id,
+    m.home_team AS home_team,
+    m.away_team AS away_team,
+    m.matchday AS matchday,
+    m.match_date AS match_date,
+    m.home_goals AS home_goals,
+    m.away_goals AS away_goals,
+    m.has_finished AS has_finished,
+    hteam.long_name AS home_team_name,
+    ateam.long_name AS away_team_name
+FROM matches AS m
+JOIN teams AS hteam
+ON hteam.id = m.home_team
+JOIN teams AS ateam
+ON ateam.id = m.away_team
 WHERE matchday = $1
 `
 
-func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]Match, error) {
+type GetMatchesByMatchdayRow struct {
+	MatchID      int64         `json:"match_id"`
+	HomeTeam     int64         `json:"home_team"`
+	AwayTeam     int64         `json:"away_team"`
+	Matchday     int32         `json:"matchday"`
+	MatchDate    time.Time     `json:"match_date"`
+	HomeGoals    sql.NullInt32 `json:"home_goals"`
+	AwayGoals    sql.NullInt32 `json:"away_goals"`
+	HasFinished  bool          `json:"has_finished"`
+	HomeTeamName string        `json:"home_team_name"`
+	AwayTeamName string        `json:"away_team_name"`
+}
+
+func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]GetMatchesByMatchdayRow, error) {
 	rows, err := q.db.QueryContext(ctx, getMatchesByMatchday, matchday)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Match{}
+	items := []GetMatchesByMatchdayRow{}
 	for rows.Next() {
-		var i Match
+		var i GetMatchesByMatchdayRow
 		if err := rows.Scan(
-			&i.ID,
+			&i.MatchID,
 			&i.HomeTeam,
 			&i.AwayTeam,
 			&i.Matchday,
@@ -92,6 +120,8 @@ func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]M
 			&i.HomeGoals,
 			&i.AwayGoals,
 			&i.HasFinished,
+			&i.HomeTeamName,
+			&i.AwayTeamName,
 		); err != nil {
 			return nil, err
 		}

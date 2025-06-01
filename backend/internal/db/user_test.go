@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/dom-m17/lms/backend/internal/utils"
+	"github.com/goforj/godump"
 	"github.com/peterldowns/testy/check"
 )
 
@@ -20,6 +21,9 @@ func createTestUser(t *testing.T, ctx context.Context, q Querier) User {
 		PhoneNumber:    sql.NullString{String: utils.RandomPhoneNumber(), Valid: true},
 		DateOfBirth:    utils.RandomDateOfBirth(),
 	}
+
+	// Remove this
+	godump.Dump(userToCreate)
 
 	createdUser, err := q.CreateUser(ctx, userToCreate)
 	check.Nil(t, err)

@@ -12,7 +12,8 @@ type Service struct {
 }
 
 type ServiceInterface interface {
-	GetMatch(ctx context.Context, input string) (*models.Match, error)
+	GetMatch(ctx context.Context, id string) (*models.Match, error)
+	GetMatchesByMatchday(ctx context.Context, matchday int32) ([]*models.Match, error)
 }
 
 func NewService(querier db.Querier) *Service {

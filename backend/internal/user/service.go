@@ -5,7 +5,7 @@ import (
 
 	"github.com/dom-m17/lms/backend/internal/db"
 	"github.com/dom-m17/lms/backend/internal/models"
-	"github.com/dom-m17/lms/backend/internal/subgraph/model"
+	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 type Service struct {
@@ -14,7 +14,7 @@ type Service struct {
 
 type ServiceInterface interface {
 	GetUser(ctx context.Context, input string) (*models.User, error)
-	CreateUser(ctx context.Context, input model.CreateUserInput) (*models.User, error)
+	CreateUser(ctx context.Context, input graphmodels.CreateUserInput) (*models.User, error)
 	DeleteUser(ctx context.Context, userID string) (*models.User, error)
 }
 

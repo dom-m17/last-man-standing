@@ -4,6 +4,7 @@ go 1.24.3
 
 require (
 	github.com/99designs/gqlgen v0.17.73
+	github.com/goforj/godump v1.0.5
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/joho/godotenv v1.5.1

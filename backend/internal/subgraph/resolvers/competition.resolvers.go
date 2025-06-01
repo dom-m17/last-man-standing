@@ -8,15 +8,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dom-m17/lms/backend/internal/subgraph/model"
+	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 // CreateCompetition is the resolver for the createCompetition field.
-func (r *mutationResolver) CreateCompetition(ctx context.Context, input model.CompetitionInput) (*model.Competition, error) {
+func (r *mutationResolver) CreateCompetition(ctx context.Context, input graphmodels.CompetitionInput) (*graphmodels.Competition, error) {
 	panic(fmt.Errorf("not implemented: CreateCompetition - createCompetition"))
 }
 
 // GetCompetition is the resolver for the getCompetition field.
-func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*model.Competition, error) {
+func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*graphmodels.Competition, error) {
 	panic(fmt.Errorf("not implemented: GetCompetition - getCompetition"))
 }

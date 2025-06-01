@@ -1,4 +1,4 @@
-package model
+package graphmodels
 
 // Having this file is a workaround to be able to generate code using v0.16.0.
 // See https://github.com/99designs/gqlgen/issues/1849

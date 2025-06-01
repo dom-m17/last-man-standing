@@ -8,7 +8,7 @@ import (
 
 	"github.com/dom-m17/lms/backend/internal/db"
 	"github.com/dom-m17/lms/backend/internal/models"
-	"github.com/dom-m17/lms/backend/internal/subgraph/model"
+	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 func (s *Service) GetUser(ctx context.Context, input string) (*models.User, error) {
@@ -21,7 +21,7 @@ func (s *Service) GetUser(ctx context.Context, input string) (*models.User, erro
 	return convertDBUserToModelsUser(user), nil
 }
 
-func (s *Service) CreateUser(ctx context.Context, input model.CreateUserInput) (*models.User, error) {
+func (s *Service) CreateUser(ctx context.Context, input graphmodels.CreateUserInput) (*models.User, error) {
 	//TODO: Validation, hashing, casing, etc (ie any logic needed before inserting to DB)
 	dob, _ := time.Parse("2006-01-02", input.DateOfBirth)
 	user, err := s.Querier.CreateUser(ctx, db.CreateUserParams{

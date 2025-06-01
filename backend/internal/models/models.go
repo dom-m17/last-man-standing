@@ -29,12 +29,14 @@ type Competition struct {
 }
 
 type Match struct {
-	ID          string
-	HomeTeamID  int
-	AwayTeamID  int
-	Matchday    int
-	MatchDate   time.Time
-	HomeGoals   int
-	AwayGoals   int
-	HasFinished bool
+	ID           string
+	HomeTeamID   int
+	HomeTeamName string
+	AwayTeamID   int
+	AwayTeamName string
+	Matchday     int
+	MatchDate    time.Time
+	HomeGoals    int
+	AwayGoals    int
+	HasFinished  bool
 }

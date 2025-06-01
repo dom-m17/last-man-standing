@@ -14,7 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/dom-m17/lms/backend/internal/subgraph/model"
+	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -79,18 +79,18 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ChangeSelection   func(childComplexity int, input model.ChangeSelectionInput) int
-		CreateCompetition func(childComplexity int, input model.CompetitionInput) int
-		CreateEntry       func(childComplexity int, input model.CreateEntryInput) int
-		CreateMatch       func(childComplexity int, input model.CreateMatchInput) int
-		CreateSelection   func(childComplexity int, input model.CreateSelectionInput) int
-		CreateUser        func(childComplexity int, input model.CreateUserInput) int
+		ChangeSelection   func(childComplexity int, input graphmodels.ChangeSelectionInput) int
+		CreateCompetition func(childComplexity int, input graphmodels.CompetitionInput) int
+		CreateEntry       func(childComplexity int, input graphmodels.CreateEntryInput) int
+		CreateMatch       func(childComplexity int, input graphmodels.CreateMatchInput) int
+		CreateSelection   func(childComplexity int, input graphmodels.CreateSelectionInput) int
+		CreateUser        func(childComplexity int, input graphmodels.CreateUserInput) int
 		DeleteUser        func(childComplexity int, input string) int
 		Empty             func(childComplexity int) int
-		UpdateEntry       func(childComplexity int, input model.UpdateEntryInput) int
-		UpdateMatch       func(childComplexity int, input model.UpdateMatchInput) int
-		UpdateSelection   func(childComplexity int, input model.UpdateSelectionInput) int
-		UpdateUser        func(childComplexity int, input model.UpdateUserInput) int
+		UpdateEntry       func(childComplexity int, input graphmodels.UpdateEntryInput) int
+		UpdateMatch       func(childComplexity int, input graphmodels.UpdateMatchInput) int
+		UpdateSelection   func(childComplexity int, input graphmodels.UpdateSelectionInput) int
+		UpdateUser        func(childComplexity int, input graphmodels.UpdateUserInput) int
 	}
 
 	Query struct {
@@ -140,29 +140,29 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Empty(ctx context.Context) (*bool, error)
-	CreateCompetition(ctx context.Context, input model.CompetitionInput) (*model.Competition, error)
-	CreateEntry(ctx context.Context, input model.CreateEntryInput) (*model.Entry, error)
-	UpdateEntry(ctx context.Context, input model.UpdateEntryInput) (*model.Entry, error)
-	CreateMatch(ctx context.Context, input model.CreateMatchInput) (*model.Match, error)
-	UpdateMatch(ctx context.Context, input model.UpdateMatchInput) (*model.Match, error)
-	CreateSelection(ctx context.Context, input model.CreateSelectionInput) (*model.Selection, error)
-	ChangeSelection(ctx context.Context, input model.ChangeSelectionInput) (*model.Selection, error)
-	UpdateSelection(ctx context.Context, input model.UpdateSelectionInput) (*model.Selection, error)
-	CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error)
-	DeleteUser(ctx context.Context, input string) (*model.User, error)
-	UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error)
+	CreateCompetition(ctx context.Context, input graphmodels.CompetitionInput) (*graphmodels.Competition, error)
+	CreateEntry(ctx context.Context, input graphmodels.CreateEntryInput) (*graphmodels.Entry, error)
+	UpdateEntry(ctx context.Context, input graphmodels.UpdateEntryInput) (*graphmodels.Entry, error)
+	CreateMatch(ctx context.Context, input graphmodels.CreateMatchInput) (*graphmodels.Match, error)
+	UpdateMatch(ctx context.Context, input graphmodels.UpdateMatchInput) (*graphmodels.Match, error)
+	CreateSelection(ctx context.Context, input graphmodels.CreateSelectionInput) (*graphmodels.Selection, error)
+	ChangeSelection(ctx context.Context, input graphmodels.ChangeSelectionInput) (*graphmodels.Selection, error)
+	UpdateSelection(ctx context.Context, input graphmodels.UpdateSelectionInput) (*graphmodels.Selection, error)
+	CreateUser(ctx context.Context, input graphmodels.CreateUserInput) (*graphmodels.User, error)
+	DeleteUser(ctx context.Context, input string) (*graphmodels.User, error)
+	UpdateUser(ctx context.Context, input graphmodels.UpdateUserInput) (*graphmodels.User, error)
 }
 type QueryResolver interface {
 	Empty(ctx context.Context) (*bool, error)
-	GetCompetition(ctx context.Context, input string) (*model.Competition, error)
-	GetEntry(ctx context.Context, input string) (*model.Entry, error)
-	GetMatch(ctx context.Context, input string) (*model.Match, error)
-	GetMatchesByMatchday(ctx context.Context, input int32) ([]*model.Match, error)
-	GetSelection(ctx context.Context, input string) (*model.Selection, error)
-	GetTeam(ctx context.Context, input string) (*model.Team, error)
-	ListTeams(ctx context.Context) ([]*model.Team, error)
-	GetUser(ctx context.Context, input string) (*model.User, error)
-	ListUsers(ctx context.Context) ([]*model.User, error)
+	GetCompetition(ctx context.Context, input string) (*graphmodels.Competition, error)
+	GetEntry(ctx context.Context, input string) (*graphmodels.Entry, error)
+	GetMatch(ctx context.Context, input string) (*graphmodels.Match, error)
+	GetMatchesByMatchday(ctx context.Context, input int32) ([]*graphmodels.Match, error)
+	GetSelection(ctx context.Context, input string) (*graphmodels.Selection, error)
+	GetTeam(ctx context.Context, input string) (*graphmodels.Team, error)
+	ListTeams(ctx context.Context) ([]*graphmodels.Team, error)
+	GetUser(ctx context.Context, input string) (*graphmodels.User, error)
+	ListUsers(ctx context.Context) ([]*graphmodels.User, error)
 }
 
 type executableSchema struct {
@@ -348,7 +348,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ChangeSelection(childComplexity, args["input"].(model.ChangeSelectionInput)), true
+		return e.complexity.Mutation.ChangeSelection(childComplexity, args["input"].(graphmodels.ChangeSelectionInput)), true
 
 	case "Mutation.createCompetition":
 		if e.complexity.Mutation.CreateCompetition == nil {
@@ -360,7 +360,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCompetition(childComplexity, args["input"].(model.CompetitionInput)), true
+		return e.complexity.Mutation.CreateCompetition(childComplexity, args["input"].(graphmodels.CompetitionInput)), true
 
 	case "Mutation.createEntry":
 		if e.complexity.Mutation.CreateEntry == nil {
@@ -372,7 +372,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateEntry(childComplexity, args["input"].(model.CreateEntryInput)), true
+		return e.complexity.Mutation.CreateEntry(childComplexity, args["input"].(graphmodels.CreateEntryInput)), true
 
 	case "Mutation.createMatch":
 		if e.complexity.Mutation.CreateMatch == nil {
@@ -384,7 +384,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateMatch(childComplexity, args["input"].(model.CreateMatchInput)), true
+		return e.complexity.Mutation.CreateMatch(childComplexity, args["input"].(graphmodels.CreateMatchInput)), true
 
 	case "Mutation.createSelection":
 		if e.complexity.Mutation.CreateSelection == nil {
@@ -396,7 +396,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateSelection(childComplexity, args["input"].(model.CreateSelectionInput)), true
+		return e.complexity.Mutation.CreateSelection(childComplexity, args["input"].(graphmodels.CreateSelectionInput)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -408,7 +408,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.CreateUserInput)), true
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(graphmodels.CreateUserInput)), true
 
 	case "Mutation.deleteUser":
 		if e.complexity.Mutation.DeleteUser == nil {
@@ -439,7 +439,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateEntry(childComplexity, args["input"].(model.UpdateEntryInput)), true
+		return e.complexity.Mutation.UpdateEntry(childComplexity, args["input"].(graphmodels.UpdateEntryInput)), true
 
 	case "Mutation.updateMatch":
 		if e.complexity.Mutation.UpdateMatch == nil {
@@ -451,7 +451,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateMatch(childComplexity, args["input"].(model.UpdateMatchInput)), true
+		return e.complexity.Mutation.UpdateMatch(childComplexity, args["input"].(graphmodels.UpdateMatchInput)), true
 
 	case "Mutation.updateSelection":
 		if e.complexity.Mutation.UpdateSelection == nil {
@@ -463,7 +463,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateSelection(childComplexity, args["input"].(model.UpdateSelectionInput)), true
+		return e.complexity.Mutation.UpdateSelection(childComplexity, args["input"].(graphmodels.UpdateSelectionInput)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -475,7 +475,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(model.UpdateUserInput)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(graphmodels.UpdateUserInput)), true
 
 	case "Query._empty":
 		if e.complexity.Query.Empty == nil {
@@ -1093,13 +1093,13 @@ func (ec *executionContext) field_Mutation_changeSelection_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_changeSelection_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.ChangeSelectionInput, error) {
+) (graphmodels.ChangeSelectionInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNChangeSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐChangeSelectionInput(ctx, tmp)
 	}
 
-	var zeroVal model.ChangeSelectionInput
+	var zeroVal graphmodels.ChangeSelectionInput
 	return zeroVal, nil
 }
 
@@ -1116,13 +1116,13 @@ func (ec *executionContext) field_Mutation_createCompetition_args(ctx context.Co
 func (ec *executionContext) field_Mutation_createCompetition_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.CompetitionInput, error) {
+) (graphmodels.CompetitionInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNCompetitionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionInput(ctx, tmp)
 	}
 
-	var zeroVal model.CompetitionInput
+	var zeroVal graphmodels.CompetitionInput
 	return zeroVal, nil
 }
 
@@ -1139,13 +1139,13 @@ func (ec *executionContext) field_Mutation_createEntry_args(ctx context.Context,
 func (ec *executionContext) field_Mutation_createEntry_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.CreateEntryInput, error) {
+) (graphmodels.CreateEntryInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNCreateEntryInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateEntryInput(ctx, tmp)
 	}
 
-	var zeroVal model.CreateEntryInput
+	var zeroVal graphmodels.CreateEntryInput
 	return zeroVal, nil
 }
 
@@ -1162,13 +1162,13 @@ func (ec *executionContext) field_Mutation_createMatch_args(ctx context.Context,
 func (ec *executionContext) field_Mutation_createMatch_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.CreateMatchInput, error) {
+) (graphmodels.CreateMatchInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNcreateMatchInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateMatchInput(ctx, tmp)
 	}
 
-	var zeroVal model.CreateMatchInput
+	var zeroVal graphmodels.CreateMatchInput
 	return zeroVal, nil
 }
 
@@ -1185,13 +1185,13 @@ func (ec *executionContext) field_Mutation_createSelection_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_createSelection_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.CreateSelectionInput, error) {
+) (graphmodels.CreateSelectionInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNCreateSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateSelectionInput(ctx, tmp)
 	}
 
-	var zeroVal model.CreateSelectionInput
+	var zeroVal graphmodels.CreateSelectionInput
 	return zeroVal, nil
 }
 
@@ -1208,13 +1208,13 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_createUser_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.CreateUserInput, error) {
+) (graphmodels.CreateUserInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNCreateUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateUserInput(ctx, tmp)
 	}
 
-	var zeroVal model.CreateUserInput
+	var zeroVal graphmodels.CreateUserInput
 	return zeroVal, nil
 }
 
@@ -1254,13 +1254,13 @@ func (ec *executionContext) field_Mutation_updateEntry_args(ctx context.Context,
 func (ec *executionContext) field_Mutation_updateEntry_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.UpdateEntryInput, error) {
+) (graphmodels.UpdateEntryInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNUpdateEntryInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateEntryInput(ctx, tmp)
 	}
 
-	var zeroVal model.UpdateEntryInput
+	var zeroVal graphmodels.UpdateEntryInput
 	return zeroVal, nil
 }
 
@@ -1277,13 +1277,13 @@ func (ec *executionContext) field_Mutation_updateMatch_args(ctx context.Context,
 func (ec *executionContext) field_Mutation_updateMatch_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.UpdateMatchInput, error) {
+) (graphmodels.UpdateMatchInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNupdateMatchInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateMatchInput(ctx, tmp)
 	}
 
-	var zeroVal model.UpdateMatchInput
+	var zeroVal graphmodels.UpdateMatchInput
 	return zeroVal, nil
 }
 
@@ -1300,13 +1300,13 @@ func (ec *executionContext) field_Mutation_updateSelection_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_updateSelection_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.UpdateSelectionInput, error) {
+) (graphmodels.UpdateSelectionInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNUpdateSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateSelectionInput(ctx, tmp)
 	}
 
-	var zeroVal model.UpdateSelectionInput
+	var zeroVal graphmodels.UpdateSelectionInput
 	return zeroVal, nil
 }
 
@@ -1323,13 +1323,13 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_updateUser_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (model.UpdateUserInput, error) {
+) (graphmodels.UpdateUserInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
 		return ec.unmarshalNUpdateUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateUserInput(ctx, tmp)
 	}
 
-	var zeroVal model.UpdateUserInput
+	var zeroVal graphmodels.UpdateUserInput
 	return zeroVal, nil
 }
 
@@ -1617,7 +1617,7 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Competition_id(ctx context.Context, field graphql.CollectedField, obj *model.Competition) (ret graphql.Marshaler) {
+func (ec *executionContext) _Competition_id(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Competition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Competition_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1661,7 +1661,7 @@ func (ec *executionContext) fieldContext_Competition_id(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Competition_name(ctx context.Context, field graphql.CollectedField, obj *model.Competition) (ret graphql.Marshaler) {
+func (ec *executionContext) _Competition_name(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Competition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Competition_name(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1705,7 +1705,7 @@ func (ec *executionContext) fieldContext_Competition_name(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Competition_startMatchday(ctx context.Context, field graphql.CollectedField, obj *model.Competition) (ret graphql.Marshaler) {
+func (ec *executionContext) _Competition_startMatchday(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Competition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Competition_startMatchday(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1749,7 +1749,7 @@ func (ec *executionContext) fieldContext_Competition_startMatchday(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Competition_status(ctx context.Context, field graphql.CollectedField, obj *model.Competition) (ret graphql.Marshaler) {
+func (ec *executionContext) _Competition_status(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Competition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Competition_status(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1775,7 +1775,7 @@ func (ec *executionContext) _Competition_status(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.CompStatus)
+	res := resTmp.(graphmodels.CompStatus)
 	fc.Result = res
 	return ec.marshalNCompStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompStatus(ctx, field.Selections, res)
 }
@@ -1793,7 +1793,7 @@ func (ec *executionContext) fieldContext_Competition_status(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Competition_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Competition) (ret graphql.Marshaler) {
+func (ec *executionContext) _Competition_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Competition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Competition_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1834,7 +1834,7 @@ func (ec *executionContext) fieldContext_Competition_createdAt(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Competition_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Competition) (ret graphql.Marshaler) {
+func (ec *executionContext) _Competition_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Competition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Competition_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1875,7 +1875,7 @@ func (ec *executionContext) fieldContext_Competition_updatedAt(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Entry_id(ctx context.Context, field graphql.CollectedField, obj *model.Entry) (ret graphql.Marshaler) {
+func (ec *executionContext) _Entry_id(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Entry_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1919,7 +1919,7 @@ func (ec *executionContext) fieldContext_Entry_id(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _Entry_userId(ctx context.Context, field graphql.CollectedField, obj *model.Entry) (ret graphql.Marshaler) {
+func (ec *executionContext) _Entry_userId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Entry_userId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1963,7 +1963,7 @@ func (ec *executionContext) fieldContext_Entry_userId(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Entry_competitionId(ctx context.Context, field graphql.CollectedField, obj *model.Entry) (ret graphql.Marshaler) {
+func (ec *executionContext) _Entry_competitionId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Entry_competitionId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2007,7 +2007,7 @@ func (ec *executionContext) fieldContext_Entry_competitionId(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Entry_status(ctx context.Context, field graphql.CollectedField, obj *model.Entry) (ret graphql.Marshaler) {
+func (ec *executionContext) _Entry_status(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Entry_status(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2033,7 +2033,7 @@ func (ec *executionContext) _Entry_status(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.EntryStatus)
+	res := resTmp.(graphmodels.EntryStatus)
 	fc.Result = res
 	return ec.marshalNEntryStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntryStatus(ctx, field.Selections, res)
 }
@@ -2051,7 +2051,7 @@ func (ec *executionContext) fieldContext_Entry_status(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Entry_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Entry) (ret graphql.Marshaler) {
+func (ec *executionContext) _Entry_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Entry_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2092,7 +2092,7 @@ func (ec *executionContext) fieldContext_Entry_createdAt(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Entry_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Entry) (ret graphql.Marshaler) {
+func (ec *executionContext) _Entry_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Entry_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2133,7 +2133,7 @@ func (ec *executionContext) fieldContext_Entry_updatedAt(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_id(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_id(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2177,7 +2177,7 @@ func (ec *executionContext) fieldContext_Match_id(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_homeTeam(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_homeTeam(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_homeTeam(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2221,7 +2221,7 @@ func (ec *executionContext) fieldContext_Match_homeTeam(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_awayTeam(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_awayTeam(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_awayTeam(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2265,7 +2265,7 @@ func (ec *executionContext) fieldContext_Match_awayTeam(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_matchday(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_matchday(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_matchday(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2309,7 +2309,7 @@ func (ec *executionContext) fieldContext_Match_matchday(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_matchDate(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_matchDate(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_matchDate(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2353,7 +2353,7 @@ func (ec *executionContext) fieldContext_Match_matchDate(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_homeGoals(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_homeGoals(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_homeGoals(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2394,7 +2394,7 @@ func (ec *executionContext) fieldContext_Match_homeGoals(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_awayGoals(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_awayGoals(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_awayGoals(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2435,7 +2435,7 @@ func (ec *executionContext) fieldContext_Match_awayGoals(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_hasFinished(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_hasFinished(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_hasFinished(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2479,7 +2479,7 @@ func (ec *executionContext) fieldContext_Match_hasFinished(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2520,7 +2520,7 @@ func (ec *executionContext) fieldContext_Match_createdAt(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+func (ec *executionContext) _Match_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2616,7 +2616,7 @@ func (ec *executionContext) _Mutation_createCompetition(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCompetition(rctx, fc.Args["input"].(model.CompetitionInput))
+		return ec.resolvers.Mutation().CreateCompetition(rctx, fc.Args["input"].(graphmodels.CompetitionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2628,7 +2628,7 @@ func (ec *executionContext) _Mutation_createCompetition(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Competition)
+	res := resTmp.(*graphmodels.Competition)
 	fc.Result = res
 	return ec.marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
 }
@@ -2685,7 +2685,7 @@ func (ec *executionContext) _Mutation_createEntry(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateEntry(rctx, fc.Args["input"].(model.CreateEntryInput))
+		return ec.resolvers.Mutation().CreateEntry(rctx, fc.Args["input"].(graphmodels.CreateEntryInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2697,7 +2697,7 @@ func (ec *executionContext) _Mutation_createEntry(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Entry)
+	res := resTmp.(*graphmodels.Entry)
 	fc.Result = res
 	return ec.marshalNEntry2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx, field.Selections, res)
 }
@@ -2754,7 +2754,7 @@ func (ec *executionContext) _Mutation_updateEntry(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateEntry(rctx, fc.Args["input"].(model.UpdateEntryInput))
+		return ec.resolvers.Mutation().UpdateEntry(rctx, fc.Args["input"].(graphmodels.UpdateEntryInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2766,7 +2766,7 @@ func (ec *executionContext) _Mutation_updateEntry(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Entry)
+	res := resTmp.(*graphmodels.Entry)
 	fc.Result = res
 	return ec.marshalNEntry2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx, field.Selections, res)
 }
@@ -2823,7 +2823,7 @@ func (ec *executionContext) _Mutation_createMatch(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateMatch(rctx, fc.Args["input"].(model.CreateMatchInput))
+		return ec.resolvers.Mutation().CreateMatch(rctx, fc.Args["input"].(graphmodels.CreateMatchInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2835,7 +2835,7 @@ func (ec *executionContext) _Mutation_createMatch(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Match)
+	res := resTmp.(*graphmodels.Match)
 	fc.Result = res
 	return ec.marshalNMatch2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatch(ctx, field.Selections, res)
 }
@@ -2900,7 +2900,7 @@ func (ec *executionContext) _Mutation_updateMatch(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateMatch(rctx, fc.Args["input"].(model.UpdateMatchInput))
+		return ec.resolvers.Mutation().UpdateMatch(rctx, fc.Args["input"].(graphmodels.UpdateMatchInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2912,7 +2912,7 @@ func (ec *executionContext) _Mutation_updateMatch(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Match)
+	res := resTmp.(*graphmodels.Match)
 	fc.Result = res
 	return ec.marshalNMatch2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatch(ctx, field.Selections, res)
 }
@@ -2977,7 +2977,7 @@ func (ec *executionContext) _Mutation_createSelection(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateSelection(rctx, fc.Args["input"].(model.CreateSelectionInput))
+		return ec.resolvers.Mutation().CreateSelection(rctx, fc.Args["input"].(graphmodels.CreateSelectionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2989,7 +2989,7 @@ func (ec *executionContext) _Mutation_createSelection(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Selection)
+	res := resTmp.(*graphmodels.Selection)
 	fc.Result = res
 	return ec.marshalNSelection2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx, field.Selections, res)
 }
@@ -3048,7 +3048,7 @@ func (ec *executionContext) _Mutation_changeSelection(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ChangeSelection(rctx, fc.Args["input"].(model.ChangeSelectionInput))
+		return ec.resolvers.Mutation().ChangeSelection(rctx, fc.Args["input"].(graphmodels.ChangeSelectionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3060,7 +3060,7 @@ func (ec *executionContext) _Mutation_changeSelection(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Selection)
+	res := resTmp.(*graphmodels.Selection)
 	fc.Result = res
 	return ec.marshalNSelection2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx, field.Selections, res)
 }
@@ -3119,7 +3119,7 @@ func (ec *executionContext) _Mutation_updateSelection(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateSelection(rctx, fc.Args["input"].(model.UpdateSelectionInput))
+		return ec.resolvers.Mutation().UpdateSelection(rctx, fc.Args["input"].(graphmodels.UpdateSelectionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3131,7 +3131,7 @@ func (ec *executionContext) _Mutation_updateSelection(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Selection)
+	res := resTmp.(*graphmodels.Selection)
 	fc.Result = res
 	return ec.marshalNSelection2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx, field.Selections, res)
 }
@@ -3190,7 +3190,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(model.CreateUserInput))
+		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(graphmodels.CreateUserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3202,7 +3202,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*graphmodels.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
@@ -3279,7 +3279,7 @@ func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*graphmodels.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
@@ -3344,7 +3344,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, fc.Args["input"].(model.UpdateUserInput))
+		return ec.resolvers.Mutation().UpdateUser(rctx, fc.Args["input"].(graphmodels.UpdateUserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3356,7 +3356,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*graphmodels.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
@@ -3474,7 +3474,7 @@ func (ec *executionContext) _Query_getCompetition(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Competition)
+	res := resTmp.(*graphmodels.Competition)
 	fc.Result = res
 	return ec.marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
 }
@@ -3543,7 +3543,7 @@ func (ec *executionContext) _Query_getEntry(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Entry)
+	res := resTmp.(*graphmodels.Entry)
 	fc.Result = res
 	return ec.marshalNEntry2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx, field.Selections, res)
 }
@@ -3612,7 +3612,7 @@ func (ec *executionContext) _Query_getMatch(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Match)
+	res := resTmp.(*graphmodels.Match)
 	fc.Result = res
 	return ec.marshalNMatch2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatch(ctx, field.Selections, res)
 }
@@ -3689,7 +3689,7 @@ func (ec *executionContext) _Query_getMatchesByMatchday(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Match)
+	res := resTmp.([]*graphmodels.Match)
 	fc.Result = res
 	return ec.marshalNMatch2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatchᚄ(ctx, field.Selections, res)
 }
@@ -3766,7 +3766,7 @@ func (ec *executionContext) _Query_getSelection(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Selection)
+	res := resTmp.(*graphmodels.Selection)
 	fc.Result = res
 	return ec.marshalNSelection2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx, field.Selections, res)
 }
@@ -3837,7 +3837,7 @@ func (ec *executionContext) _Query_getTeam(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Team)
+	res := resTmp.(*graphmodels.Team)
 	fc.Result = res
 	return ec.marshalNTeam2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx, field.Selections, res)
 }
@@ -3904,7 +3904,7 @@ func (ec *executionContext) _Query_listTeams(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Team)
+	res := resTmp.([]*graphmodels.Team)
 	fc.Result = res
 	return ec.marshalNTeam2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeamᚄ(ctx, field.Selections, res)
 }
@@ -3960,7 +3960,7 @@ func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*graphmodels.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
@@ -4037,7 +4037,7 @@ func (ec *executionContext) _Query_listUsers(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.User)
+	res := resTmp.([]*graphmodels.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
@@ -4208,7 +4208,7 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_id(ctx context.Context, field graphql.CollectedField, obj *model.Selection) (ret graphql.Marshaler) {
+func (ec *executionContext) _Selection_id(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Selection_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4252,7 +4252,7 @@ func (ec *executionContext) fieldContext_Selection_id(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_entryId(ctx context.Context, field graphql.CollectedField, obj *model.Selection) (ret graphql.Marshaler) {
+func (ec *executionContext) _Selection_entryId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Selection_entryId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4296,7 +4296,7 @@ func (ec *executionContext) fieldContext_Selection_entryId(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_matchId(ctx context.Context, field graphql.CollectedField, obj *model.Selection) (ret graphql.Marshaler) {
+func (ec *executionContext) _Selection_matchId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Selection_matchId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4340,7 +4340,7 @@ func (ec *executionContext) fieldContext_Selection_matchId(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_teamId(ctx context.Context, field graphql.CollectedField, obj *model.Selection) (ret graphql.Marshaler) {
+func (ec *executionContext) _Selection_teamId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Selection_teamId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4384,7 +4384,7 @@ func (ec *executionContext) fieldContext_Selection_teamId(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_isCorrect(ctx context.Context, field graphql.CollectedField, obj *model.Selection) (ret graphql.Marshaler) {
+func (ec *executionContext) _Selection_isCorrect(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Selection_isCorrect(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4425,7 +4425,7 @@ func (ec *executionContext) fieldContext_Selection_isCorrect(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Selection) (ret graphql.Marshaler) {
+func (ec *executionContext) _Selection_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Selection_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4466,7 +4466,7 @@ func (ec *executionContext) fieldContext_Selection_createdAt(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Selection) (ret graphql.Marshaler) {
+func (ec *executionContext) _Selection_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Selection_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4507,7 +4507,7 @@ func (ec *executionContext) fieldContext_Selection_updatedAt(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_id(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_id(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4551,7 +4551,7 @@ func (ec *executionContext) fieldContext_Team_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_longName(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_longName(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_longName(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4595,7 +4595,7 @@ func (ec *executionContext) fieldContext_Team_longName(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_shortName(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_shortName(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_shortName(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4639,7 +4639,7 @@ func (ec *executionContext) fieldContext_Team_shortName(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_tla(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_tla(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_tla(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4683,7 +4683,7 @@ func (ec *executionContext) fieldContext_Team_tla(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_crestUrl(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_crestUrl(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_crestUrl(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4727,7 +4727,7 @@ func (ec *executionContext) fieldContext_Team_crestUrl(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4771,7 +4771,7 @@ func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_username(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4815,7 +4815,7 @@ func (ec *executionContext) fieldContext_User_username(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _User_firstName(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_firstName(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_firstName(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4859,7 +4859,7 @@ func (ec *executionContext) fieldContext_User_firstName(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _User_lastName(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_lastName(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_lastName(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4903,7 +4903,7 @@ func (ec *executionContext) fieldContext_User_lastName(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_email(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4947,7 +4947,7 @@ func (ec *executionContext) fieldContext_User_email(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _User_phoneNumber(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_phoneNumber(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_phoneNumber(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -4991,7 +4991,7 @@ func (ec *executionContext) fieldContext_User_phoneNumber(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _User_dateOfBirth(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_dateOfBirth(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_dateOfBirth(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -5035,7 +5035,7 @@ func (ec *executionContext) fieldContext_User_dateOfBirth(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _User_favouriteTeam(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_favouriteTeam(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_favouriteTeam(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -5076,7 +5076,7 @@ func (ec *executionContext) fieldContext_User_favouriteTeam(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -5117,7 +5117,7 @@ func (ec *executionContext) fieldContext_User_createdAt(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -7109,8 +7109,8 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputChangeSelectionInput(ctx context.Context, obj any) (model.ChangeSelectionInput, error) {
-	var it model.ChangeSelectionInput
+func (ec *executionContext) unmarshalInputChangeSelectionInput(ctx context.Context, obj any) (graphmodels.ChangeSelectionInput, error) {
+	var it graphmodels.ChangeSelectionInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7150,8 +7150,8 @@ func (ec *executionContext) unmarshalInputChangeSelectionInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCompetitionInput(ctx context.Context, obj any) (model.CompetitionInput, error) {
-	var it model.CompetitionInput
+func (ec *executionContext) unmarshalInputCompetitionInput(ctx context.Context, obj any) (graphmodels.CompetitionInput, error) {
+	var it graphmodels.CompetitionInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7184,8 +7184,8 @@ func (ec *executionContext) unmarshalInputCompetitionInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateEntryInput(ctx context.Context, obj any) (model.CreateEntryInput, error) {
-	var it model.CreateEntryInput
+func (ec *executionContext) unmarshalInputCreateEntryInput(ctx context.Context, obj any) (graphmodels.CreateEntryInput, error) {
+	var it graphmodels.CreateEntryInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7218,8 +7218,8 @@ func (ec *executionContext) unmarshalInputCreateEntryInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateSelectionInput(ctx context.Context, obj any) (model.CreateSelectionInput, error) {
-	var it model.CreateSelectionInput
+func (ec *executionContext) unmarshalInputCreateSelectionInput(ctx context.Context, obj any) (graphmodels.CreateSelectionInput, error) {
+	var it graphmodels.CreateSelectionInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7259,8 +7259,8 @@ func (ec *executionContext) unmarshalInputCreateSelectionInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, obj any) (model.CreateUserInput, error) {
-	var it model.CreateUserInput
+func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, obj any) (graphmodels.CreateUserInput, error) {
+	var it graphmodels.CreateUserInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7335,8 +7335,8 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateEntryInput(ctx context.Context, obj any) (model.UpdateEntryInput, error) {
-	var it model.UpdateEntryInput
+func (ec *executionContext) unmarshalInputUpdateEntryInput(ctx context.Context, obj any) (graphmodels.UpdateEntryInput, error) {
+	var it graphmodels.UpdateEntryInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7369,8 +7369,8 @@ func (ec *executionContext) unmarshalInputUpdateEntryInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateSelectionInput(ctx context.Context, obj any) (model.UpdateSelectionInput, error) {
-	var it model.UpdateSelectionInput
+func (ec *executionContext) unmarshalInputUpdateSelectionInput(ctx context.Context, obj any) (graphmodels.UpdateSelectionInput, error) {
+	var it graphmodels.UpdateSelectionInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7403,8 +7403,8 @@ func (ec *executionContext) unmarshalInputUpdateSelectionInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, obj any) (model.UpdateUserInput, error) {
-	var it model.UpdateUserInput
+func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, obj any) (graphmodels.UpdateUserInput, error) {
+	var it graphmodels.UpdateUserInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7486,8 +7486,8 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputcreateMatchInput(ctx context.Context, obj any) (model.CreateMatchInput, error) {
-	var it model.CreateMatchInput
+func (ec *executionContext) unmarshalInputcreateMatchInput(ctx context.Context, obj any) (graphmodels.CreateMatchInput, error) {
+	var it graphmodels.CreateMatchInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7534,8 +7534,8 @@ func (ec *executionContext) unmarshalInputcreateMatchInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputupdateMatchInput(ctx context.Context, obj any) (model.UpdateMatchInput, error) {
-	var it model.UpdateMatchInput
+func (ec *executionContext) unmarshalInputupdateMatchInput(ctx context.Context, obj any) (graphmodels.UpdateMatchInput, error) {
+	var it graphmodels.UpdateMatchInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7592,7 +7592,7 @@ func (ec *executionContext) unmarshalInputupdateMatchInput(ctx context.Context, 
 
 var competitionImplementors = []string{"Competition"}
 
-func (ec *executionContext) _Competition(ctx context.Context, sel ast.SelectionSet, obj *model.Competition) graphql.Marshaler {
+func (ec *executionContext) _Competition(ctx context.Context, sel ast.SelectionSet, obj *graphmodels.Competition) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, competitionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7650,7 +7650,7 @@ func (ec *executionContext) _Competition(ctx context.Context, sel ast.SelectionS
 
 var entryImplementors = []string{"Entry"}
 
-func (ec *executionContext) _Entry(ctx context.Context, sel ast.SelectionSet, obj *model.Entry) graphql.Marshaler {
+func (ec *executionContext) _Entry(ctx context.Context, sel ast.SelectionSet, obj *graphmodels.Entry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, entryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7708,7 +7708,7 @@ func (ec *executionContext) _Entry(ctx context.Context, sel ast.SelectionSet, ob
 
 var matchImplementors = []string{"Match"}
 
-func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, obj *model.Match) graphql.Marshaler {
+func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, obj *graphmodels.Match) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, matchImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8170,7 +8170,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var selectionImplementors = []string{"Selection"}
 
-func (ec *executionContext) _Selection(ctx context.Context, sel ast.SelectionSet, obj *model.Selection) graphql.Marshaler {
+func (ec *executionContext) _Selection(ctx context.Context, sel ast.SelectionSet, obj *graphmodels.Selection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, selectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8230,7 +8230,7 @@ func (ec *executionContext) _Selection(ctx context.Context, sel ast.SelectionSet
 
 var teamImplementors = []string{"Team"}
 
-func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj *model.Team) graphql.Marshaler {
+func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj *graphmodels.Team) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8289,7 +8289,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 
 var userImplementors = []string{"User"}
 
-func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *graphmodels.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8713,26 +8713,26 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNChangeSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐChangeSelectionInput(ctx context.Context, v any) (model.ChangeSelectionInput, error) {
+func (ec *executionContext) unmarshalNChangeSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐChangeSelectionInput(ctx context.Context, v any) (graphmodels.ChangeSelectionInput, error) {
 	res, err := ec.unmarshalInputChangeSelectionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCompStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompStatus(ctx context.Context, v any) (model.CompStatus, error) {
-	var res model.CompStatus
+func (ec *executionContext) unmarshalNCompStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompStatus(ctx context.Context, v any) (graphmodels.CompStatus, error) {
+	var res graphmodels.CompStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCompStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompStatus(ctx context.Context, sel ast.SelectionSet, v model.CompStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNCompStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompStatus(ctx context.Context, sel ast.SelectionSet, v graphmodels.CompStatus) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNCompetition2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx context.Context, sel ast.SelectionSet, v model.Competition) graphql.Marshaler {
+func (ec *executionContext) marshalNCompetition2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx context.Context, sel ast.SelectionSet, v graphmodels.Competition) graphql.Marshaler {
 	return ec._Competition(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx context.Context, sel ast.SelectionSet, v *model.Competition) graphql.Marshaler {
+func (ec *executionContext) marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx context.Context, sel ast.SelectionSet, v *graphmodels.Competition) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -8742,31 +8742,31 @@ func (ec *executionContext) marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlm
 	return ec._Competition(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNCompetitionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionInput(ctx context.Context, v any) (model.CompetitionInput, error) {
+func (ec *executionContext) unmarshalNCompetitionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionInput(ctx context.Context, v any) (graphmodels.CompetitionInput, error) {
 	res, err := ec.unmarshalInputCompetitionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateEntryInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateEntryInput(ctx context.Context, v any) (model.CreateEntryInput, error) {
+func (ec *executionContext) unmarshalNCreateEntryInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateEntryInput(ctx context.Context, v any) (graphmodels.CreateEntryInput, error) {
 	res, err := ec.unmarshalInputCreateEntryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateSelectionInput(ctx context.Context, v any) (model.CreateSelectionInput, error) {
+func (ec *executionContext) unmarshalNCreateSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateSelectionInput(ctx context.Context, v any) (graphmodels.CreateSelectionInput, error) {
 	res, err := ec.unmarshalInputCreateSelectionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateUserInput(ctx context.Context, v any) (model.CreateUserInput, error) {
+func (ec *executionContext) unmarshalNCreateUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateUserInput(ctx context.Context, v any) (graphmodels.CreateUserInput, error) {
 	res, err := ec.unmarshalInputCreateUserInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNEntry2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx context.Context, sel ast.SelectionSet, v model.Entry) graphql.Marshaler {
+func (ec *executionContext) marshalNEntry2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx context.Context, sel ast.SelectionSet, v graphmodels.Entry) graphql.Marshaler {
 	return ec._Entry(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNEntry2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx context.Context, sel ast.SelectionSet, v *model.Entry) graphql.Marshaler {
+func (ec *executionContext) marshalNEntry2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx context.Context, sel ast.SelectionSet, v *graphmodels.Entry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -8776,13 +8776,13 @@ func (ec *executionContext) marshalNEntry2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋba
 	return ec._Entry(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNEntryStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntryStatus(ctx context.Context, v any) (model.EntryStatus, error) {
-	var res model.EntryStatus
+func (ec *executionContext) unmarshalNEntryStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntryStatus(ctx context.Context, v any) (graphmodels.EntryStatus, error) {
+	var res graphmodels.EntryStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNEntryStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntryStatus(ctx context.Context, sel ast.SelectionSet, v model.EntryStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNEntryStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntryStatus(ctx context.Context, sel ast.SelectionSet, v graphmodels.EntryStatus) graphql.Marshaler {
 	return v
 }
 
@@ -8818,11 +8818,11 @@ func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNMatch2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v model.Match) graphql.Marshaler {
+func (ec *executionContext) marshalNMatch2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v graphmodels.Match) graphql.Marshaler {
 	return ec._Match(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNMatch2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatchᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Match) graphql.Marshaler {
+func (ec *executionContext) marshalNMatch2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatchᚄ(ctx context.Context, sel ast.SelectionSet, v []*graphmodels.Match) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -8866,7 +8866,7 @@ func (ec *executionContext) marshalNMatch2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlms�
 	return ret
 }
 
-func (ec *executionContext) marshalNMatch2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v *model.Match) graphql.Marshaler {
+func (ec *executionContext) marshalNMatch2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v *graphmodels.Match) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -8876,11 +8876,11 @@ func (ec *executionContext) marshalNMatch2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋba
 	return ec._Match(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSelection2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx context.Context, sel ast.SelectionSet, v model.Selection) graphql.Marshaler {
+func (ec *executionContext) marshalNSelection2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx context.Context, sel ast.SelectionSet, v graphmodels.Selection) graphql.Marshaler {
 	return ec._Selection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSelection2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx context.Context, sel ast.SelectionSet, v *model.Selection) graphql.Marshaler {
+func (ec *executionContext) marshalNSelection2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx context.Context, sel ast.SelectionSet, v *graphmodels.Selection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -8906,11 +8906,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTeam2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx context.Context, sel ast.SelectionSet, v model.Team) graphql.Marshaler {
+func (ec *executionContext) marshalNTeam2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx context.Context, sel ast.SelectionSet, v graphmodels.Team) graphql.Marshaler {
 	return ec._Team(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeam2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeamᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Team) graphql.Marshaler {
+func (ec *executionContext) marshalNTeam2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeamᚄ(ctx context.Context, sel ast.SelectionSet, v []*graphmodels.Team) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -8954,7 +8954,7 @@ func (ec *executionContext) marshalNTeam2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx context.Context, sel ast.SelectionSet, v *model.Team) graphql.Marshaler {
+func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx context.Context, sel ast.SelectionSet, v *graphmodels.Team) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -8980,26 +8980,26 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalNUpdateEntryInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateEntryInput(ctx context.Context, v any) (model.UpdateEntryInput, error) {
+func (ec *executionContext) unmarshalNUpdateEntryInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateEntryInput(ctx context.Context, v any) (graphmodels.UpdateEntryInput, error) {
 	res, err := ec.unmarshalInputUpdateEntryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateSelectionInput(ctx context.Context, v any) (model.UpdateSelectionInput, error) {
+func (ec *executionContext) unmarshalNUpdateSelectionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateSelectionInput(ctx context.Context, v any) (graphmodels.UpdateSelectionInput, error) {
 	res, err := ec.unmarshalInputUpdateSelectionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateUserInput(ctx context.Context, v any) (model.UpdateUserInput, error) {
+func (ec *executionContext) unmarshalNUpdateUserInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateUserInput(ctx context.Context, v any) (graphmodels.UpdateUserInput, error) {
 	res, err := ec.unmarshalInputUpdateUserInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v graphmodels.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*graphmodels.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -9043,7 +9043,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *graphmodels.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -9306,12 +9306,12 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) unmarshalNcreateMatchInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateMatchInput(ctx context.Context, v any) (model.CreateMatchInput, error) {
+func (ec *executionContext) unmarshalNcreateMatchInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateMatchInput(ctx context.Context, v any) (graphmodels.CreateMatchInput, error) {
 	res, err := ec.unmarshalInputcreateMatchInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNupdateMatchInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateMatchInput(ctx context.Context, v any) (model.UpdateMatchInput, error) {
+func (ec *executionContext) unmarshalNupdateMatchInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUpdateMatchInput(ctx context.Context, v any) (graphmodels.UpdateMatchInput, error) {
 	res, err := ec.unmarshalInputupdateMatchInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }

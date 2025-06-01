@@ -45,6 +45,7 @@ CREATE TABLE "competitions" (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+-- TODO: Change home_team and away_team to home_team_id and away_team_id
 CREATE TABLE "matches" (
   "id" bigint PRIMARY KEY,
   "home_team" bigint NOT NULL REFERENCES teams,
