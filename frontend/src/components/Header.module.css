@@ -1,0 +1,11 @@
+header {
+    display: inline-flex;
+}
+
+.header {
+    color: orange;
+}
+
+Menu {
+    color: black;
+}

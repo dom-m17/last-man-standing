@@ -1,16 +1,11 @@
-import { ReactNode } from "react"
+import MenuButton from "./MenuButton"
+import styles from "./Header.module.css"
 
-type imgProps = {
-    img: {
-        src: string
-        alt: string
-    }
-    children: ReactNode
-}
-
-export default function Header({img, children}: imgProps) {
-    return <h1>
-        <img {...img} />
-        {children}
-    </h1>
+export default function Header() {
+  return (
+    <header>
+      <h1 className={styles.header}>Last Man Standing</h1>
+      <MenuButton></MenuButton>
+    </header>
+  );
 }

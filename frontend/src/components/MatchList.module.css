@@ -1,0 +1,8 @@
+.MatchList {
+    display: inline-flex;
+    width: 50%;
+    align-self: center;
+    text-align: center;
+    justify-content: space-between;
+    background-color: black;
+}
