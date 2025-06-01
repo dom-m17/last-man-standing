@@ -1,37 +1,40 @@
-import "./App.css";
+import { useState } from "react";
+import CourseGoalList from "./components/CourseGoalList";
+import Header from "./components/Header";
+import goalsImg from "./assests/goals.jpg";
+import NewGoal from "./components/NewGoal";
 
-function App() {
+export type CourseGoal = {
+  title: string;
+  description: string;
+  id: number;
+};
+
+export default function App() {
+  const [goals, setGoals] = useState<CourseGoal[]>([]);
+
+  function handleAddGoal(goal: string, summary: string) {
+    setGoals((prevGoals) => {
+      const newGoal: CourseGoal = {
+        id: Math.random(),
+        title: goal,
+        description: summary,
+      };
+      return [...prevGoals, newGoal];
+    });
+  }
+
+  function handleDeleteGoal(id: Number) {
+    setGoals(prevGoals => prevGoals.filter(goal => goal.id !== id))
+  }
 
   return (
-    <>
-      <button onClick={() => fetch(
-          "http://localhost:8080/query", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              query: `
-                query {
-                  getUser(input: "user_f8d7ba95-92dd-45d8-a56f-5491562966d5") {
-                      id
-                      username
-                      firstName
-                      lastName
-                      email
-                      phoneNumber
-                      favouriteTeam
-                  }
-                }
-              `
-            })
-          })
-            .then(res => res.json())
-            .then(data => console.log(data))}>
-              Get Dom
-        </button>
-    </>
+    <main>
+      <Header img={{ src: goalsImg, alt: "A list of goals" }}>
+        <h1>Your Course Goals</h1>
+      </Header>
+      <NewGoal onAddGoal={handleAddGoal}></NewGoal>
+      <CourseGoalList goals={goals} onDelete={handleDeleteGoal}></CourseGoalList>
+    </main>
   );
 }
-
-export default App;

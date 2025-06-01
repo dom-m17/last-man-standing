@@ -1,10 +1,16 @@
-function Header() {
-    return (
-        <div id="header">
-            <h1>Last Man Standing</h1>
-            <button id="menu">Menu</button>
-        </div>
-    )
+import { ReactNode } from "react"
+
+type imgProps = {
+    img: {
+        src: string
+        alt: string
+    }
+    children: ReactNode
 }
 
-export default Header
+export default function Header({img, children}: imgProps) {
+    return <h1>
+        <img {...img} />
+        {children}
+    </h1>
+}
