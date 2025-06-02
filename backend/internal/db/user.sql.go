@@ -20,22 +20,22 @@ INSERT INTO users (
   email, 
   phone_number, 
   date_of_birth,
-  favourite_team
+  favourite_team_id
 ) VALUES (
  $1, $2, $3, $4, $5, $6, $7, $8
 )
-RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team, created_at, updated_at
+RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team_id, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Username       string         `json:"username"`
-	HashedPassword string         `json:"hashed_password"`
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
-	Email          string         `json:"email"`
-	PhoneNumber    sql.NullString `json:"phone_number"`
-	DateOfBirth    time.Time      `json:"date_of_birth"`
-	FavouriteTeam  sql.NullInt64  `json:"favourite_team"`
+	Username        string         `json:"username"`
+	HashedPassword  string         `json:"hashed_password"`
+	FirstName       string         `json:"first_name"`
+	LastName        string         `json:"last_name"`
+	Email           string         `json:"email"`
+	PhoneNumber     sql.NullString `json:"phone_number"`
+	DateOfBirth     time.Time      `json:"date_of_birth"`
+	FavouriteTeamID sql.NullString `json:"favourite_team_id"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -47,7 +47,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Email,
 		arg.PhoneNumber,
 		arg.DateOfBirth,
-		arg.FavouriteTeam,
+		arg.FavouriteTeamID,
 	)
 	var i User
 	err := row.Scan(
@@ -59,7 +59,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.PhoneNumber,
 		&i.DateOfBirth,
-		&i.FavouriteTeam,
+		&i.FavouriteTeamID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -69,7 +69,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 const deleteUser = `-- name: DeleteUser :one
 DELETE FROM users
 WHERE id = $1
-RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team, created_at, updated_at
+RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team_id, created_at, updated_at
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id string) (User, error) {
@@ -84,7 +84,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id string) (User, error) {
 		&i.Email,
 		&i.PhoneNumber,
 		&i.DateOfBirth,
-		&i.FavouriteTeam,
+		&i.FavouriteTeamID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -92,7 +92,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id string) (User, error) {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team, created_at, updated_at FROM users
+SELECT id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team_id, created_at, updated_at FROM users
 WHERE id = $1 
 LIMIT 1
 `
@@ -109,7 +109,7 @@ func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 		&i.Email,
 		&i.PhoneNumber,
 		&i.DateOfBirth,
-		&i.FavouriteTeam,
+		&i.FavouriteTeamID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -117,7 +117,7 @@ func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team, created_at, updated_at FROM users
+SELECT id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team_id, created_at, updated_at FROM users
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
@@ -138,7 +138,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.Email,
 			&i.PhoneNumber,
 			&i.DateOfBirth,
-			&i.FavouriteTeam,
+			&i.FavouriteTeamID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -165,21 +165,21 @@ SET
   email = $6,
   phone_number = $7,
   date_of_birth = $8,
-  favourite_team = $9
+  favourite_team_id = $9
 WHERE id = $1
-RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team, created_at, updated_at
+RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team_id, created_at, updated_at
 `
 
 type UpdateUserParams struct {
-	ID             string         `json:"id"`
-	Username       string         `json:"username"`
-	HashedPassword string         `json:"hashed_password"`
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
-	Email          string         `json:"email"`
-	PhoneNumber    sql.NullString `json:"phone_number"`
-	DateOfBirth    time.Time      `json:"date_of_birth"`
-	FavouriteTeam  sql.NullInt64  `json:"favourite_team"`
+	ID              string         `json:"id"`
+	Username        string         `json:"username"`
+	HashedPassword  string         `json:"hashed_password"`
+	FirstName       string         `json:"first_name"`
+	LastName        string         `json:"last_name"`
+	Email           string         `json:"email"`
+	PhoneNumber     sql.NullString `json:"phone_number"`
+	DateOfBirth     time.Time      `json:"date_of_birth"`
+	FavouriteTeamID sql.NullString `json:"favourite_team_id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -192,7 +192,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Email,
 		arg.PhoneNumber,
 		arg.DateOfBirth,
-		arg.FavouriteTeam,
+		arg.FavouriteTeamID,
 	)
 	var i User
 	err := row.Scan(
@@ -204,7 +204,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Email,
 		&i.PhoneNumber,
 		&i.DateOfBirth,
-		&i.FavouriteTeam,
+		&i.FavouriteTeamID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

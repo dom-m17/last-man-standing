@@ -15,7 +15,7 @@ FROM teams
 WHERE id = $1
 `
 
-func (q *Queries) GetTeam(ctx context.Context, id int64) (Team, error) {
+func (q *Queries) GetTeam(ctx context.Context, id string) (Team, error) {
 	row := q.db.QueryRowContext(ctx, getTeam, id)
 	var i Team
 	err := row.Scan(

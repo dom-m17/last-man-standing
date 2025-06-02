@@ -19,7 +19,7 @@ INSERT INTO competition_matches (
 
 type CreateCompetitionMatchParams struct {
 	CompetitionID string `json:"competition_id"`
-	MatchID       int64  `json:"match_id"`
+	MatchID       string `json:"match_id"`
 }
 
 func (q *Queries) CreateCompetitionMatch(ctx context.Context, arg CreateCompetitionMatchParams) error {

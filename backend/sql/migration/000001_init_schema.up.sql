@@ -15,7 +15,7 @@ CREATE TYPE "entry_status" AS ENUM (
 );
 
 CREATE TABLE "teams" (
-  "id" bigint PRIMARY KEY,
+  "id" text PRIMARY KEY,
   "long_name" text UNIQUE NOT NULL,
   "short_name" text UNIQUE NOT NULL,
   "tla" text UNIQUE NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE "users" (
   "email" text UNIQUE NOT NULL,
   "phone_number" text UNIQUE,
   "date_of_birth" DATE NOT NULL,
-  "favourite_team" bigint REFERENCES teams,
+  "favourite_team_id" text REFERENCES teams,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -45,11 +45,10 @@ CREATE TABLE "competitions" (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
--- TODO: Change home_team and away_team to home_team_id and away_team_id
 CREATE TABLE "matches" (
-  "id" bigint PRIMARY KEY,
-  "home_team" bigint NOT NULL REFERENCES teams,
-  "away_team" bigint NOT NULL REFERENCES teams,
+  "id" text PRIMARY KEY,
+  "home_team_id" text NOT NULL REFERENCES teams,
+  "away_team_id" text NOT NULL REFERENCES teams,
   "matchday" int NOT NULL,
   "match_date" timestamptz NOT NULL,
   "home_goals" int,
@@ -69,8 +68,8 @@ CREATE TABLE "entries" (
 CREATE TABLE "selections" (
   "id" text DEFAULT concat('selection_', uuid_generate_v4()) PRIMARY KEY,
   "entry_id" text NOT NULL REFERENCES entries,
-  "match_id" bigint NOT NULL REFERENCES matches,
-  "team_id" bigint NOT NULL REFERENCES teams,
+  "match_id" text NOT NULL REFERENCES matches,
+  "team_id" text NOT NULL REFERENCES teams,
   "is_correct" bool,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
@@ -78,9 +77,11 @@ CREATE TABLE "selections" (
 
 CREATE TABLE "competition_matches" (
   "competition_id" text NOT NULL REFERENCES competitions,
-  "match_id" bigint NOT NULL REFERENCES matches,
+  "match_id" text NOT NULL REFERENCES matches,
   PRIMARY KEY ("competition_id", "match_id")
 );
+
+-- TODO: Create rounds table- id, competition_id, matchday, maybe more
 
 CREATE INDEX ON "entries" ("user_id");
 

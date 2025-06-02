@@ -1,4 +1,7 @@
-.PHONY: gen gen-all start postgres createdb dropdb migrate-up migrate-down test tests seeds
+.PHONY: sqlc gen gen-all start postgres createdb dropdb migrate-up migrate-down test tests seeds
+
+sqlc:
+	sqlc generate
 
 gen: ## Generate GraphQL code
 	go get github.com/99designs/gqlgen; go run github.com/99designs/gqlgen generate --config gqlgen.yml

@@ -28,15 +28,25 @@ type Competition struct {
 	Status        CompStatus
 }
 
+type Matches []*Match
+
 type Match struct {
-	ID           string
-	HomeTeamID   int
-	HomeTeamName string
-	AwayTeamID   int
-	AwayTeamName string
-	Matchday     int
-	MatchDate    time.Time
-	HomeGoals    int
-	AwayGoals    int
-	HasFinished  bool
+	ID          string
+	HomeTeam    Team
+	AwayTeam    Team
+	Matchday    int
+	MatchDate   time.Time
+	HomeGoals   int
+	AwayGoals   int
+	HasFinished bool
+}
+
+type Teams []*Team
+
+type Team struct {
+	ID        string
+	LongName  string
+	ShortName string
+	Tla       string
+	CrestURL  string
 }

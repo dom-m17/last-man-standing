@@ -62,16 +62,14 @@ type Entry struct {
 }
 
 type Match struct {
-	ID          string     `json:"id"`
-	HomeTeam    string     `json:"homeTeam"`
-	AwayTeam    string     `json:"awayTeam"`
-	Matchday    int32      `json:"matchday"`
-	MatchDate   time.Time  `json:"matchDate"`
-	HomeGoals   *int32     `json:"homeGoals,omitempty"`
-	AwayGoals   *int32     `json:"awayGoals,omitempty"`
-	HasFinished bool       `json:"hasFinished"`
-	CreatedAt   *time.Time `json:"createdAt,omitempty"`
-	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
+	ID          string    `json:"id"`
+	HomeTeam    *Team     `json:"homeTeam"`
+	AwayTeam    *Team     `json:"awayTeam"`
+	Matchday    int32     `json:"matchday"`
+	MatchDate   time.Time `json:"matchDate"`
+	HomeGoals   *int32    `json:"homeGoals,omitempty"`
+	AwayGoals   *int32    `json:"awayGoals,omitempty"`
+	HasFinished bool      `json:"hasFinished"`
 }
 
 type Mutation struct {

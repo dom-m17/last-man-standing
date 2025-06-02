@@ -108,7 +108,7 @@ type Competition struct {
 
 type CompetitionMatch struct {
 	CompetitionID string `json:"competition_id"`
-	MatchID       int64  `json:"match_id"`
+	MatchID       string `json:"match_id"`
 }
 
 type Entry struct {
@@ -121,9 +121,9 @@ type Entry struct {
 }
 
 type Match struct {
-	ID       int64 `json:"id"`
-	HomeTeam int64 `json:"home_team"`
-	AwayTeam int64 `json:"away_team"`
+	ID         string `json:"id"`
+	HomeTeamID string `json:"home_team_id"`
+	AwayTeamID string `json:"away_team_id"`
 	// between 1 and 38
 	Matchday    int32         `json:"matchday"`
 	MatchDate   time.Time     `json:"match_date"`
@@ -135,15 +135,15 @@ type Match struct {
 type Selection struct {
 	ID        string       `json:"id"`
 	EntryID   string       `json:"entry_id"`
-	MatchID   int64        `json:"match_id"`
-	TeamID    int64        `json:"team_id"`
+	MatchID   string       `json:"match_id"`
+	TeamID    string       `json:"team_id"`
 	IsCorrect sql.NullBool `json:"is_correct"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt time.Time    `json:"updated_at"`
 }
 
 type Team struct {
-	ID        int64          `json:"id"`
+	ID        string         `json:"id"`
 	LongName  string         `json:"long_name"`
 	ShortName string         `json:"short_name"`
 	Tla       string         `json:"tla"`
@@ -151,15 +151,15 @@ type Team struct {
 }
 
 type User struct {
-	ID             string         `json:"id"`
-	Username       string         `json:"username"`
-	HashedPassword string         `json:"hashed_password"`
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
-	Email          string         `json:"email"`
-	PhoneNumber    sql.NullString `json:"phone_number"`
-	DateOfBirth    time.Time      `json:"date_of_birth"`
-	FavouriteTeam  sql.NullInt64  `json:"favourite_team"`
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      time.Time      `json:"updated_at"`
+	ID              string         `json:"id"`
+	Username        string         `json:"username"`
+	HashedPassword  string         `json:"hashed_password"`
+	FirstName       string         `json:"first_name"`
+	LastName        string         `json:"last_name"`
+	Email           string         `json:"email"`
+	PhoneNumber     sql.NullString `json:"phone_number"`
+	DateOfBirth     time.Time      `json:"date_of_birth"`
+	FavouriteTeamID sql.NullString `json:"favourite_team_id"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
 }

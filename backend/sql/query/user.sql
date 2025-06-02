@@ -12,7 +12,7 @@ INSERT INTO users (
   email, 
   phone_number, 
   date_of_birth,
-  favourite_team
+  favourite_team_id
 ) VALUES (
  $1, $2, $3, $4, $5, $6, $7, $8
 )
@@ -36,6 +36,6 @@ SET
   email = $6,
   phone_number = $7,
   date_of_birth = $8,
-  favourite_team = $9
+  favourite_team_id = $9
 WHERE id = $1
 RETURNING *;

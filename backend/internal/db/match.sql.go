@@ -13,32 +13,32 @@ import (
 
 const createMatch = `-- name: CreateMatch :one
 INSERT INTO matches (
-    home_team, away_team, matchday, match_date
+    home_team_id, away_team_id, matchday, match_date
 ) VALUES (
     $1, $2, $3, $4
 ) 
-RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals, has_finished
+RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, has_finished
 `
 
 type CreateMatchParams struct {
-	HomeTeam  int64     `json:"home_team"`
-	AwayTeam  int64     `json:"away_team"`
-	Matchday  int32     `json:"matchday"`
-	MatchDate time.Time `json:"match_date"`
+	HomeTeamID string    `json:"home_team_id"`
+	AwayTeamID string    `json:"away_team_id"`
+	Matchday   int32     `json:"matchday"`
+	MatchDate  time.Time `json:"match_date"`
 }
 
 func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error) {
 	row := q.db.QueryRowContext(ctx, createMatch,
-		arg.HomeTeam,
-		arg.AwayTeam,
+		arg.HomeTeamID,
+		arg.AwayTeamID,
 		arg.Matchday,
 		arg.MatchDate,
 	)
 	var i Match
 	err := row.Scan(
 		&i.ID,
-		&i.HomeTeam,
-		&i.AwayTeam,
+		&i.HomeTeamID,
+		&i.AwayTeamID,
 		&i.Matchday,
 		&i.MatchDate,
 		&i.HomeGoals,
@@ -49,17 +49,17 @@ func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (Match
 }
 
 const getMatch = `-- name: GetMatch :one
-SELECT id, home_team, away_team, matchday, match_date, home_goals, away_goals, has_finished FROM matches
+SELECT id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, has_finished FROM matches
 WHERE id = $1
 `
 
-func (q *Queries) GetMatch(ctx context.Context, id int64) (Match, error) {
+func (q *Queries) GetMatch(ctx context.Context, id string) (Match, error) {
 	row := q.db.QueryRowContext(ctx, getMatch, id)
 	var i Match
 	err := row.Scan(
 		&i.ID,
-		&i.HomeTeam,
-		&i.AwayTeam,
+		&i.HomeTeamID,
+		&i.AwayTeamID,
 		&i.Matchday,
 		&i.MatchDate,
 		&i.HomeGoals,
@@ -72,34 +72,46 @@ func (q *Queries) GetMatch(ctx context.Context, id int64) (Match, error) {
 const getMatchesByMatchday = `-- name: GetMatchesByMatchday :many
 SELECT 
     m.id AS match_id,
-    m.home_team AS home_team,
-    m.away_team AS away_team,
+    m.home_team_id AS home_team_id,
+    m.away_team_id AS away_team_id,
     m.matchday AS matchday,
     m.match_date AS match_date,
     m.home_goals AS home_goals,
     m.away_goals AS away_goals,
     m.has_finished AS has_finished,
-    hteam.long_name AS home_team_name,
-    ateam.long_name AS away_team_name
+    hteam.long_name AS home_team_long_name,
+    hteam.short_name AS home_team_short_name,
+    hteam.tla AS home_team_tla,
+    hteam.crest_url AS home_team_crest_url,
+    ateam.long_name AS away_team_long_name,
+    ateam.short_name AS away_team_short_name,
+    ateam.tla AS away_team_tla,
+    ateam.crest_url AS away_team_crest_url
 FROM matches AS m
 JOIN teams AS hteam
-ON hteam.id = m.home_team
+ON hteam.id = m.home_team_id
 JOIN teams AS ateam
-ON ateam.id = m.away_team
+ON ateam.id = m.away_team_id
 WHERE matchday = $1
 `
 
 type GetMatchesByMatchdayRow struct {
-	MatchID      int64         `json:"match_id"`
-	HomeTeam     int64         `json:"home_team"`
-	AwayTeam     int64         `json:"away_team"`
-	Matchday     int32         `json:"matchday"`
-	MatchDate    time.Time     `json:"match_date"`
-	HomeGoals    sql.NullInt32 `json:"home_goals"`
-	AwayGoals    sql.NullInt32 `json:"away_goals"`
-	HasFinished  bool          `json:"has_finished"`
-	HomeTeamName string        `json:"home_team_name"`
-	AwayTeamName string        `json:"away_team_name"`
+	MatchID           string         `json:"match_id"`
+	HomeTeamID        string         `json:"home_team_id"`
+	AwayTeamID        string         `json:"away_team_id"`
+	Matchday          int32          `json:"matchday"`
+	MatchDate         time.Time      `json:"match_date"`
+	HomeGoals         sql.NullInt32  `json:"home_goals"`
+	AwayGoals         sql.NullInt32  `json:"away_goals"`
+	HasFinished       bool           `json:"has_finished"`
+	HomeTeamLongName  string         `json:"home_team_long_name"`
+	HomeTeamShortName string         `json:"home_team_short_name"`
+	HomeTeamTla       string         `json:"home_team_tla"`
+	HomeTeamCrestUrl  sql.NullString `json:"home_team_crest_url"`
+	AwayTeamLongName  string         `json:"away_team_long_name"`
+	AwayTeamShortName string         `json:"away_team_short_name"`
+	AwayTeamTla       string         `json:"away_team_tla"`
+	AwayTeamCrestUrl  sql.NullString `json:"away_team_crest_url"`
 }
 
 func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]GetMatchesByMatchdayRow, error) {
@@ -113,15 +125,21 @@ func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]G
 		var i GetMatchesByMatchdayRow
 		if err := rows.Scan(
 			&i.MatchID,
-			&i.HomeTeam,
-			&i.AwayTeam,
+			&i.HomeTeamID,
+			&i.AwayTeamID,
 			&i.Matchday,
 			&i.MatchDate,
 			&i.HomeGoals,
 			&i.AwayGoals,
 			&i.HasFinished,
-			&i.HomeTeamName,
-			&i.AwayTeamName,
+			&i.HomeTeamLongName,
+			&i.HomeTeamShortName,
+			&i.HomeTeamTla,
+			&i.HomeTeamCrestUrl,
+			&i.AwayTeamLongName,
+			&i.AwayTeamShortName,
+			&i.AwayTeamTla,
+			&i.AwayTeamCrestUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -145,11 +163,11 @@ SET
     away_goals = $5,
     has_finished = "TRUE"
 WHERE id = $1
-RETURNING id, home_team, away_team, matchday, match_date, home_goals, away_goals, has_finished
+RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, has_finished
 `
 
 type UpdateMatchParams struct {
-	ID        int64         `json:"id"`
+	ID        string        `json:"id"`
 	Matchday  int32         `json:"matchday"`
 	MatchDate time.Time     `json:"match_date"`
 	HomeGoals sql.NullInt32 `json:"home_goals"`
@@ -167,8 +185,8 @@ func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match
 	var i Match
 	err := row.Scan(
 		&i.ID,
-		&i.HomeTeam,
-		&i.AwayTeam,
+		&i.HomeTeamID,
+		&i.AwayTeamID,
 		&i.Matchday,
 		&i.MatchDate,
 		&i.HomeGoals,

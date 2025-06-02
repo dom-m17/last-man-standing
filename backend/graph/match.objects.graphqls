@@ -1,15 +1,13 @@
 # Types
 type Match {
     id: ID!
-    homeTeam: ID!
-    awayTeam: ID!
+    homeTeam: Team!
+    awayTeam: Team!
     matchday: Int!
     matchDate: Time!
     homeGoals: Int
     awayGoals: Int
     hasFinished: Boolean!
-    createdAt: Time
-    updatedAt: Time
 }
 
 # Inputs

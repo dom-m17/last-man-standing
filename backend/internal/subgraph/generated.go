@@ -68,14 +68,12 @@ type ComplexityRoot struct {
 	Match struct {
 		AwayGoals   func(childComplexity int) int
 		AwayTeam    func(childComplexity int) int
-		CreatedAt   func(childComplexity int) int
 		HasFinished func(childComplexity int) int
 		HomeGoals   func(childComplexity int) int
 		HomeTeam    func(childComplexity int) int
 		ID          func(childComplexity int) int
 		MatchDate   func(childComplexity int) int
 		Matchday    func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -282,13 +280,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Match.AwayTeam(childComplexity), true
 
-	case "Match.createdAt":
-		if e.complexity.Match.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Match.CreatedAt(childComplexity), true
-
 	case "Match.hasFinished":
 		if e.complexity.Match.HasFinished == nil {
 			break
@@ -330,13 +321,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Match.Matchday(childComplexity), true
-
-	case "Match.updatedAt":
-		if e.complexity.Match.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Match.UpdatedAt(childComplexity), true
 
 	case "Mutation.changeSelection":
 		if e.complexity.Mutation.ChangeSelection == nil {
@@ -933,15 +917,13 @@ extend type Mutation {
 	{Name: "../../graph/match.objects.graphqls", Input: `# Types
 type Match {
     id: ID!
-    homeTeam: ID!
-    awayTeam: ID!
+    homeTeam: Team!
+    awayTeam: Team!
     matchday: Int!
     matchDate: Time!
     homeGoals: Int
     awayGoals: Int
     hasFinished: Boolean!
-    createdAt: Time
-    updatedAt: Time
 }
 
 # Inputs
@@ -2203,9 +2185,9 @@ func (ec *executionContext) _Match_homeTeam(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*graphmodels.Team)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Match_homeTeam(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2215,7 +2197,19 @@ func (ec *executionContext) fieldContext_Match_homeTeam(_ context.Context, field
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "longName":
+				return ec.fieldContext_Team_longName(ctx, field)
+			case "shortName":
+				return ec.fieldContext_Team_shortName(ctx, field)
+			case "tla":
+				return ec.fieldContext_Team_tla(ctx, field)
+			case "crestUrl":
+				return ec.fieldContext_Team_crestUrl(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -2247,9 +2241,9 @@ func (ec *executionContext) _Match_awayTeam(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*graphmodels.Team)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Match_awayTeam(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2259,7 +2253,19 @@ func (ec *executionContext) fieldContext_Match_awayTeam(_ context.Context, field
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "longName":
+				return ec.fieldContext_Team_longName(ctx, field)
+			case "shortName":
+				return ec.fieldContext_Team_shortName(ctx, field)
+			case "tla":
+				return ec.fieldContext_Team_tla(ctx, field)
+			case "crestUrl":
+				return ec.fieldContext_Team_crestUrl(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -2474,88 +2480,6 @@ func (ec *executionContext) fieldContext_Match_hasFinished(_ context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Match_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Match_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Match_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Match",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Match_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Match_updatedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Match_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Match",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2864,10 +2788,6 @@ func (ec *executionContext) fieldContext_Mutation_createMatch(ctx context.Contex
 				return ec.fieldContext_Match_awayGoals(ctx, field)
 			case "hasFinished":
 				return ec.fieldContext_Match_hasFinished(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Match_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Match_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -2941,10 +2861,6 @@ func (ec *executionContext) fieldContext_Mutation_updateMatch(ctx context.Contex
 				return ec.fieldContext_Match_awayGoals(ctx, field)
 			case "hasFinished":
 				return ec.fieldContext_Match_hasFinished(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Match_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Match_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -3641,10 +3557,6 @@ func (ec *executionContext) fieldContext_Query_getMatch(ctx context.Context, fie
 				return ec.fieldContext_Match_awayGoals(ctx, field)
 			case "hasFinished":
 				return ec.fieldContext_Match_hasFinished(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Match_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Match_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -3718,10 +3630,6 @@ func (ec *executionContext) fieldContext_Query_getMatchesByMatchday(ctx context.
 				return ec.fieldContext_Match_awayGoals(ctx, field)
 			case "hasFinished":
 				return ec.fieldContext_Match_hasFinished(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Match_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Match_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -7751,10 +7659,6 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createdAt":
-			out.Values[i] = ec._Match_createdAt(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Match_updatedAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

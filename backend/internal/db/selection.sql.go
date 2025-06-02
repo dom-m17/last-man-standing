@@ -21,8 +21,8 @@ RETURNING id, entry_id, match_id, team_id, is_correct, created_at, updated_at
 
 type ChangeSelectionParams struct {
 	ID      string `json:"id"`
-	MatchID int64  `json:"match_id"`
-	TeamID  int64  `json:"team_id"`
+	MatchID string `json:"match_id"`
+	TeamID  string `json:"team_id"`
 }
 
 func (q *Queries) ChangeSelection(ctx context.Context, arg ChangeSelectionParams) (Selection, error) {
@@ -51,8 +51,8 @@ RETURNING id, entry_id, match_id, team_id, is_correct, created_at, updated_at
 
 type CreateSelectionParams struct {
 	EntryID string `json:"entry_id"`
-	MatchID int64  `json:"match_id"`
-	TeamID  int64  `json:"team_id"`
+	MatchID string `json:"match_id"`
+	TeamID  string `json:"team_id"`
 }
 
 func (q *Queries) CreateSelection(ctx context.Context, arg CreateSelectionParams) (Selection, error) {
