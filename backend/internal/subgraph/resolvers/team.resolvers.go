@@ -8,15 +8,26 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dom-m17/lms/backend/internal/subgraph/graphconverters"
 	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 // GetTeam is the resolver for the getTeam field.
 func (r *queryResolver) GetTeam(ctx context.Context, input string) (*graphmodels.Team, error) {
-	panic(fmt.Errorf("not implemented: GetTeam - getTeam"))
+	team, err := r.Team.GetTeam(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("getting team: %w", err)
+	}
+
+	return graphconverters.ConvertModelTeamToGraphTeam(team), nil
 }
 
 // ListTeams is the resolver for the listTeams field.
 func (r *queryResolver) ListTeams(ctx context.Context) ([]*graphmodels.Team, error) {
-	panic(fmt.Errorf("not implemented: ListTeams - listTeams"))
+	teams, err := r.Team.ListTeams(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("listing teams: %w", err)
+	}
+
+	return graphconverters.ConvertModelTeamsToGraphTeams(teams), nil
 }

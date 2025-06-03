@@ -98,12 +98,12 @@ func (ns NullEntryStatus) Value() (driver.Value, error) {
 }
 
 type Competition struct {
-	ID            string         `json:"id"`
-	Name          string         `json:"name"`
-	StartMatchday int32          `json:"start_matchday"`
-	Status        NullCompStatus `json:"status"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
+	ID            string     `json:"id"`
+	Name          string     `json:"name"`
+	StartMatchday int32      `json:"start_matchday"`
+	Status        CompStatus `json:"status"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
 type CompetitionMatch struct {

@@ -12,7 +12,7 @@ type Service struct {
 }
 
 type ServiceInterface interface {
-	GetCompetition(ctx context.Context, input string) (*models.Competition, error)
+	GetCompetition(ctx context.Context, competitionID string) (models.Competition, error)
 }
 
 func NewService(querier db.Querier) *Service {

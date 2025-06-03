@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dom-m17/lms/backend/internal/subgraph/graphconverters"
 	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
@@ -18,5 +19,10 @@ func (r *mutationResolver) CreateCompetition(ctx context.Context, input graphmod
 
 // GetCompetition is the resolver for the getCompetition field.
 func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*graphmodels.Competition, error) {
-	panic(fmt.Errorf("not implemented: GetCompetition - getCompetition"))
+	competition, err := r.Competition.GetCompetition(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("getting competition: %w", err)
+	}
+
+	return graphconverters.ConvertModelCompetitionToGraphCompetition(competition), nil
 }

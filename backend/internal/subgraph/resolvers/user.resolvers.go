@@ -32,7 +32,6 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input graphmodels.Cre
 
 // DeleteUser is the resolver for the deleteUser field.
 func (r *mutationResolver) DeleteUser(ctx context.Context, input string) (*graphmodels.User, error) {
-	//! THIS HAS NOT YET BEEN TESTED
 	user, err := r.User.DeleteUser(ctx, input)
 	if err != nil {
 		fmt.Printf("application error: %+v\n", err)

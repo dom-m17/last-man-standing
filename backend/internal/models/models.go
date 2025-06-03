@@ -2,17 +2,18 @@ package models
 
 import "time"
 
-type User struct {
-	ID            string    `json:"id"`
-	Username      string    `json:"username"`
-	FirstName     string    `json:"firstName"`
-	LastName      string    `json:"lastName"`
-	Email         string    `json:"email"`
-	PhoneNumber   string    `json:"phoneNumber"`
-	DateOfBirth   time.Time `json:"dateOfBirth"`
-	FavouriteTeam *string   `json:"favouriteTeam,omitempty"`
+// Team models
+type Teams []*Team
+
+type Team struct {
+	ID        string
+	LongName  string
+	ShortName string
+	Tla       string
+	CrestURL  string
 }
 
+// Competition models
 type CompStatus string
 
 const (
@@ -28,6 +29,19 @@ type Competition struct {
 	Status        CompStatus
 }
 
+// User models
+type User struct {
+	ID            string    `json:"id"`
+	Username      string    `json:"username"`
+	FirstName     string    `json:"firstName"`
+	LastName      string    `json:"lastName"`
+	Email         string    `json:"email"`
+	PhoneNumber   string    `json:"phoneNumber"`
+	DateOfBirth   time.Time `json:"dateOfBirth"`
+	FavouriteTeam *string   `json:"favouriteTeam,omitempty"`
+}
+
+// Match models
 type Matches []*Match
 
 type Match struct {
@@ -39,14 +53,4 @@ type Match struct {
 	HomeGoals   int
 	AwayGoals   int
 	HasFinished bool
-}
-
-type Teams []*Team
-
-type Team struct {
-	ID        string
-	LongName  string
-	ShortName string
-	Tla       string
-	CrestURL  string
 }

@@ -14,10 +14,12 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/dom-m17/lms/backend/internal/competition"
 	"github.com/dom-m17/lms/backend/internal/db"
 	"github.com/dom-m17/lms/backend/internal/match"
 	"github.com/dom-m17/lms/backend/internal/subgraph"
 	graphresolvers "github.com/dom-m17/lms/backend/internal/subgraph/resolvers"
+	"github.com/dom-m17/lms/backend/internal/team"
 	"github.com/dom-m17/lms/backend/internal/user"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -38,13 +40,13 @@ func main() {
 	}
 
 	queries := db.New(conn)
-	userService := user.NewService(queries)
-	matchService := match.NewService(queries)
 
 	srv := handler.New(subgraph.NewExecutableSchema(subgraph.Config{
 		Resolvers: &graphresolvers.Resolver{
-			User:  userService,
-			Match: matchService,
+			Team:        team.NewService(queries),
+			Competition: competition.NewService(queries),
+			User:        user.NewService(queries),
+			Match:       match.NewService(queries),
 		},
 	}))
 

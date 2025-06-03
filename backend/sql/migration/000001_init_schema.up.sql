@@ -22,6 +22,15 @@ CREATE TABLE "teams" (
   "crest_url" text
 );
 
+CREATE TABLE "competitions" (
+  "id" text DEFAULT concat('comp_', uuid_generate_v4()) PRIMARY KEY,
+  "name" text NOT NULL,
+  "start_matchday" int NOT NULL,
+  "status" comp_status NOT NULL DEFAULT 'open',
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
 CREATE TABLE "users" (
   "id" text DEFAULT concat('user_', uuid_generate_v4()) PRIMARY KEY,
   "username" text UNIQUE NOT NULL,
@@ -32,15 +41,6 @@ CREATE TABLE "users" (
   "phone_number" text UNIQUE,
   "date_of_birth" DATE NOT NULL,
   "favourite_team_id" text REFERENCES teams,
-  "created_at" timestamptz NOT NULL DEFAULT (now()),
-  "updated_at" timestamptz NOT NULL DEFAULT (now())
-);
-
-CREATE TABLE "competitions" (
-  "id" text DEFAULT concat('comp_', uuid_generate_v4()) PRIMARY KEY,
-  "name" text NOT NULL,
-  "start_matchday" int NOT NULL,
-  "status" comp_status DEFAULT 'open',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
