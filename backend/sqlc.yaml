@@ -7,7 +7,6 @@ sql:
       go:
         package: "db"
         out: "./internal/db/"
-        # sql_package: "pgx/v5" # This was preventing the testdb from working
         emit_json_tags: true
         emit_empty_slices: true
         emit_interface: true

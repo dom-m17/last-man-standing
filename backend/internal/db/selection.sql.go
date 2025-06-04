@@ -16,7 +16,7 @@ SET
     match_id = $2,
     team_id = $3
 WHERE id = $1
-RETURNING id, entry_id, match_id, team_id, is_correct, created_at, updated_at
+RETURNING id, entry_id, round_id, match_id, team_id, is_correct, created_at, updated_at
 `
 
 type ChangeSelectionParams struct {
@@ -31,6 +31,7 @@ func (q *Queries) ChangeSelection(ctx context.Context, arg ChangeSelectionParams
 	err := row.Scan(
 		&i.ID,
 		&i.EntryID,
+		&i.RoundID,
 		&i.MatchID,
 		&i.TeamID,
 		&i.IsCorrect,
@@ -46,7 +47,7 @@ INSERT INTO selections (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING id, entry_id, match_id, team_id, is_correct, created_at, updated_at
+RETURNING id, entry_id, round_id, match_id, team_id, is_correct, created_at, updated_at
 `
 
 type CreateSelectionParams struct {
@@ -61,6 +62,7 @@ func (q *Queries) CreateSelection(ctx context.Context, arg CreateSelectionParams
 	err := row.Scan(
 		&i.ID,
 		&i.EntryID,
+		&i.RoundID,
 		&i.MatchID,
 		&i.TeamID,
 		&i.IsCorrect,
@@ -71,7 +73,7 @@ func (q *Queries) CreateSelection(ctx context.Context, arg CreateSelectionParams
 }
 
 const getSelection = `-- name: GetSelection :one
-SELECT id, entry_id, match_id, team_id, is_correct, created_at, updated_at FROM selections
+SELECT id, entry_id, round_id, match_id, team_id, is_correct, created_at, updated_at FROM selections
 WHERE id = $1
 `
 
@@ -81,6 +83,7 @@ func (q *Queries) GetSelection(ctx context.Context, id string) (Selection, error
 	err := row.Scan(
 		&i.ID,
 		&i.EntryID,
+		&i.RoundID,
 		&i.MatchID,
 		&i.TeamID,
 		&i.IsCorrect,
@@ -95,7 +98,7 @@ UPDATE selections
 SET 
     is_correct = $2
 WHERE id = $1
-RETURNING id, entry_id, match_id, team_id, is_correct, created_at, updated_at
+RETURNING id, entry_id, round_id, match_id, team_id, is_correct, created_at, updated_at
 `
 
 type UpdateSelectionParams struct {
@@ -109,6 +112,7 @@ func (q *Queries) UpdateSelection(ctx context.Context, arg UpdateSelectionParams
 	err := row.Scan(
 		&i.ID,
 		&i.EntryID,
+		&i.RoundID,
 		&i.MatchID,
 		&i.TeamID,
 		&i.IsCorrect,

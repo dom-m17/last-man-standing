@@ -4,7 +4,7 @@ go 1.24.3
 
 require (
 	github.com/99designs/gqlgen v0.17.74
-	github.com/goforj/godump v1.0.5
+	github.com/brianvoe/gofakeit/v7 v7.2.1
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/joho/godotenv v1.5.1
@@ -13,7 +13,6 @@ require (
 	github.com/peterldowns/pgtestdb/migrators/golangmigrator v0.1.1
 	github.com/peterldowns/testy v0.0.1
 	github.com/rs/cors v1.11.1
-	github.com/tamathecxder/randomail v1.2.0
 	github.com/vektah/gqlparser/v2 v2.5.27
 )
 

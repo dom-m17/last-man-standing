@@ -13,13 +13,18 @@ import (
 )
 
 // CreateCompetition is the resolver for the createCompetition field.
-func (r *mutationResolver) CreateCompetition(ctx context.Context, input graphmodels.CompetitionInput) (*graphmodels.Competition, error) {
-	panic(fmt.Errorf("not implemented: CreateCompetition - createCompetition"))
+func (r *mutationResolver) CreateCompetition(ctx context.Context, input graphmodels.CreateCompetitionInput) (*graphmodels.Competition, error) {
+	competition, err := r.CompetitionService.CreateCompetition(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("creating competition: %w", err)
+	}
+
+	return graphconverters.ConvertModelCompetitionToGraphCompetition(competition), nil
 }
 
 // GetCompetition is the resolver for the getCompetition field.
 func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*graphmodels.Competition, error) {
-	competition, err := r.Competition.GetCompetition(ctx, input)
+	competition, err := r.CompetitionService.GetCompetition(ctx, input)
 	if err != nil {
 		return nil, fmt.Errorf("getting competition: %w", err)
 	}

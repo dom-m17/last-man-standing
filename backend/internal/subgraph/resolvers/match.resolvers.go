@@ -29,7 +29,7 @@ func (r *queryResolver) GetMatch(ctx context.Context, input string) (*graphmodel
 
 // GetMatchesByMatchday is the resolver for the getMatchesByMatchday field.
 func (r *queryResolver) GetMatchesByMatchday(ctx context.Context, input int32) ([]*graphmodels.Match, error) {
-	matches, err := r.Match.GetMatchesByMatchday(ctx, input)
+	matches, err := r.MatchService.GetMatchesByMatchday(ctx, input)
 	if err != nil {
 		fmt.Printf("application error: %+v\n", err)
 		return []*graphmodels.Match{}, fmt.Errorf("getting matches by matchday: %w", err)

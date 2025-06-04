@@ -16,7 +16,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/dom-m17/lms/backend/internal/competition"
 	"github.com/dom-m17/lms/backend/internal/db"
+	"github.com/dom-m17/lms/backend/internal/entry"
 	"github.com/dom-m17/lms/backend/internal/match"
+	"github.com/dom-m17/lms/backend/internal/selection"
 	"github.com/dom-m17/lms/backend/internal/subgraph"
 	graphresolvers "github.com/dom-m17/lms/backend/internal/subgraph/resolvers"
 	"github.com/dom-m17/lms/backend/internal/team"
@@ -43,10 +45,12 @@ func main() {
 
 	srv := handler.New(subgraph.NewExecutableSchema(subgraph.Config{
 		Resolvers: &graphresolvers.Resolver{
-			Team:        team.NewService(queries),
-			Competition: competition.NewService(queries),
-			User:        user.NewService(queries),
-			Match:       match.NewService(queries),
+			TeamService:        team.NewService(queries),
+			CompetitionService: competition.NewService(queries),
+			UserService:        user.NewService(queries),
+			MatchService:       match.NewService(queries),
+			SelectionService:   selection.NewService(queries),
+			EntryService:       entry.NewService(queries),
 		},
 	}))
 

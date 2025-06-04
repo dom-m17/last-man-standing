@@ -14,10 +14,10 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	User        user.ServiceInterface
-	Competition competition.ServiceInterface
-	Match       match.ServiceInterface
-	Selection   selection.ServiceInterface
-	Team        team.ServiceInterface
-	Entry       entry.ServiceInterface
+	UserService        user.ServiceInterface
+	CompetitionService competition.ServiceInterface
+	MatchService       match.ServiceInterface
+	SelectionService   selection.ServiceInterface
+	TeamService        team.ServiceInterface
+	EntryService       entry.ServiceInterface
 }

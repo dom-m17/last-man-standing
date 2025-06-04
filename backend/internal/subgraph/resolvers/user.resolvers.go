@@ -8,70 +8,56 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dom-m17/lms/backend/internal/subgraph/graphconverters"
 	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input graphmodels.CreateUserInput) (*graphmodels.User, error) {
-	user, err := r.User.CreateUser(ctx, input)
+	user, err := r.UserService.CreateUser(ctx, input)
 	if err != nil {
-		fmt.Printf("application error: %+v\n", err)
 		return &graphmodels.User{}, fmt.Errorf("creating user: %w", err)
 	}
 
-	return &graphmodels.User{
-		ID:          user.ID,
-		Username:    user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		PhoneNumber: user.PhoneNumber,
-		DateOfBirth: user.DateOfBirth.String(),
-	}, nil
+	return graphconverters.ConvertModelUserToGraphUser(*user), nil
 }
 
 // DeleteUser is the resolver for the deleteUser field.
 func (r *mutationResolver) DeleteUser(ctx context.Context, input string) (*graphmodels.User, error) {
-	user, err := r.User.DeleteUser(ctx, input)
+	user, err := r.UserService.DeleteUser(ctx, input)
 	if err != nil {
-		fmt.Printf("application error: %+v\n", err)
 		return &graphmodels.User{}, fmt.Errorf("getting user: %w", err)
 	}
 
-	return &graphmodels.User{
-		ID:          user.ID,
-		Username:    user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		PhoneNumber: user.PhoneNumber,
-	}, nil
+	return graphconverters.ConvertModelUserToGraphUser(*user), nil
 }
 
 // UpdateUser is the resolver for the updateUser field.
 func (r *mutationResolver) UpdateUser(ctx context.Context, input graphmodels.UpdateUserInput) (*graphmodels.User, error) {
-	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
+	user, err := r.UserService.UpdateUser(ctx, input)
+	if err != nil {
+		return &graphmodels.User{}, fmt.Errorf("updating user: %w", err)
+	}
+
+	return graphconverters.ConvertModelUserToGraphUser(*user), nil
 }
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, input string) (*graphmodels.User, error) {
-	user, err := r.User.GetUser(ctx, input)
+	user, err := r.UserService.GetUser(ctx, input)
 	if err != nil {
-		fmt.Printf("application error: %+v\n", err)
 		return &graphmodels.User{}, fmt.Errorf("getting user: %w", err)
 	}
 
-	return &graphmodels.User{
-		ID:          user.ID,
-		Username:    user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
-		PhoneNumber: user.PhoneNumber,
-	}, nil
+	return graphconverters.ConvertModelUserToGraphUser(*user), nil
 }
 
 // ListUsers is the resolver for the ListUsers field.
 func (r *queryResolver) ListUsers(ctx context.Context) ([]*graphmodels.User, error) {
-	panic(fmt.Errorf("not implemented: ListUsers - ListUsers"))
+	users, err := r.UserService.ListUsers(ctx)
+	if err != nil {
+		return []*graphmodels.User{}, fmt.Errorf("listing users: %w", err)
+	}
+
+	return graphconverters.ConvertModelUsersToGraphUsers(users), nil
 }

@@ -37,6 +37,34 @@ func ConvertModelCompetitionToGraphCompetition(competition models.Competition) *
 }
 
 // User Converters
+func ConvertModelUsersToGraphUsers(users models.Users) []*graphmodels.User {
+	gUsers := make([]*graphmodels.User, len(users))
+	for i := range users {
+		gUsers[i] = ConvertModelUserToGraphUser(*users[i])
+	}
+
+	return gUsers
+}
+
+func ConvertModelUserToGraphUser(user models.User) *graphmodels.User {
+	var favouriteTeam *graphmodels.Team
+	if user.FavouriteTeam != nil {
+		favouriteTeam = &graphmodels.Team{ID: *user.FavouriteTeam}
+	}
+
+	return &graphmodels.User{
+		ID:            user.ID,
+		Username:      user.Username,
+		FirstName:     user.FirstName,
+		LastName:      user.LastName,
+		Email:         user.Email,
+		PhoneNumber:   &user.PhoneNumber,
+		DateOfBirth:   user.DateOfBirth.String(),
+		FavouriteTeam: favouriteTeam,
+		CreatedAt:     user.CreatedAt,
+		UpdatedAt:     user.UpdatedAt,
+	}
+}
 
 // Match Converters
 func ConvertModelMatchesToGraphMatches(matches models.Matches) []*graphmodels.Match {
@@ -68,3 +96,5 @@ func ConvertModelMatchToGraphMatch(match models.Match) *graphmodels.Match {
 // Entry Converters
 
 // Selection Converters
+
+// Round Converters

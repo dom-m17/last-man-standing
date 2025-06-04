@@ -65,9 +65,17 @@ CREATE TABLE "entries" (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE "rounds" (
+  "id" text DEFAULT concat('round_', uuid_generate_v4()) PRIMARY KEY,
+  "round_number" text NOT NULL,
+  "competition_id" text NOT NULL REFERENCES competitions,
+  "matchday" int NOT NULL
+);
+
 CREATE TABLE "selections" (
   "id" text DEFAULT concat('selection_', uuid_generate_v4()) PRIMARY KEY,
   "entry_id" text NOT NULL REFERENCES entries,
+  "round_id" text NOT NULL REFERENCES rounds,
   "match_id" text NOT NULL REFERENCES matches,
   "team_id" text NOT NULL REFERENCES teams,
   "is_correct" bool,
@@ -80,8 +88,6 @@ CREATE TABLE "competition_matches" (
   "match_id" text NOT NULL REFERENCES matches,
   PRIMARY KEY ("competition_id", "match_id")
 );
-
--- TODO: Create rounds table- id, competition_id, matchday, maybe more
 
 CREATE INDEX ON "entries" ("user_id");
 

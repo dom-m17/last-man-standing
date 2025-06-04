@@ -8,13 +8,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dom-m17/lms/backend/internal/subgraph"
 	"github.com/dom-m17/lms/backend/internal/subgraph/graphconverters"
 	graphmodels "github.com/dom-m17/lms/backend/internal/subgraph/model"
 )
 
-// GetTeam is the resolver for the getTeam field.
-func (r *queryResolver) GetTeam(ctx context.Context, input string) (*graphmodels.Team, error) {
-	team, err := r.TeamService.GetTeam(ctx, input)
+// FavouriteTeam is the resolver for the favouriteTeam field.
+func (r *userResolver) FavouriteTeam(ctx context.Context, obj *graphmodels.User) (*graphmodels.Team, error) {
+	team, err := r.TeamService.GetTeam(ctx, obj.FavouriteTeam.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getting team: %w", err)
 	}
@@ -22,12 +23,7 @@ func (r *queryResolver) GetTeam(ctx context.Context, input string) (*graphmodels
 	return graphconverters.ConvertModelTeamToGraphTeam(team), nil
 }
 
-// ListTeams is the resolver for the listTeams field.
-func (r *queryResolver) ListTeams(ctx context.Context) ([]*graphmodels.Team, error) {
-	teams, err := r.TeamService.ListTeams(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("listing teams: %w", err)
-	}
+// User returns subgraph.UserResolver implementation.
+func (r *Resolver) User() subgraph.UserResolver { return &userResolver{r} }
 
-	return graphconverters.ConvertModelTeamsToGraphTeams(teams), nil
-}
+type userResolver struct{ *Resolver }

@@ -30,12 +30,11 @@ RETURNING *;
 UPDATE users
 SET 
   username = $2,
-  hashed_password = $3,
-  first_name = $4,
-  last_name = $5,
-  email = $6,
-  phone_number = $7,
-  date_of_birth = $8,
-  favourite_team_id = $9
+  first_name = $3,
+  last_name = $4,
+  email = $5,
+  phone_number = $6,
+  date_of_birth = $7,
+  favourite_team_id = $8
 WHERE id = $1
 RETURNING *;

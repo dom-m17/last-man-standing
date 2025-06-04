@@ -14,8 +14,10 @@ type Service struct {
 
 type ServiceInterface interface {
 	GetUser(ctx context.Context, input string) (*models.User, error)
+	ListUsers(ctx context.Context) (models.Users, error)
 	CreateUser(ctx context.Context, input graphmodels.CreateUserInput) (*models.User, error)
 	DeleteUser(ctx context.Context, userID string) (*models.User, error)
+	UpdateUser(ctx context.Context, input graphmodels.UpdateUserInput) (*models.User, error)
 }
 
 func NewService(querier db.Querier) *Service {

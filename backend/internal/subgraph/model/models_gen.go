@@ -21,11 +21,11 @@ type Competition struct {
 	Name          string     `json:"name"`
 	StartMatchday int32      `json:"startMatchday"`
 	Status        CompStatus `json:"status"`
-	CreatedAt     *time.Time `json:"createdAt,omitempty"`
-	UpdatedAt     *time.Time `json:"updatedAt,omitempty"`
+	CreatedAt     time.Time  `json:"createdAt"`
+	UpdatedAt     time.Time  `json:"updatedAt"`
 }
 
-type CompetitionInput struct {
+type CreateCompetitionInput struct {
 	Name          string `json:"name"`
 	StartMatchday int32  `json:"startMatchday"`
 }
@@ -47,18 +47,18 @@ type CreateUserInput struct {
 	FirstName      string  `json:"firstName"`
 	LastName       string  `json:"lastName"`
 	Email          string  `json:"email"`
-	PhoneNumber    string  `json:"phoneNumber"`
+	PhoneNumber    *string `json:"phoneNumber,omitempty"`
 	DateOfBirth    string  `json:"dateOfBirth"`
 	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
 }
 
 type Entry struct {
-	ID            string      `json:"id"`
-	UserID        string      `json:"userId"`
-	CompetitionID string      `json:"competitionId"`
-	Status        EntryStatus `json:"status"`
-	CreatedAt     *time.Time  `json:"createdAt,omitempty"`
-	UpdatedAt     *time.Time  `json:"updatedAt,omitempty"`
+	ID          string       `json:"id"`
+	User        *User        `json:"user"`
+	Competition *Competition `json:"competition"`
+	Status      EntryStatus  `json:"status"`
+	CreatedAt   time.Time    `json:"createdAt"`
+	UpdatedAt   time.Time    `json:"updatedAt"`
 }
 
 type Match struct {
@@ -79,13 +79,13 @@ type Query struct {
 }
 
 type Selection struct {
-	ID        string     `json:"id"`
-	EntryID   string     `json:"entryId"`
-	MatchID   string     `json:"matchId"`
-	TeamID    string     `json:"teamId"`
-	IsCorrect *bool      `json:"isCorrect,omitempty"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	ID        string    `json:"id"`
+	Entry     *Entry    `json:"entry"`
+	Match     *Match    `json:"match"`
+	Team      *Team     `json:"team"`
+	IsCorrect *bool     `json:"isCorrect,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type Team struct {
@@ -107,28 +107,27 @@ type UpdateSelectionInput struct {
 }
 
 type UpdateUserInput struct {
-	ID             string  `json:"id"`
-	Username       string  `json:"username"`
-	HashedPassword string  `json:"hashedPassword"`
-	FirstName      string  `json:"firstName"`
-	LastName       string  `json:"lastName"`
-	Email          string  `json:"email"`
-	PhoneNumber    string  `json:"phoneNumber"`
-	DateOfBirth    string  `json:"dateOfBirth"`
-	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
+	ID            string  `json:"id"`
+	Username      string  `json:"username"`
+	FirstName     string  `json:"firstName"`
+	LastName      string  `json:"lastName"`
+	Email         string  `json:"email"`
+	PhoneNumber   *string `json:"phoneNumber,omitempty"`
+	DateOfBirth   string  `json:"dateOfBirth"`
+	FavouriteTeam *string `json:"favouriteTeam,omitempty"`
 }
 
 type User struct {
-	ID            string     `json:"id"`
-	Username      string     `json:"username"`
-	FirstName     string     `json:"firstName"`
-	LastName      string     `json:"lastName"`
-	Email         string     `json:"email"`
-	PhoneNumber   string     `json:"phoneNumber"`
-	DateOfBirth   string     `json:"dateOfBirth"`
-	FavouriteTeam *string    `json:"favouriteTeam,omitempty"`
-	CreatedAt     *time.Time `json:"createdAt,omitempty"`
-	UpdatedAt     *time.Time `json:"updatedAt,omitempty"`
+	ID            string    `json:"id"`
+	Username      string    `json:"username"`
+	FirstName     string    `json:"firstName"`
+	LastName      string    `json:"lastName"`
+	Email         string    `json:"email"`
+	PhoneNumber   *string   `json:"phoneNumber,omitempty"`
+	DateOfBirth   string    `json:"dateOfBirth"`
+	FavouriteTeam *Team     `json:"favouriteTeam,omitempty"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
 }
 
 type CreateMatchInput struct {

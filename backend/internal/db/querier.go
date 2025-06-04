@@ -21,6 +21,7 @@ type Querier interface {
 	GetEntry(ctx context.Context, id string) (Entry, error)
 	GetMatch(ctx context.Context, id string) (Match, error)
 	GetMatchesByMatchday(ctx context.Context, matchday int32) ([]GetMatchesByMatchdayRow, error)
+	GetRound(ctx context.Context, id string) (Round, error)
 	GetSelection(ctx context.Context, id string) (Selection, error)
 	GetTeam(ctx context.Context, id string) (Team, error)
 	GetUser(ctx context.Context, id string) (User, error)

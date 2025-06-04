@@ -132,9 +132,17 @@ type Match struct {
 	HasFinished bool          `json:"has_finished"`
 }
 
+type Round struct {
+	ID            string `json:"id"`
+	RoundNumber   string `json:"round_number"`
+	CompetitionID string `json:"competition_id"`
+	Matchday      int32  `json:"matchday"`
+}
+
 type Selection struct {
 	ID        string       `json:"id"`
 	EntryID   string       `json:"entry_id"`
+	RoundID   string       `json:"round_id"`
 	MatchID   string       `json:"match_id"`
 	TeamID    string       `json:"team_id"`
 	IsCorrect sql.NullBool `json:"is_correct"`

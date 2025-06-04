@@ -4,26 +4,26 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
-	"github.com/dom-m17/lms/backend/internal/utils"
-	"github.com/goforj/godump"
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/peterldowns/testy/check"
 )
 
 // This is a helper function because any other test will require creating a user first
 func createTestUser(t *testing.T, ctx context.Context, q Querier) User {
-	userToCreate := CreateUserParams{
-		Username:       utils.RandomUsername(),
-		HashedPassword: utils.RandomPassword(),
-		FirstName:      utils.RandomString(5),
-		LastName:       utils.RandomString(5),
-		Email:          utils.RandomEmail(),
-		PhoneNumber:    sql.NullString{String: utils.RandomPhoneNumber(), Valid: true},
-		DateOfBirth:    utils.RandomDateOfBirth(),
-	}
+	date := gofakeit.PastDate()
+	dob := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
 
-	// Remove this
-	godump.Dump(userToCreate)
+	userToCreate := CreateUserParams{
+		Username:       gofakeit.Username(),
+		HashedPassword: gofakeit.Password(false, false, false, false, false, 5),
+		FirstName:      gofakeit.FirstName(),
+		LastName:       gofakeit.LastName(),
+		Email:          gofakeit.Email(),
+		PhoneNumber:    sql.NullString{String: gofakeit.PhoneFormatted(), Valid: true},
+		DateOfBirth:    dob,
+	}
 
 	createdUser, err := q.CreateUser(ctx, userToCreate)
 	check.Nil(t, err)
@@ -100,22 +100,21 @@ func Test_UpdateUsers(t *testing.T) {
 
 	createdUser := createTestUser(t, ctx, q)
 
+	// Update some parameters but not all
 	userToUpdate := UpdateUserParams{
-		ID:             createdUser.ID,
-		Username:       utils.RandomUsername(),
-		HashedPassword: createdUser.HashedPassword,
-		FirstName:      utils.RandomString(5),
-		LastName:       createdUser.LastName,
-		Email:          utils.RandomEmail(),
-		PhoneNumber:    createdUser.PhoneNumber,
-		DateOfBirth:    utils.RandomDateOfBirth(),
+		ID:          createdUser.ID,
+		Username:    gofakeit.Username(),
+		FirstName:   gofakeit.FirstName(),
+		LastName:    createdUser.LastName,
+		Email:       gofakeit.Email(),
+		PhoneNumber: createdUser.PhoneNumber,
+		DateOfBirth: createdUser.DateOfBirth,
 	}
 
 	updatedUser, err := q.UpdateUser(ctx, userToUpdate)
 	check.Nil(t, err)
 
 	check.Equal(t, updatedUser.Username, userToUpdate.Username)
-	check.Equal(t, updatedUser.HashedPassword, createdUser.HashedPassword)
 	check.Equal(t, updatedUser.FirstName, userToUpdate.FirstName)
 	check.Equal(t, updatedUser.LastName, createdUser.LastName)
 	check.Equal(t, updatedUser.Email, userToUpdate.Email)

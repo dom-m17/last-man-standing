@@ -159,13 +159,12 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET 
   username = $2,
-  hashed_password = $3,
-  first_name = $4,
-  last_name = $5,
-  email = $6,
-  phone_number = $7,
-  date_of_birth = $8,
-  favourite_team_id = $9
+  first_name = $3,
+  last_name = $4,
+  email = $5,
+  phone_number = $6,
+  date_of_birth = $7,
+  favourite_team_id = $8
 WHERE id = $1
 RETURNING id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team_id, created_at, updated_at
 `
@@ -173,7 +172,6 @@ RETURNING id, username, hashed_password, first_name, last_name, email, phone_num
 type UpdateUserParams struct {
 	ID              string         `json:"id"`
 	Username        string         `json:"username"`
-	HashedPassword  string         `json:"hashed_password"`
 	FirstName       string         `json:"first_name"`
 	LastName        string         `json:"last_name"`
 	Email           string         `json:"email"`
@@ -186,7 +184,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	row := q.db.QueryRowContext(ctx, updateUser,
 		arg.ID,
 		arg.Username,
-		arg.HashedPassword,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,

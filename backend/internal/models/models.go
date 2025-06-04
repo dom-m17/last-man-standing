@@ -30,6 +30,7 @@ type Competition struct {
 }
 
 // User models
+type Users []*User
 type User struct {
 	ID            string    `json:"id"`
 	Username      string    `json:"username"`
@@ -39,6 +40,8 @@ type User struct {
 	PhoneNumber   string    `json:"phoneNumber"`
 	DateOfBirth   time.Time `json:"dateOfBirth"`
 	FavouriteTeam *string   `json:"favouriteTeam,omitempty"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 // Match models

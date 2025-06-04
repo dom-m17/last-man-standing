@@ -1,11 +1,11 @@
 # Types
 type Entry {
     id: ID!
-    userId: ID!
-    competitionId: ID!
+    user: User!
+    competition: Competition!
     status: EntryStatus!
-    createdAt: Time
-    updatedAt: Time
+    createdAt: Time!
+    updatedAt: Time!
 }
 
 # Enums

@@ -4,8 +4,8 @@ type Competition {
   name: String!
   startMatchday: Int!
   status: CompStatus!
-  createdAt: Time
-  updatedAt: Time
+  createdAt: Time!
+  updatedAt: Time!
 }
 
 # Enums
@@ -16,7 +16,7 @@ enum CompStatus {
 }
 
 # Inputs
-input CompetitionInput {
+input CreateCompetitionInput {
   name: String!
   startMatchday: Int!
 }

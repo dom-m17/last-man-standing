@@ -3,5 +3,5 @@ extend type Query {
 }
 
 extend type Mutation {
-  createCompetition(input: CompetitionInput!): Competition!
+  createCompetition(input: CreateCompetitionInput!): Competition!
 }

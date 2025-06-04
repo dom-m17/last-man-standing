@@ -39,8 +39,12 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Entry() EntryResolver
+	Match() MatchResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Selection() SelectionResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -57,12 +61,12 @@ type ComplexityRoot struct {
 	}
 
 	Entry struct {
-		CompetitionID func(childComplexity int) int
-		CreatedAt     func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Status        func(childComplexity int) int
-		UpdatedAt     func(childComplexity int) int
-		UserID        func(childComplexity int) int
+		Competition func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Status      func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+		User        func(childComplexity int) int
 	}
 
 	Match struct {
@@ -78,7 +82,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		ChangeSelection   func(childComplexity int, input graphmodels.ChangeSelectionInput) int
-		CreateCompetition func(childComplexity int, input graphmodels.CompetitionInput) int
+		CreateCompetition func(childComplexity int, input graphmodels.CreateCompetitionInput) int
 		CreateEntry       func(childComplexity int, input graphmodels.CreateEntryInput) int
 		CreateMatch       func(childComplexity int, input graphmodels.CreateMatchInput) int
 		CreateSelection   func(childComplexity int, input graphmodels.CreateSelectionInput) int
@@ -106,11 +110,11 @@ type ComplexityRoot struct {
 
 	Selection struct {
 		CreatedAt func(childComplexity int) int
-		EntryID   func(childComplexity int) int
+		Entry     func(childComplexity int) int
 		ID        func(childComplexity int) int
 		IsCorrect func(childComplexity int) int
-		MatchID   func(childComplexity int) int
-		TeamID    func(childComplexity int) int
+		Match     func(childComplexity int) int
+		Team      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 	}
 
@@ -136,9 +140,17 @@ type ComplexityRoot struct {
 	}
 }
 
+type EntryResolver interface {
+	User(ctx context.Context, obj *graphmodels.Entry) (*graphmodels.User, error)
+	Competition(ctx context.Context, obj *graphmodels.Entry) (*graphmodels.Competition, error)
+}
+type MatchResolver interface {
+	HomeTeam(ctx context.Context, obj *graphmodels.Match) (*graphmodels.Team, error)
+	AwayTeam(ctx context.Context, obj *graphmodels.Match) (*graphmodels.Team, error)
+}
 type MutationResolver interface {
 	Empty(ctx context.Context) (*bool, error)
-	CreateCompetition(ctx context.Context, input graphmodels.CompetitionInput) (*graphmodels.Competition, error)
+	CreateCompetition(ctx context.Context, input graphmodels.CreateCompetitionInput) (*graphmodels.Competition, error)
 	CreateEntry(ctx context.Context, input graphmodels.CreateEntryInput) (*graphmodels.Entry, error)
 	UpdateEntry(ctx context.Context, input graphmodels.UpdateEntryInput) (*graphmodels.Entry, error)
 	CreateMatch(ctx context.Context, input graphmodels.CreateMatchInput) (*graphmodels.Match, error)
@@ -161,6 +173,14 @@ type QueryResolver interface {
 	ListTeams(ctx context.Context) ([]*graphmodels.Team, error)
 	GetUser(ctx context.Context, input string) (*graphmodels.User, error)
 	ListUsers(ctx context.Context) ([]*graphmodels.User, error)
+}
+type SelectionResolver interface {
+	Entry(ctx context.Context, obj *graphmodels.Selection) (*graphmodels.Entry, error)
+	Match(ctx context.Context, obj *graphmodels.Selection) (*graphmodels.Match, error)
+	Team(ctx context.Context, obj *graphmodels.Selection) (*graphmodels.Team, error)
+}
+type UserResolver interface {
+	FavouriteTeam(ctx context.Context, obj *graphmodels.User) (*graphmodels.Team, error)
 }
 
 type executableSchema struct {
@@ -224,12 +244,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Competition.UpdatedAt(childComplexity), true
 
-	case "Entry.competitionId":
-		if e.complexity.Entry.CompetitionID == nil {
+	case "Entry.competition":
+		if e.complexity.Entry.Competition == nil {
 			break
 		}
 
-		return e.complexity.Entry.CompetitionID(childComplexity), true
+		return e.complexity.Entry.Competition(childComplexity), true
 
 	case "Entry.createdAt":
 		if e.complexity.Entry.CreatedAt == nil {
@@ -259,12 +279,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Entry.UpdatedAt(childComplexity), true
 
-	case "Entry.userId":
-		if e.complexity.Entry.UserID == nil {
+	case "Entry.user":
+		if e.complexity.Entry.User == nil {
 			break
 		}
 
-		return e.complexity.Entry.UserID(childComplexity), true
+		return e.complexity.Entry.User(childComplexity), true
 
 	case "Match.awayGoals":
 		if e.complexity.Match.AwayGoals == nil {
@@ -344,7 +364,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCompetition(childComplexity, args["input"].(graphmodels.CompetitionInput)), true
+		return e.complexity.Mutation.CreateCompetition(childComplexity, args["input"].(graphmodels.CreateCompetitionInput)), true
 
 	case "Mutation.createEntry":
 		if e.complexity.Mutation.CreateEntry == nil {
@@ -573,12 +593,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Selection.CreatedAt(childComplexity), true
 
-	case "Selection.entryId":
-		if e.complexity.Selection.EntryID == nil {
+	case "Selection.entry":
+		if e.complexity.Selection.Entry == nil {
 			break
 		}
 
-		return e.complexity.Selection.EntryID(childComplexity), true
+		return e.complexity.Selection.Entry(childComplexity), true
 
 	case "Selection.id":
 		if e.complexity.Selection.ID == nil {
@@ -594,19 +614,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Selection.IsCorrect(childComplexity), true
 
-	case "Selection.matchId":
-		if e.complexity.Selection.MatchID == nil {
+	case "Selection.match":
+		if e.complexity.Selection.Match == nil {
 			break
 		}
 
-		return e.complexity.Selection.MatchID(childComplexity), true
+		return e.complexity.Selection.Match(childComplexity), true
 
-	case "Selection.teamId":
-		if e.complexity.Selection.TeamID == nil {
+	case "Selection.team":
+		if e.complexity.Selection.Team == nil {
 			break
 		}
 
-		return e.complexity.Selection.TeamID(childComplexity), true
+		return e.complexity.Selection.Team(childComplexity), true
 
 	case "Selection.updatedAt":
 		if e.complexity.Selection.UpdatedAt == nil {
@@ -729,7 +749,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputChangeSelectionInput,
-		ec.unmarshalInputCompetitionInput,
+		ec.unmarshalInputCreateCompetitionInput,
 		ec.unmarshalInputCreateEntryInput,
 		ec.unmarshalInputCreateSelectionInput,
 		ec.unmarshalInputCreateUserInput,
@@ -840,7 +860,7 @@ var sources = []*ast.Source{
 }
 
 extend type Mutation {
-  createCompetition(input: CompetitionInput!): Competition!
+  createCompetition(input: CreateCompetitionInput!): Competition!
 }`, BuiltIn: false},
 	{Name: "../../graph/competition.objects.graphqls", Input: `# Types
 type Competition {
@@ -848,8 +868,8 @@ type Competition {
   name: String!
   startMatchday: Int!
   status: CompStatus!
-  createdAt: Time
-  updatedAt: Time
+  createdAt: Time!
+  updatedAt: Time!
 }
 
 # Enums
@@ -860,7 +880,7 @@ enum CompStatus {
 }
 
 # Inputs
-input CompetitionInput {
+input CreateCompetitionInput {
   name: String!
   startMatchday: Int!
 }
@@ -877,11 +897,11 @@ extend type Mutation {
 	{Name: "../../graph/entry.objects.graphqls", Input: `# Types
 type Entry {
     id: ID!
-    userId: ID!
-    competitionId: ID!
+    user: User!
+    competition: Competition!
     status: EntryStatus!
-    createdAt: Time
-    updatedAt: Time
+    createdAt: Time!
+    updatedAt: Time!
 }
 
 # Enums
@@ -968,12 +988,12 @@ extend type Mutation {
 	{Name: "../../graph/selection.objects.graphqls", Input: `# Types
 type Selection {
     id: ID!
-    entryId: ID!
-    matchId: ID!
-    teamId: ID!
+    entry: Entry!
+    match: Match!
+    team: Team!
     isCorrect: Boolean
-    createdAt: Time
-    updatedAt: Time
+    createdAt: Time!
+    updatedAt: Time!
 }
 
 # Inputs
@@ -1023,11 +1043,11 @@ type User {
   firstName: String!
   lastName: String!
   email: String!
-  phoneNumber: String!
+  phoneNumber: String
   dateOfBirth: String!
-  favouriteTeam: ID
-  createdAt: Time
-  updatedAt: Time
+  favouriteTeam: Team
+  createdAt: Time!
+  updatedAt: Time!
 }
 
 # Inputs
@@ -1037,7 +1057,7 @@ input CreateUserInput {
   firstName: String!
   lastName: String!
   email: String!
-  phoneNumber: String!
+  phoneNumber: String
   dateOfBirth: String!
   favouriteTeam: ID
 }
@@ -1045,11 +1065,10 @@ input CreateUserInput {
 input UpdateUserInput {
   id: ID!
   username: String!
-  hashedPassword: String!
   firstName: String!
   lastName: String!
   email: String!
-  phoneNumber: String!
+  phoneNumber: String
   dateOfBirth: String!
   favouriteTeam: ID
 }
@@ -1098,13 +1117,13 @@ func (ec *executionContext) field_Mutation_createCompetition_args(ctx context.Co
 func (ec *executionContext) field_Mutation_createCompetition_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (graphmodels.CompetitionInput, error) {
+) (graphmodels.CreateCompetitionInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCompetitionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionInput(ctx, tmp)
+		return ec.unmarshalNCreateCompetitionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateCompetitionInput(ctx, tmp)
 	}
 
-	var zeroVal graphmodels.CompetitionInput
+	var zeroVal graphmodels.CreateCompetitionInput
 	return zeroVal, nil
 }
 
@@ -1796,11 +1815,14 @@ func (ec *executionContext) _Competition_createdAt(ctx context.Context, field gr
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Competition_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1837,11 +1859,14 @@ func (ec *executionContext) _Competition_updatedAt(ctx context.Context, field gr
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Competition_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1901,8 +1926,8 @@ func (ec *executionContext) fieldContext_Entry_id(_ context.Context, field graph
 	return fc, nil
 }
 
-func (ec *executionContext) _Entry_userId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Entry_userId(ctx, field)
+func (ec *executionContext) _Entry_user(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Entry_user(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1915,7 +1940,7 @@ func (ec *executionContext) _Entry_userId(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
+		return ec.resolvers.Entry().User(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1927,26 +1952,48 @@ func (ec *executionContext) _Entry_userId(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*graphmodels.User)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Entry_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Entry_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Entry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "firstName":
+				return ec.fieldContext_User_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_User_lastName(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "phoneNumber":
+				return ec.fieldContext_User_phoneNumber(ctx, field)
+			case "dateOfBirth":
+				return ec.fieldContext_User_dateOfBirth(ctx, field)
+			case "favouriteTeam":
+				return ec.fieldContext_User_favouriteTeam(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Entry_competitionId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Entry_competitionId(ctx, field)
+func (ec *executionContext) _Entry_competition(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Entry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Entry_competition(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1959,7 +2006,7 @@ func (ec *executionContext) _Entry_competitionId(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CompetitionID, nil
+		return ec.resolvers.Entry().Competition(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1971,19 +2018,33 @@ func (ec *executionContext) _Entry_competitionId(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*graphmodels.Competition)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Entry_competitionId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Entry_competition(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Entry",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Competition_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Competition_name(ctx, field)
+			case "startMatchday":
+				return ec.fieldContext_Competition_startMatchday(ctx, field)
+			case "status":
+				return ec.fieldContext_Competition_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Competition_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Competition_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Competition", field.Name)
 		},
 	}
 	return fc, nil
@@ -2054,11 +2115,14 @@ func (ec *executionContext) _Entry_createdAt(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Entry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2095,11 +2159,14 @@ func (ec *executionContext) _Entry_updatedAt(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Entry_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2173,7 +2240,7 @@ func (ec *executionContext) _Match_homeTeam(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.HomeTeam, nil
+		return ec.resolvers.Match().HomeTeam(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2194,8 +2261,8 @@ func (ec *executionContext) fieldContext_Match_homeTeam(_ context.Context, field
 	fc = &graphql.FieldContext{
 		Object:     "Match",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -2229,7 +2296,7 @@ func (ec *executionContext) _Match_awayTeam(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AwayTeam, nil
+		return ec.resolvers.Match().AwayTeam(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2250,8 +2317,8 @@ func (ec *executionContext) fieldContext_Match_awayTeam(_ context.Context, field
 	fc = &graphql.FieldContext{
 		Object:     "Match",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -2540,7 +2607,7 @@ func (ec *executionContext) _Mutation_createCompetition(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCompetition(rctx, fc.Args["input"].(graphmodels.CompetitionInput))
+		return ec.resolvers.Mutation().CreateCompetition(rctx, fc.Args["input"].(graphmodels.CreateCompetitionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2636,10 +2703,10 @@ func (ec *executionContext) fieldContext_Mutation_createEntry(ctx context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Entry_id(ctx, field)
-			case "userId":
-				return ec.fieldContext_Entry_userId(ctx, field)
-			case "competitionId":
-				return ec.fieldContext_Entry_competitionId(ctx, field)
+			case "user":
+				return ec.fieldContext_Entry_user(ctx, field)
+			case "competition":
+				return ec.fieldContext_Entry_competition(ctx, field)
 			case "status":
 				return ec.fieldContext_Entry_status(ctx, field)
 			case "createdAt":
@@ -2705,10 +2772,10 @@ func (ec *executionContext) fieldContext_Mutation_updateEntry(ctx context.Contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Entry_id(ctx, field)
-			case "userId":
-				return ec.fieldContext_Entry_userId(ctx, field)
-			case "competitionId":
-				return ec.fieldContext_Entry_competitionId(ctx, field)
+			case "user":
+				return ec.fieldContext_Entry_user(ctx, field)
+			case "competition":
+				return ec.fieldContext_Entry_competition(ctx, field)
 			case "status":
 				return ec.fieldContext_Entry_status(ctx, field)
 			case "createdAt":
@@ -2920,12 +2987,12 @@ func (ec *executionContext) fieldContext_Mutation_createSelection(ctx context.Co
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Selection_id(ctx, field)
-			case "entryId":
-				return ec.fieldContext_Selection_entryId(ctx, field)
-			case "matchId":
-				return ec.fieldContext_Selection_matchId(ctx, field)
-			case "teamId":
-				return ec.fieldContext_Selection_teamId(ctx, field)
+			case "entry":
+				return ec.fieldContext_Selection_entry(ctx, field)
+			case "match":
+				return ec.fieldContext_Selection_match(ctx, field)
+			case "team":
+				return ec.fieldContext_Selection_team(ctx, field)
 			case "isCorrect":
 				return ec.fieldContext_Selection_isCorrect(ctx, field)
 			case "createdAt":
@@ -2991,12 +3058,12 @@ func (ec *executionContext) fieldContext_Mutation_changeSelection(ctx context.Co
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Selection_id(ctx, field)
-			case "entryId":
-				return ec.fieldContext_Selection_entryId(ctx, field)
-			case "matchId":
-				return ec.fieldContext_Selection_matchId(ctx, field)
-			case "teamId":
-				return ec.fieldContext_Selection_teamId(ctx, field)
+			case "entry":
+				return ec.fieldContext_Selection_entry(ctx, field)
+			case "match":
+				return ec.fieldContext_Selection_match(ctx, field)
+			case "team":
+				return ec.fieldContext_Selection_team(ctx, field)
 			case "isCorrect":
 				return ec.fieldContext_Selection_isCorrect(ctx, field)
 			case "createdAt":
@@ -3062,12 +3129,12 @@ func (ec *executionContext) fieldContext_Mutation_updateSelection(ctx context.Co
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Selection_id(ctx, field)
-			case "entryId":
-				return ec.fieldContext_Selection_entryId(ctx, field)
-			case "matchId":
-				return ec.fieldContext_Selection_matchId(ctx, field)
-			case "teamId":
-				return ec.fieldContext_Selection_teamId(ctx, field)
+			case "entry":
+				return ec.fieldContext_Selection_entry(ctx, field)
+			case "match":
+				return ec.fieldContext_Selection_match(ctx, field)
+			case "team":
+				return ec.fieldContext_Selection_team(ctx, field)
 			case "isCorrect":
 				return ec.fieldContext_Selection_isCorrect(ctx, field)
 			case "createdAt":
@@ -3474,10 +3541,10 @@ func (ec *executionContext) fieldContext_Query_getEntry(ctx context.Context, fie
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Entry_id(ctx, field)
-			case "userId":
-				return ec.fieldContext_Entry_userId(ctx, field)
-			case "competitionId":
-				return ec.fieldContext_Entry_competitionId(ctx, field)
+			case "user":
+				return ec.fieldContext_Entry_user(ctx, field)
+			case "competition":
+				return ec.fieldContext_Entry_competition(ctx, field)
 			case "status":
 				return ec.fieldContext_Entry_status(ctx, field)
 			case "createdAt":
@@ -3689,12 +3756,12 @@ func (ec *executionContext) fieldContext_Query_getSelection(ctx context.Context,
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Selection_id(ctx, field)
-			case "entryId":
-				return ec.fieldContext_Selection_entryId(ctx, field)
-			case "matchId":
-				return ec.fieldContext_Selection_matchId(ctx, field)
-			case "teamId":
-				return ec.fieldContext_Selection_teamId(ctx, field)
+			case "entry":
+				return ec.fieldContext_Selection_entry(ctx, field)
+			case "match":
+				return ec.fieldContext_Selection_match(ctx, field)
+			case "team":
+				return ec.fieldContext_Selection_team(ctx, field)
 			case "isCorrect":
 				return ec.fieldContext_Selection_isCorrect(ctx, field)
 			case "createdAt":
@@ -4160,8 +4227,8 @@ func (ec *executionContext) fieldContext_Selection_id(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_entryId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Selection_entryId(ctx, field)
+func (ec *executionContext) _Selection_entry(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Selection_entry(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4174,7 +4241,7 @@ func (ec *executionContext) _Selection_entryId(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.EntryID, nil
+		return ec.resolvers.Selection().Entry(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4186,26 +4253,40 @@ func (ec *executionContext) _Selection_entryId(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*graphmodels.Entry)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNEntry2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐEntry(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Selection_entryId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Selection_entry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Selection",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Entry_id(ctx, field)
+			case "user":
+				return ec.fieldContext_Entry_user(ctx, field)
+			case "competition":
+				return ec.fieldContext_Entry_competition(ctx, field)
+			case "status":
+				return ec.fieldContext_Entry_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Entry_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Entry_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Entry", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_matchId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Selection_matchId(ctx, field)
+func (ec *executionContext) _Selection_match(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Selection_match(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4218,7 +4299,7 @@ func (ec *executionContext) _Selection_matchId(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.MatchID, nil
+		return ec.resolvers.Selection().Match(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4230,26 +4311,44 @@ func (ec *executionContext) _Selection_matchId(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*graphmodels.Match)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNMatch2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatch(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Selection_matchId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Selection_match(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Selection",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Match_id(ctx, field)
+			case "homeTeam":
+				return ec.fieldContext_Match_homeTeam(ctx, field)
+			case "awayTeam":
+				return ec.fieldContext_Match_awayTeam(ctx, field)
+			case "matchday":
+				return ec.fieldContext_Match_matchday(ctx, field)
+			case "matchDate":
+				return ec.fieldContext_Match_matchDate(ctx, field)
+			case "homeGoals":
+				return ec.fieldContext_Match_homeGoals(ctx, field)
+			case "awayGoals":
+				return ec.fieldContext_Match_awayGoals(ctx, field)
+			case "hasFinished":
+				return ec.fieldContext_Match_hasFinished(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Selection_teamId(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Selection_teamId(ctx, field)
+func (ec *executionContext) _Selection_team(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Selection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Selection_team(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4262,7 +4361,7 @@ func (ec *executionContext) _Selection_teamId(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TeamID, nil
+		return ec.resolvers.Selection().Team(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4274,19 +4373,31 @@ func (ec *executionContext) _Selection_teamId(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*graphmodels.Team)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Selection_teamId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Selection_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Selection",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "longName":
+				return ec.fieldContext_Team_longName(ctx, field)
+			case "shortName":
+				return ec.fieldContext_Team_shortName(ctx, field)
+			case "tla":
+				return ec.fieldContext_Team_tla(ctx, field)
+			case "crestUrl":
+				return ec.fieldContext_Team_crestUrl(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -4354,11 +4465,14 @@ func (ec *executionContext) _Selection_createdAt(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Selection_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4395,11 +4509,14 @@ func (ec *executionContext) _Selection_updatedAt(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Selection_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4876,14 +4993,11 @@ func (ec *executionContext) _User_phoneNumber(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_phoneNumber(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4957,7 +5071,7 @@ func (ec *executionContext) _User_favouriteTeam(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.FavouriteTeam, nil
+		return ec.resolvers.User().FavouriteTeam(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4966,19 +5080,31 @@ func (ec *executionContext) _User_favouriteTeam(ctx context.Context, field graph
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*graphmodels.Team)
 	fc.Result = res
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOTeam2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_favouriteTeam(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "longName":
+				return ec.fieldContext_Team_longName(ctx, field)
+			case "shortName":
+				return ec.fieldContext_Team_shortName(ctx, field)
+			case "tla":
+				return ec.fieldContext_Team_tla(ctx, field)
+			case "crestUrl":
+				return ec.fieldContext_Team_crestUrl(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -5005,11 +5131,14 @@ func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5046,11 +5175,14 @@ func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7058,8 +7190,8 @@ func (ec *executionContext) unmarshalInputChangeSelectionInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCompetitionInput(ctx context.Context, obj any) (graphmodels.CompetitionInput, error) {
-	var it graphmodels.CompetitionInput
+func (ec *executionContext) unmarshalInputCreateCompetitionInput(ctx context.Context, obj any) (graphmodels.CreateCompetitionInput, error) {
+	var it graphmodels.CreateCompetitionInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -7218,7 +7350,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			it.Email = data
 		case "phoneNumber":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phoneNumber"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7318,7 +7450,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "username", "hashedPassword", "firstName", "lastName", "email", "phoneNumber", "dateOfBirth", "favouriteTeam"}
+	fieldsInOrder := [...]string{"id", "username", "firstName", "lastName", "email", "phoneNumber", "dateOfBirth", "favouriteTeam"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7339,13 +7471,6 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.Username = data
-		case "hashedPassword":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hashedPassword"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.HashedPassword = data
 		case "firstName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -7369,7 +7494,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 			it.Email = data
 		case "phoneNumber":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phoneNumber"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7531,8 +7656,14 @@ func (ec *executionContext) _Competition(ctx context.Context, sel ast.SelectionS
 			}
 		case "createdAt":
 			out.Values[i] = ec._Competition_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "updatedAt":
 			out.Values[i] = ec._Competition_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7570,27 +7701,95 @@ func (ec *executionContext) _Entry(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Entry_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "userId":
-			out.Values[i] = ec._Entry_userId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+		case "user":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Entry_user(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
-		case "competitionId":
-			out.Values[i] = ec._Entry_competitionId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
 			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "competition":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Entry_competition(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "status":
 			out.Values[i] = ec._Entry_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._Entry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "updatedAt":
 			out.Values[i] = ec._Entry_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7628,27 +7827,89 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Match_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "homeTeam":
-			out.Values[i] = ec._Match_homeTeam(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Match_homeTeam(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "awayTeam":
-			out.Values[i] = ec._Match_awayTeam(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Match_awayTeam(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "matchday":
 			out.Values[i] = ec._Match_matchday(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "matchDate":
 			out.Values[i] = ec._Match_matchDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "homeGoals":
 			out.Values[i] = ec._Match_homeGoals(ctx, field, obj)
@@ -7657,7 +7918,7 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 		case "hasFinished":
 			out.Values[i] = ec._Match_hasFinished(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -8086,29 +8347,128 @@ func (ec *executionContext) _Selection(ctx context.Context, sel ast.SelectionSet
 		case "id":
 			out.Values[i] = ec._Selection_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "entryId":
-			out.Values[i] = ec._Selection_entryId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+		case "entry":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Selection_entry(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
-		case "matchId":
-			out.Values[i] = ec._Selection_matchId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
 			}
-		case "teamId":
-			out.Values[i] = ec._Selection_teamId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "match":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Selection_match(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Selection_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "isCorrect":
 			out.Values[i] = ec._Selection_isCorrect(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Selection_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "updatedAt":
 			out.Values[i] = ec._Selection_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8205,44 +8565,78 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "id":
 			out.Values[i] = ec._User_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "username":
 			out.Values[i] = ec._User_username(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "firstName":
 			out.Values[i] = ec._User_firstName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "lastName":
 			out.Values[i] = ec._User_lastName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "email":
 			out.Values[i] = ec._User_email(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "phoneNumber":
 			out.Values[i] = ec._User_phoneNumber(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "dateOfBirth":
 			out.Values[i] = ec._User_dateOfBirth(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "favouriteTeam":
-			out.Values[i] = ec._User_favouriteTeam(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_favouriteTeam(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "updatedAt":
 			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8646,8 +9040,8 @@ func (ec *executionContext) marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlm
 	return ec._Competition(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNCompetitionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionInput(ctx context.Context, v any) (graphmodels.CompetitionInput, error) {
-	res, err := ec.unmarshalInputCompetitionInput(ctx, v)
+func (ec *executionContext) unmarshalNCreateCompetitionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateCompetitionInput(ctx context.Context, v any) (graphmodels.CreateCompetitionInput, error) {
+	res, err := ec.unmarshalInputCreateCompetitionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -9304,22 +9698,11 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalTime(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐTeam(ctx context.Context, sel ast.SelectionSet, v *graphmodels.Team) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	_ = sel
-	_ = ctx
-	res := graphql.MarshalTime(*v)
-	return res
+	return ec._Team(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

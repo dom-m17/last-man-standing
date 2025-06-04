@@ -129,6 +129,36 @@ autobind:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  User:
+      fields:
+        favouriteTeam:
+          resolver: true
+  Match:
+      fields:
+        homeTeam:
+          resolver: true
+        awayTeam:
+          resolver: true
+  Entry:
+      fields:
+        user:
+          resolver: true
+        competition:
+          resolver: true
+  Round:
+      fields:
+        competition:
+          resolver: true
+  Selection:
+      fields:
+        entry:
+          resolver: true
+        round:
+          resolver: true
+        match:
+          resolver: true
+        team:
+          resolver: true
   ID:
     model:
       - github.com/99designs/gqlgen/graphql.ID

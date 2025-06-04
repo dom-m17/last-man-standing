@@ -49,12 +49,19 @@ SELECT 'entry_001', id, 'comp_001', 'active' FROM users WHERE username = 'jdoe';
 INSERT INTO entries (id, user_id, competition_id, status)
 SELECT 'entry_002', id, 'comp_001', 'active' FROM users WHERE username = 'asmith';
 
+-- Insert Rounds
+INSERT INTO rounds (id, round_number, competition_id, matchday)
+VALUES 
+('round_001', 1, 'comp_001', 1),
+('round_002', 2, 'comp_001', 2),
+('round_003', 3, 'comp_001', 3);
+
 -- Insert Selections
-INSERT INTO selections (id, entry_id, match_id, team_id, is_correct)
+INSERT INTO selections (id, entry_id, round_id, match_id, team_id, is_correct)
 VALUES
-('selection_001', 'entry_001', '1001', '1', true), -- John chose Man United who won
-('selection_002', 'entry_001', '1002', '3', false), -- John chose Arsenal, game drew
-('selection_003', 'entry_002', '1001', '2', false), -- Alice chose Liverpool who lost
-('selection_004', 'entry_002', '1002', '4', false); -- Alice chose Chelsea, game drew
+('selection_001', 'entry_001', 'round_001', '1001', '1', true), -- John chose Man United who won
+('selection_002', 'entry_001', 'round_002', '1002', '3', false), -- John chose Arsenal, game drew
+('selection_003', 'entry_002', 'round_001', '1001', '2', false), -- Alice chose Liverpool who lost
+('selection_004', 'entry_002', 'round_002', '1002', '4', false); -- Alice chose Chelsea, game drew
 
 COMMIT;

@@ -1,12 +1,12 @@
 # Types
 type Selection {
     id: ID!
-    entryId: ID!
-    matchId: ID!
-    teamId: ID!
+    entry: Entry!
+    match: Match!
+    team: Team!
     isCorrect: Boolean
-    createdAt: Time
-    updatedAt: Time
+    createdAt: Time!
+    updatedAt: Time!
 }
 
 # Inputs
