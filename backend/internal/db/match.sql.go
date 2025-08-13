@@ -71,47 +71,27 @@ func (q *Queries) GetMatch(ctx context.Context, id string) (Match, error) {
 
 const getMatchesByMatchday = `-- name: GetMatchesByMatchday :many
 SELECT 
-    m.id AS match_id,
-    m.home_team_id AS home_team_id,
-    m.away_team_id AS away_team_id,
-    m.matchday AS matchday,
-    m.match_date AS match_date,
-    m.home_goals AS home_goals,
-    m.away_goals AS away_goals,
-    m.has_finished AS has_finished,
-    hteam.long_name AS home_team_long_name,
-    hteam.short_name AS home_team_short_name,
-    hteam.tla AS home_team_tla,
-    hteam.crest_url AS home_team_crest_url,
-    ateam.long_name AS away_team_long_name,
-    ateam.short_name AS away_team_short_name,
-    ateam.tla AS away_team_tla,
-    ateam.crest_url AS away_team_crest_url
-FROM matches AS m
-JOIN teams AS hteam
-ON hteam.id = m.home_team_id
-JOIN teams AS ateam
-ON ateam.id = m.away_team_id
+    id AS match_id,
+    home_team_id AS home_team_id,
+    away_team_id AS away_team_id,
+    matchday AS matchday,
+    match_date AS match_date,
+    home_goals AS home_goals,
+    away_goals AS away_goals,
+    has_finished AS has_finished
+FROM matches
 WHERE matchday = $1
 `
 
 type GetMatchesByMatchdayRow struct {
-	MatchID           string         `json:"match_id"`
-	HomeTeamID        string         `json:"home_team_id"`
-	AwayTeamID        string         `json:"away_team_id"`
-	Matchday          int32          `json:"matchday"`
-	MatchDate         time.Time      `json:"match_date"`
-	HomeGoals         sql.NullInt32  `json:"home_goals"`
-	AwayGoals         sql.NullInt32  `json:"away_goals"`
-	HasFinished       bool           `json:"has_finished"`
-	HomeTeamLongName  string         `json:"home_team_long_name"`
-	HomeTeamShortName string         `json:"home_team_short_name"`
-	HomeTeamTla       string         `json:"home_team_tla"`
-	HomeTeamCrestUrl  sql.NullString `json:"home_team_crest_url"`
-	AwayTeamLongName  string         `json:"away_team_long_name"`
-	AwayTeamShortName string         `json:"away_team_short_name"`
-	AwayTeamTla       string         `json:"away_team_tla"`
-	AwayTeamCrestUrl  sql.NullString `json:"away_team_crest_url"`
+	MatchID     string        `json:"match_id"`
+	HomeTeamID  string        `json:"home_team_id"`
+	AwayTeamID  string        `json:"away_team_id"`
+	Matchday    int32         `json:"matchday"`
+	MatchDate   time.Time     `json:"match_date"`
+	HomeGoals   sql.NullInt32 `json:"home_goals"`
+	AwayGoals   sql.NullInt32 `json:"away_goals"`
+	HasFinished bool          `json:"has_finished"`
 }
 
 func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]GetMatchesByMatchdayRow, error) {
@@ -132,14 +112,6 @@ func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]G
 			&i.HomeGoals,
 			&i.AwayGoals,
 			&i.HasFinished,
-			&i.HomeTeamLongName,
-			&i.HomeTeamShortName,
-			&i.HomeTeamTla,
-			&i.HomeTeamCrestUrl,
-			&i.AwayTeamLongName,
-			&i.AwayTeamShortName,
-			&i.AwayTeamTla,
-			&i.AwayTeamCrestUrl,
 		); err != nil {
 			return nil, err
 		}

@@ -1,4 +1,4 @@
 PHONY: start
 
-start:
+run:
 	npm run dev

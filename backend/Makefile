@@ -9,7 +9,7 @@ gen: ## Generate GraphQL code
 gen-all: ## Generate everything in the project
 	go generate ./...
 
-start:
+run:
 	air 
 
 postgres:

@@ -82,9 +82,13 @@ func ConvertModelMatchToGraphMatch(match models.Match) *graphmodels.Match {
 	awayGoals := int32(match.AwayGoals)
 
 	return &graphmodels.Match{
-		ID:          match.ID,
-		HomeTeam:    ConvertModelTeamToGraphTeam(match.HomeTeam),
-		AwayTeam:    ConvertModelTeamToGraphTeam(match.AwayTeam),
+		ID: match.ID,
+		HomeTeam: &graphmodels.Team{
+			ID: match.HomeTeam.ID,
+		},
+		AwayTeam: &graphmodels.Team{
+			ID: match.AwayTeam.ID,
+		},
 		Matchday:    int32(match.Matchday),
 		MatchDate:   match.MatchDate,
 		HomeGoals:   &homeGoals,

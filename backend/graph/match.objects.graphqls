@@ -1,28 +1,28 @@
 # Types
 type Match {
-    id: ID!
-    homeTeam: Team!
-    awayTeam: Team!
-    matchday: Int!
-    matchDate: Time!
-    homeGoals: Int
-    awayGoals: Int
-    hasFinished: Boolean!
+  id: ID!
+  homeTeam: Team! @goField(forceResolver: true)
+  awayTeam: Team! @goField(forceResolver: true)
+  matchday: Int!
+  matchDate: Time!
+  homeGoals: Int
+  awayGoals: Int
+  hasFinished: Boolean!
 }
 
 # Inputs
 input createMatchInput {
-    homeTeam: ID!
-    awayTeam: ID!
-    matchday: Int!
-    matchDate: Time!
+  homeTeam: ID!
+  awayTeam: ID!
+  matchday: Int!
+  matchDate: Time!
 }
 
 input updateMatchInput {
-    homeGoals: Int!
-    awayGoals: Int!
-    matchday: Int!
-    matchDate: Time!
+  homeGoals: Int!
+  awayGoals: Int!
+  matchday: Int!
+  matchDate: Time!
 }
 
 # Responses
