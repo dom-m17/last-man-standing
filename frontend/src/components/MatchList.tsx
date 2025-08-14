@@ -1,44 +1,73 @@
-import Match from "./Match";
+import { useEffect, useState } from "react";
 import styles from "./MatchList.module.css";
 
-async function getMatchesByMatchday(matchday: number) {
+interface Team {
+  id: string;
+  longName: string;
+}
+
+interface MatchType {
+  id: string;
+  homeTeam: Team;
+  awayTeam: Team;
+}
+
+async function getMatchesByMatchday(matchday: number): Promise<MatchType[]> {
   try {
-    let result = await fetch("http://localhost:8080/query", {
+    const result = await fetch("http://localhost:8080/query", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query {
+          query MyQuery {
             getMatchesByMatchday(input: ${matchday}) {
               id
+              homeTeam {
+                id
+                longName
+              }
+              awayTeam {
+                id
+                longName
+              }
             }
           }
         `,
       }),
     });
-    let matches = await result.json();
-    console.log(matches);
-    return matches;
+
+    const json = await result.json();
+    return json.data?.getMatchesByMatchday || [];
   } catch (err) {
     console.error("Error fetching matches:", err);
+    return [];
   }
 }
 
-export default function MatchList() {
-  getMatchesByMatchday(1);
+interface MatchListProps {
+  round: number;
+}
+
+export default function MatchList({ round }: MatchListProps) {
+  const [matches, setMatches] = useState<MatchType[]>([]);
+
+  useEffect(() => {
+    getMatchesByMatchday(round).then(setMatches);
+  }, [round]); // refetch when round changes
 
   return (
-    <div>
-      <ul className={styles.MatchList}>
-        <Match
-          homeTeamID={1}
-          homeTeamName="Arsenal"
-          awayTeamID={2}
-          awayTeamName="Aston Villa"
-        ></Match>
-      </ul>
+    <div className={styles.MatchList}>
+      {matches.map((match) => (
+        <div key={match.id} className={styles.MatchItem}>
+          <span className={`${styles.TeamName} ${styles.Home}`}>
+            {match.homeTeam.longName}
+          </span>
+          <span>vs</span>
+          <span className={`${styles.TeamName} ${styles.Away}`}>
+            {match.awayTeam.longName}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }
