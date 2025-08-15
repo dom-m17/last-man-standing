@@ -41,16 +41,16 @@ func main() {
 		log.Fatalf("could not connect to the database: %v", err)
 	}
 
-	queries := db.New(conn)
+	querier := db.New(conn)
 
 	srv := handler.New(subgraph.NewExecutableSchema(subgraph.Config{
 		Resolvers: &graphresolvers.Resolver{
-			TeamService:        team.NewService(queries),
-			CompetitionService: competition.NewService(queries),
-			UserService:        user.NewService(queries),
-			MatchService:       match.NewService(queries),
-			SelectionService:   selection.NewService(queries),
-			EntryService:       entry.NewService(queries),
+			TeamService:        team.NewService(querier),
+			CompetitionService: competition.NewService(querier),
+			UserService:        user.NewService(querier),
+			MatchService:       match.NewService(querier),
+			SelectionService:   selection.NewService(querier),
+			EntryService:       entry.NewService(querier),
 		},
 	}))
 
@@ -70,6 +70,13 @@ func main() {
 	mux.Handle("/query", srv)
 
 	handlerWithCORS := cors.AllowAll().Handler(mux)
+
+	//! Temporary code to populate the DB
+	// ctx := context.Background()
+	// footballDataSvc := footballdata.New(querier)
+	// footballDataSvc.PopulateMatches(ctx)
+	// footballDataSvc.PopulateTeams(ctx)
+	//!
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, handlerWithCORS))

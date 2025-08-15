@@ -15,6 +15,7 @@ type Querier interface {
 	CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error)
 	CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error)
 	CreateSelection(ctx context.Context, arg CreateSelectionParams) (Selection, error)
+	CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteUser(ctx context.Context, id string) (User, error)
 	GetCompetition(ctx context.Context, id string) (Competition, error)

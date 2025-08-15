@@ -13,14 +13,16 @@ import (
 
 const createMatch = `-- name: CreateMatch :one
 INSERT INTO matches (
-    home_team_id, away_team_id, matchday, match_date
+    id, home_team_id, away_team_id, matchday, match_date
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 ) 
+ON CONFLICT (id) DO NOTHING
 RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, has_finished
 `
 
 type CreateMatchParams struct {
+	ID         string    `json:"id"`
 	HomeTeamID string    `json:"home_team_id"`
 	AwayTeamID string    `json:"away_team_id"`
 	Matchday   int32     `json:"matchday"`
@@ -29,6 +31,7 @@ type CreateMatchParams struct {
 
 func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error) {
 	row := q.db.QueryRowContext(ctx, createMatch,
+		arg.ID,
 		arg.HomeTeamID,
 		arg.AwayTeamID,
 		arg.Matchday,

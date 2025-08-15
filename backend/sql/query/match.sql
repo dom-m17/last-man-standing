@@ -17,10 +17,11 @@ WHERE matchday = $1;
 
 -- name: CreateMatch :one
 INSERT INTO matches (
-    home_team_id, away_team_id, matchday, match_date
+    id, home_team_id, away_team_id, matchday, match_date
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 ) 
+ON CONFLICT (id) DO NOTHING
 RETURNING *;
 
 -- name: UpdateMatch :one

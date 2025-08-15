@@ -7,7 +7,45 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createTeam = `-- name: CreateTeam :one
+INSERT INTO teams (
+    id, long_name, short_name, tla, crest_url
+) VALUES (
+    $1, $2, $3, $4, $5
+)
+ON CONFLICT (id) DO NOTHING
+RETURNING id, long_name, short_name, tla, crest_url
+`
+
+type CreateTeamParams struct {
+	ID        string         `json:"id"`
+	LongName  string         `json:"long_name"`
+	ShortName string         `json:"short_name"`
+	Tla       string         `json:"tla"`
+	CrestUrl  sql.NullString `json:"crest_url"`
+}
+
+func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, error) {
+	row := q.db.QueryRowContext(ctx, createTeam,
+		arg.ID,
+		arg.LongName,
+		arg.ShortName,
+		arg.Tla,
+		arg.CrestUrl,
+	)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.LongName,
+		&i.ShortName,
+		&i.Tla,
+		&i.CrestUrl,
+	)
+	return i, err
+}
 
 const getTeam = `-- name: GetTeam :one
 SELECT id, long_name, short_name, tla, crest_url
