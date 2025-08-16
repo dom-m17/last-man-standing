@@ -54,8 +54,8 @@ func makeCreateTeamParams(team Team) db.CreateTeamParams {
 	}
 }
 
-func makeCreateMatchParams(match Match) db.CreateUpdateMatchParams {
-	return db.CreateUpdateMatchParams{
+func makeUpsertMatchParams(match Match) db.UpsertMatchParams {
+	return db.UpsertMatchParams{
 		ID:         fmt.Sprintf("%d", match.ID),
 		HomeTeamID: fmt.Sprintf("%d", match.HomeTeam.ID),
 		AwayTeamID: fmt.Sprintf("%d", match.AwayTeam.ID),

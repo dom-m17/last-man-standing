@@ -13,53 +13,6 @@ import (
 	"github.com/dom-m17/lms/backend/internal/models"
 )
 
-const createUpdateMatch = `-- name: CreateUpdateMatch :one
-INSERT INTO matches (
-    id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, "status"
-) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
-) 
-ON CONFLICT (id) DO UPDATE
-SET id = EXCLUDED.id 
-RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status
-`
-
-type CreateUpdateMatchParams struct {
-	ID         string             `json:"id"`
-	HomeTeamID string             `json:"home_team_id"`
-	AwayTeamID string             `json:"away_team_id"`
-	Matchday   int32              `json:"matchday"`
-	MatchDate  time.Time          `json:"match_date"`
-	HomeGoals  sql.NullInt32      `json:"home_goals"`
-	AwayGoals  sql.NullInt32      `json:"away_goals"`
-	Status     models.MatchStatus `json:"status"`
-}
-
-func (q *Queries) CreateUpdateMatch(ctx context.Context, arg CreateUpdateMatchParams) (Match, error) {
-	row := q.db.QueryRowContext(ctx, createUpdateMatch,
-		arg.ID,
-		arg.HomeTeamID,
-		arg.AwayTeamID,
-		arg.Matchday,
-		arg.MatchDate,
-		arg.HomeGoals,
-		arg.AwayGoals,
-		arg.Status,
-	)
-	var i Match
-	err := row.Scan(
-		&i.ID,
-		&i.HomeTeamID,
-		&i.AwayTeamID,
-		&i.Matchday,
-		&i.MatchDate,
-		&i.HomeGoals,
-		&i.AwayGoals,
-		&i.Status,
-	)
-	return i, err
-}
-
 const getMatch = `-- name: GetMatch :one
 SELECT id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status FROM matches
 WHERE id = $1
@@ -136,4 +89,57 @@ func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]G
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertMatch = `-- name: UpsertMatch :one
+INSERT INTO matches (
+    id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, "status"
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8
+) 
+ON CONFLICT (id) DO UPDATE
+SET home_team_id = EXCLUDED.home_team_id,
+    away_team_id = EXCLUDED.away_team_id,
+    matchday = EXCLUDED.matchday,
+    match_date = EXCLUDED.match_date,
+    home_goals = EXCLUDED.home_goals,
+    away_goals = EXCLUDED.away_goals,
+    "status" = EXCLUDED."status"
+RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status
+`
+
+type UpsertMatchParams struct {
+	ID         string             `json:"id"`
+	HomeTeamID string             `json:"home_team_id"`
+	AwayTeamID string             `json:"away_team_id"`
+	Matchday   int32              `json:"matchday"`
+	MatchDate  time.Time          `json:"match_date"`
+	HomeGoals  sql.NullInt32      `json:"home_goals"`
+	AwayGoals  sql.NullInt32      `json:"away_goals"`
+	Status     models.MatchStatus `json:"status"`
+}
+
+func (q *Queries) UpsertMatch(ctx context.Context, arg UpsertMatchParams) (Match, error) {
+	row := q.db.QueryRowContext(ctx, upsertMatch,
+		arg.ID,
+		arg.HomeTeamID,
+		arg.AwayTeamID,
+		arg.Matchday,
+		arg.MatchDate,
+		arg.HomeGoals,
+		arg.AwayGoals,
+		arg.Status,
+	)
+	var i Match
+	err := row.Scan(
+		&i.ID,
+		&i.HomeTeamID,
+		&i.AwayTeamID,
+		&i.Matchday,
+		&i.MatchDate,
+		&i.HomeGoals,
+		&i.AwayGoals,
+		&i.Status,
+	)
+	return i, err
 }

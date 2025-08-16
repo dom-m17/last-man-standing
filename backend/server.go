@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -18,7 +17,6 @@ import (
 	"github.com/dom-m17/lms/backend/internal/competition"
 	"github.com/dom-m17/lms/backend/internal/db"
 	"github.com/dom-m17/lms/backend/internal/entry"
-	"github.com/dom-m17/lms/backend/internal/footballdata"
 	"github.com/dom-m17/lms/backend/internal/match"
 	"github.com/dom-m17/lms/backend/internal/selection"
 	"github.com/dom-m17/lms/backend/internal/subgraph"
@@ -74,10 +72,17 @@ func main() {
 	handlerWithCORS := cors.AllowAll().Handler(mux)
 
 	//! Temporary code to populate the DB
-	ctx := context.Background()
-	footballDataSvc := footballdata.New(querier)
-	footballDataSvc.PopulateTeams(ctx)
-	footballDataSvc.PopulateMatches(ctx)
+	//! This will eventually be a cron job or called from the FE
+	// ctx := context.Background()
+	// footballDataSvc := footballdata.New(querier)
+	// err = footballDataSvc.PopulateTeams(ctx)
+	// if err != nil {
+	// 	log.Printf("error populating teams: %v", err)
+	// }
+	// footballDataSvc.PopulateMatches(ctx)
+	// if err != nil {
+	// 	log.Printf("error populating matches: %v", err)
+	// }
 	//!
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)

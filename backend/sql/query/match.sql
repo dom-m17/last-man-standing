@@ -15,12 +15,18 @@ SELECT
 FROM matches
 WHERE matchday = $1;
 
--- name: CreateUpdateMatch :one
+-- name: UpsertMatch :one
 INSERT INTO matches (
     id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, "status"
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8
 ) 
 ON CONFLICT (id) DO UPDATE
-SET id = EXCLUDED.id 
+SET home_team_id = EXCLUDED.home_team_id,
+    away_team_id = EXCLUDED.away_team_id,
+    matchday = EXCLUDED.matchday,
+    match_date = EXCLUDED.match_date,
+    home_goals = EXCLUDED.home_goals,
+    away_goals = EXCLUDED.away_goals,
+    "status" = EXCLUDED."status"
 RETURNING *;

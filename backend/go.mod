@@ -5,7 +5,6 @@ go 1.24.3
 require (
 	github.com/99designs/gqlgen v0.17.78
 	github.com/brianvoe/gofakeit/v7 v7.2.1
-	github.com/davecgh/go-spew v1.1.1
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/joho/godotenv v1.5.1
@@ -15,12 +14,14 @@ require (
 	github.com/peterldowns/pgtestdb/migrators/golangmigrator v0.1.1
 	github.com/peterldowns/testy v0.0.1
 	github.com/rs/cors v1.11.1
+	github.com/stretchr/testify v1.10.0
 	github.com/vektah/gqlparser/v2 v2.5.30
 )
 
 require (
 	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/docker v28.0.1+incompatible // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -34,6 +35,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
