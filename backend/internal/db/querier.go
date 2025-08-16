@@ -13,9 +13,9 @@ type Querier interface {
 	CreateCompetition(ctx context.Context, arg CreateCompetitionParams) (Competition, error)
 	CreateCompetitionMatch(ctx context.Context, arg CreateCompetitionMatchParams) error
 	CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error)
-	CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error)
 	CreateSelection(ctx context.Context, arg CreateSelectionParams) (Selection, error)
 	CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, error)
+	CreateUpdateMatch(ctx context.Context, arg CreateUpdateMatchParams) (Match, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteUser(ctx context.Context, id string) (User, error)
 	GetCompetition(ctx context.Context, id string) (Competition, error)
@@ -29,7 +29,6 @@ type Querier interface {
 	ListTeams(ctx context.Context) ([]Team, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	UpdateEntry(ctx context.Context, arg UpdateEntryParams) (Entry, error)
-	UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match, error)
 	UpdateSelection(ctx context.Context, arg UpdateSelectionParams) (Selection, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }

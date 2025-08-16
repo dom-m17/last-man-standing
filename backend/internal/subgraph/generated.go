@@ -70,14 +70,14 @@ type ComplexityRoot struct {
 	}
 
 	Match struct {
-		AwayGoals   func(childComplexity int) int
-		AwayTeam    func(childComplexity int) int
-		HasFinished func(childComplexity int) int
-		HomeGoals   func(childComplexity int) int
-		HomeTeam    func(childComplexity int) int
-		ID          func(childComplexity int) int
-		MatchDate   func(childComplexity int) int
-		Matchday    func(childComplexity int) int
+		AwayGoals func(childComplexity int) int
+		AwayTeam  func(childComplexity int) int
+		HomeGoals func(childComplexity int) int
+		HomeTeam  func(childComplexity int) int
+		ID        func(childComplexity int) int
+		MatchDate func(childComplexity int) int
+		Matchday  func(childComplexity int) int
+		Status    func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -300,13 +300,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Match.AwayTeam(childComplexity), true
 
-	case "Match.hasFinished":
-		if e.complexity.Match.HasFinished == nil {
-			break
-		}
-
-		return e.complexity.Match.HasFinished(childComplexity), true
-
 	case "Match.homeGoals":
 		if e.complexity.Match.HomeGoals == nil {
 			break
@@ -341,6 +334,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Match.Matchday(childComplexity), true
+
+	case "Match.status":
+		if e.complexity.Match.Status == nil {
+			break
+		}
+
+		return e.complexity.Match.Status(childComplexity), true
 
 	case "Mutation.changeSelection":
 		if e.complexity.Mutation.ChangeSelection == nil {
@@ -948,7 +948,13 @@ type Match {
   matchDate: Time!
   homeGoals: Int
   awayGoals: Int
-  hasFinished: Boolean!
+  status: MatchStatus!
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  FINISHED
 }
 
 # Inputs
@@ -2238,8 +2244,8 @@ func (ec *executionContext) fieldContext_Match_awayGoals(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Match_hasFinished(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Match_hasFinished(ctx, field)
+func (ec *executionContext) _Match_status(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_status(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2252,7 +2258,7 @@ func (ec *executionContext) _Match_hasFinished(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.HasFinished, nil
+		return obj.Status, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2264,19 +2270,19 @@ func (ec *executionContext) _Match_hasFinished(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(graphmodels.MatchStatus)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNMatchStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatchStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Match_hasFinished(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Match_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Match",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type MatchStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2583,8 +2589,8 @@ func (ec *executionContext) fieldContext_Mutation_createMatch(ctx context.Contex
 				return ec.fieldContext_Match_homeGoals(ctx, field)
 			case "awayGoals":
 				return ec.fieldContext_Match_awayGoals(ctx, field)
-			case "hasFinished":
-				return ec.fieldContext_Match_hasFinished(ctx, field)
+			case "status":
+				return ec.fieldContext_Match_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -2656,8 +2662,8 @@ func (ec *executionContext) fieldContext_Mutation_updateMatch(ctx context.Contex
 				return ec.fieldContext_Match_homeGoals(ctx, field)
 			case "awayGoals":
 				return ec.fieldContext_Match_awayGoals(ctx, field)
-			case "hasFinished":
-				return ec.fieldContext_Match_hasFinished(ctx, field)
+			case "status":
+				return ec.fieldContext_Match_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -3352,8 +3358,8 @@ func (ec *executionContext) fieldContext_Query_getMatch(ctx context.Context, fie
 				return ec.fieldContext_Match_homeGoals(ctx, field)
 			case "awayGoals":
 				return ec.fieldContext_Match_awayGoals(ctx, field)
-			case "hasFinished":
-				return ec.fieldContext_Match_hasFinished(ctx, field)
+			case "status":
+				return ec.fieldContext_Match_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -3425,8 +3431,8 @@ func (ec *executionContext) fieldContext_Query_getMatchesByMatchday(ctx context.
 				return ec.fieldContext_Match_homeGoals(ctx, field)
 			case "awayGoals":
 				return ec.fieldContext_Match_awayGoals(ctx, field)
-			case "hasFinished":
-				return ec.fieldContext_Match_hasFinished(ctx, field)
+			case "status":
+				return ec.fieldContext_Match_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -4068,8 +4074,8 @@ func (ec *executionContext) fieldContext_Selection_match(_ context.Context, fiel
 				return ec.fieldContext_Match_homeGoals(ctx, field)
 			case "awayGoals":
 				return ec.fieldContext_Match_awayGoals(ctx, field)
-			case "hasFinished":
-				return ec.fieldContext_Match_hasFinished(ctx, field)
+			case "status":
+				return ec.fieldContext_Match_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
 		},
@@ -7645,8 +7651,8 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = ec._Match_homeGoals(ctx, field, obj)
 		case "awayGoals":
 			out.Values[i] = ec._Match_awayGoals(ctx, field, obj)
-		case "hasFinished":
-			out.Values[i] = ec._Match_hasFinished(ctx, field, obj)
+		case "status":
+			out.Values[i] = ec._Match_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -8902,6 +8908,16 @@ func (ec *executionContext) marshalNMatch2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋba
 		return graphql.Null
 	}
 	return ec._Match(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNMatchStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatchStatus(ctx context.Context, v any) (graphmodels.MatchStatus, error) {
+	var res graphmodels.MatchStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMatchStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐMatchStatus(ctx context.Context, sel ast.SelectionSet, v graphmodels.MatchStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNSelection2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx context.Context, sel ast.SelectionSet, v graphmodels.Selection) graphql.Marshaler {

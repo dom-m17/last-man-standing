@@ -11,26 +11,16 @@ SELECT
     match_date AS match_date,
     home_goals AS home_goals,
     away_goals AS away_goals,
-    has_finished AS has_finished
+    "status" AS "status"
 FROM matches
 WHERE matchday = $1;
 
--- name: CreateMatch :one
+-- name: CreateUpdateMatch :one
 INSERT INTO matches (
-    id, home_team_id, away_team_id, matchday, match_date
+    id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, "status"
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6, $7, $8
 ) 
-ON CONFLICT (id) DO NOTHING
-RETURNING *;
-
--- name: UpdateMatch :one
-UPDATE matches 
-SET
-    matchday = $2,
-    match_date = $3,
-    home_goals = $4,
-    away_goals = $5,
-    has_finished = "TRUE"
-WHERE id = $1
+ON CONFLICT (id) DO UPDATE
+SET id = EXCLUDED.id 
 RETURNING *;

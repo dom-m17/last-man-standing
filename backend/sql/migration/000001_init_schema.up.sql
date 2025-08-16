@@ -3,18 +3,25 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TYPE "comp_status" AS ENUM (
-  'open',
-  'in_progress',
-  'complete'
+  'OPEN',
+  'IN_PROGRESS',
+  'COMPLETED'
 );
 
 CREATE TYPE "entry_status" AS ENUM (
-  'active',
-  'eliminated',
-  'winner'
+  'ACTIVE',
+  'ELIMINATED',
+  'WINNER'
 );
 
-CREATE TABLE "teams" (
+CREATE TYPE "match_status" AS ENUM (
+  'FINISHED',
+  'IN_PLAY',
+  'SCHEDULED',
+  'TIMED'
+);
+
+CREATE TABLE IF NOT EXISTS "teams" (
   "id" text PRIMARY KEY,
   "long_name" text UNIQUE NOT NULL,
   "short_name" text UNIQUE NOT NULL,
@@ -22,16 +29,16 @@ CREATE TABLE "teams" (
   "crest_url" text
 );
 
-CREATE TABLE "competitions" (
+CREATE TABLE IF NOT EXISTS "competitions" (
   "id" text DEFAULT concat('comp_', uuid_generate_v4()) PRIMARY KEY,
   "name" text NOT NULL,
   "start_matchday" int NOT NULL,
-  "status" comp_status NOT NULL DEFAULT 'open',
+  "status" comp_status NOT NULL DEFAULT 'OPEN',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE "users" (
+CREATE TABLE IF NOT EXISTS "users" (
   "id" text DEFAULT concat('user_', uuid_generate_v4()) PRIMARY KEY,
   "username" text UNIQUE NOT NULL,
   "hashed_password" text NOT NULL,
@@ -45,7 +52,7 @@ CREATE TABLE "users" (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE "matches" (
+CREATE TABLE IF NOT EXISTS "matches" (
   "id" text PRIMARY KEY,
   "home_team_id" text NOT NULL REFERENCES teams,
   "away_team_id" text NOT NULL REFERENCES teams,
@@ -53,26 +60,27 @@ CREATE TABLE "matches" (
   "match_date" timestamptz NOT NULL,
   "home_goals" int,
   "away_goals" int,
-  "has_finished" bool NOT NULL DEFAULT false
+  "status" match_status NOT NULL
 );
 
-CREATE TABLE "entries" (
+CREATE TABLE IF NOT EXISTS "entries" (
   "id" text DEFAULT concat('entry_', uuid_generate_v4()) PRIMARY KEY,
   "user_id" text NOT NULL REFERENCES users,
   "competition_id" text NOT NULL REFERENCES competitions,
-  "status" entry_status NOT NULL DEFAULT 'active',
+  "status" entry_status NOT NULL DEFAULT 'ACTIVE',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE "rounds" (
+CREATE TABLE IF NOT EXISTS "rounds" (
   "id" text DEFAULT concat('round_', uuid_generate_v4()) PRIMARY KEY,
   "round_number" text NOT NULL,
   "competition_id" text NOT NULL REFERENCES competitions,
-  "matchday" int NOT NULL
+  "matchday" int NOT NULL,
+  "entry_deadline" timestamptz NOT NULL
 );
 
-CREATE TABLE "selections" (
+CREATE TABLE IF NOT EXISTS "selections" (
   "id" text DEFAULT concat('selection_', uuid_generate_v4()) PRIMARY KEY,
   "entry_id" text NOT NULL REFERENCES entries,
   "round_id" text NOT NULL REFERENCES rounds,
@@ -83,7 +91,7 @@ CREATE TABLE "selections" (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE "competition_matches" (
+CREATE TABLE IF NOT EXISTS "competition_matches" (
   "competition_id" text NOT NULL REFERENCES competitions,
   "match_id" text NOT NULL REFERENCES matches,
   PRIMARY KEY ("competition_id", "match_id")

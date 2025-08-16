@@ -9,14 +9,16 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
+
+	"github.com/dom-m17/lms/backend/internal/models"
 )
 
 type CompStatus string
 
 const (
-	CompStatusOpen       CompStatus = "open"
-	CompStatusInProgress CompStatus = "in_progress"
-	CompStatusComplete   CompStatus = "complete"
+	CompStatusOPEN       CompStatus = "OPEN"
+	CompStatusINPROGRESS CompStatus = "IN_PROGRESS"
+	CompStatusCOMPLETED  CompStatus = "COMPLETED"
 )
 
 func (e *CompStatus) Scan(src interface{}) error {
@@ -57,9 +59,9 @@ func (ns NullCompStatus) Value() (driver.Value, error) {
 type EntryStatus string
 
 const (
-	EntryStatusActive     EntryStatus = "active"
-	EntryStatusEliminated EntryStatus = "eliminated"
-	EntryStatusWinner     EntryStatus = "winner"
+	EntryStatusACTIVE     EntryStatus = "ACTIVE"
+	EntryStatusELIMINATED EntryStatus = "ELIMINATED"
+	EntryStatusWINNER     EntryStatus = "WINNER"
 )
 
 func (e *EntryStatus) Scan(src interface{}) error {
@@ -97,13 +99,57 @@ func (ns NullEntryStatus) Value() (driver.Value, error) {
 	return string(ns.EntryStatus), nil
 }
 
+type MatchStatus string
+
+const (
+	MatchStatusFINISHED  MatchStatus = "FINISHED"
+	MatchStatusINPLAY    MatchStatus = "IN_PLAY"
+	MatchStatusSCHEDULED MatchStatus = "SCHEDULED"
+	MatchStatusTIMED     MatchStatus = "TIMED"
+)
+
+func (e *MatchStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MatchStatus(s)
+	case string:
+		*e = MatchStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MatchStatus: %T", src)
+	}
+	return nil
+}
+
+type NullMatchStatus struct {
+	MatchStatus MatchStatus `json:"match_status"`
+	Valid       bool        `json:"valid"` // Valid is true if MatchStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMatchStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.MatchStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MatchStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMatchStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MatchStatus), nil
+}
+
 type Competition struct {
-	ID            string     `json:"id"`
-	Name          string     `json:"name"`
-	StartMatchday int32      `json:"start_matchday"`
-	Status        CompStatus `json:"status"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	StartMatchday int32             `json:"start_matchday"`
+	Status        models.CompStatus `json:"status"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
 type CompetitionMatch struct {
@@ -112,12 +158,12 @@ type CompetitionMatch struct {
 }
 
 type Entry struct {
-	ID            string      `json:"id"`
-	UserID        string      `json:"user_id"`
-	CompetitionID string      `json:"competition_id"`
-	Status        EntryStatus `json:"status"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at"`
+	ID            string             `json:"id"`
+	UserID        string             `json:"user_id"`
+	CompetitionID string             `json:"competition_id"`
+	Status        models.EntryStatus `json:"status"`
+	CreatedAt     time.Time          `json:"created_at"`
+	UpdatedAt     time.Time          `json:"updated_at"`
 }
 
 type Match struct {
@@ -125,18 +171,19 @@ type Match struct {
 	HomeTeamID string `json:"home_team_id"`
 	AwayTeamID string `json:"away_team_id"`
 	// between 1 and 38
-	Matchday    int32         `json:"matchday"`
-	MatchDate   time.Time     `json:"match_date"`
-	HomeGoals   sql.NullInt32 `json:"home_goals"`
-	AwayGoals   sql.NullInt32 `json:"away_goals"`
-	HasFinished bool          `json:"has_finished"`
+	Matchday  int32              `json:"matchday"`
+	MatchDate time.Time          `json:"match_date"`
+	HomeGoals sql.NullInt32      `json:"home_goals"`
+	AwayGoals sql.NullInt32      `json:"away_goals"`
+	Status    models.MatchStatus `json:"status"`
 }
 
 type Round struct {
-	ID            string `json:"id"`
-	RoundNumber   string `json:"round_number"`
-	CompetitionID string `json:"competition_id"`
-	Matchday      int32  `json:"matchday"`
+	ID            string    `json:"id"`
+	RoundNumber   string    `json:"round_number"`
+	CompetitionID string    `json:"competition_id"`
+	Matchday      int32     `json:"matchday"`
+	EntryDeadline time.Time `json:"entry_deadline"`
 }
 
 type Selection struct {

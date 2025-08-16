@@ -15,3 +15,15 @@ sql:
           go_type:
             import: "github.com/google/uuid"
             type: "UUID"
+        - db_type: "comp_status"
+          go_type:
+            import: "github.com/dom-m17/lms/backend/internal/models"
+            type: "CompStatus"
+        - db_type: "entry_status"
+          go_type:
+            import: "github.com/dom-m17/lms/backend/internal/models"
+            type: "EntryStatus"
+        - db_type: "match_status"
+          go_type:
+            import: "github.com/dom-m17/lms/backend/internal/models"
+            type: "MatchStatus"

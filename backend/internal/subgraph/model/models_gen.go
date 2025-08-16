@@ -62,14 +62,14 @@ type Entry struct {
 }
 
 type Match struct {
-	ID          string    `json:"id"`
-	HomeTeam    *Team     `json:"homeTeam"`
-	AwayTeam    *Team     `json:"awayTeam"`
-	Matchday    int32     `json:"matchday"`
-	MatchDate   time.Time `json:"matchDate"`
-	HomeGoals   *int32    `json:"homeGoals,omitempty"`
-	AwayGoals   *int32    `json:"awayGoals,omitempty"`
-	HasFinished bool      `json:"hasFinished"`
+	ID        string      `json:"id"`
+	HomeTeam  *Team       `json:"homeTeam"`
+	AwayTeam  *Team       `json:"awayTeam"`
+	Matchday  int32       `json:"matchday"`
+	MatchDate time.Time   `json:"matchDate"`
+	HomeGoals *int32      `json:"homeGoals,omitempty"`
+	AwayGoals *int32      `json:"awayGoals,omitempty"`
+	Status    MatchStatus `json:"status"`
 }
 
 type Mutation struct {
@@ -253,6 +253,63 @@ func (e *EntryStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e EntryStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type MatchStatus string
+
+const (
+	MatchStatusScheduled  MatchStatus = "SCHEDULED"
+	MatchStatusInProgress MatchStatus = "IN_PROGRESS"
+	MatchStatusFinished   MatchStatus = "FINISHED"
+)
+
+var AllMatchStatus = []MatchStatus{
+	MatchStatusScheduled,
+	MatchStatusInProgress,
+	MatchStatusFinished,
+}
+
+func (e MatchStatus) IsValid() bool {
+	switch e {
+	case MatchStatusScheduled, MatchStatusInProgress, MatchStatusFinished:
+		return true
+	}
+	return false
+}
+
+func (e MatchStatus) String() string {
+	return string(e)
+}
+
+func (e *MatchStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MatchStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MatchStatus", str)
+	}
+	return nil
+}
+
+func (e MatchStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *MatchStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e MatchStatus) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

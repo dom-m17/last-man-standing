@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/dom-m17/lms/backend/internal/models"
 )
 
 const createEntry = `-- name: CreateEntry :one
@@ -65,8 +67,8 @@ RETURNING id, user_id, competition_id, status, created_at, updated_at
 `
 
 type UpdateEntryParams struct {
-	ID     string      `json:"id"`
-	Status EntryStatus `json:"status"`
+	ID     string             `json:"id"`
+	Status models.EntryStatus `json:"status"`
 }
 
 func (q *Queries) UpdateEntry(ctx context.Context, arg UpdateEntryParams) (Entry, error) {

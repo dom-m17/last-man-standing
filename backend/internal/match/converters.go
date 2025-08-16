@@ -23,10 +23,10 @@ func convertDBMatchToModelsMatch(dbMatch db.GetMatchesByMatchdayRow) *models.Mat
 		AwayTeam: models.Team{
 			ID: dbMatch.AwayTeamID,
 		},
-		Matchday:    int(dbMatch.Matchday),
-		MatchDate:   dbMatch.MatchDate,
-		HomeGoals:   int(dbMatch.HomeGoals.Int32),
-		AwayGoals:   int(dbMatch.AwayGoals.Int32),
-		HasFinished: dbMatch.HasFinished,
+		Matchday:  int(dbMatch.Matchday),
+		MatchDate: dbMatch.MatchDate,
+		HomeGoals: int(dbMatch.HomeGoals.Int32),
+		AwayGoals: int(dbMatch.AwayGoals.Int32),
+		Status:    models.MatchStatus(dbMatch.Status),
 	}
 }

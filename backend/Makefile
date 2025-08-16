@@ -1,4 +1,4 @@
-.PHONY: sqlc gen gen-all start postgres createdb dropdb migrate-up migrate-down test tests seeds
+.PHONY: sqlc gen gen-all start postgres createdb dropdb migrate-up migrate-down test tests seeds reset-db
 
 sqlc:
 	sqlc generate
@@ -26,6 +26,9 @@ migrate-up:
 
 migrate-down:
 	migrate -path sql/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose down
+
+reset-db:
+	migrate -path sql/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose down && migrate -path sql/migration -database "postgresql://root:password@localhost:5432/lms?sslmode=disable" -verbose up
 
 test: ## Run one particular test
 	docker-compose up -d; go test -v -cover -race -run=$(name)

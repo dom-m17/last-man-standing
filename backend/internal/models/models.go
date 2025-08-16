@@ -48,12 +48,30 @@ type User struct {
 type Matches []*Match
 
 type Match struct {
-	ID          string
-	HomeTeam    Team
-	AwayTeam    Team
-	Matchday    int
-	MatchDate   time.Time
-	HomeGoals   int
-	AwayGoals   int
-	HasFinished bool
+	ID        string
+	HomeTeam  Team
+	AwayTeam  Team
+	Matchday  int
+	MatchDate time.Time
+	HomeGoals int
+	AwayGoals int
+	Status    MatchStatus
 }
+
+type MatchStatus string
+
+const (
+	MatchStatusScheduled  MatchStatus = "SCHEDULED"
+	MatchStatusInProgress MatchStatus = "IN_PLAY"
+	MatchStatusFinished   MatchStatus = "FINISHED"
+	MatchStatusTimed      MatchStatus = "TIMED"
+)
+
+// Entry models
+type EntryStatus string
+
+const (
+	EntryStatusEliminated EntryStatus = "ELIMINATED"
+	EntryStatusActive     EntryStatus = "ACTIVE"
+	EntryStatusWinner     EntryStatus = "WINNER"
+)

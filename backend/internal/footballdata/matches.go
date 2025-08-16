@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 func (s *Service) PopulateMatches(ctx context.Context) error {
@@ -33,9 +35,16 @@ func (s *Service) PopulateMatches(ctx context.Context) error {
 		return fmt.Errorf("unmarshaling: %w", err)
 	}
 
+	spew.Dump(data.Matches[0])
+
 	// TODO: find out if there is a way to insert many at one time with sqlc
-	for _, match := range data.Matches {
-		s.Querier.CreateMatch(ctx, makeCreateMatchParams(match))
+	for i, match := range data.Matches {
+		_, err = s.Querier.CreateUpdateMatch(ctx, makeCreateMatchParams(match))
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println(i)
+			break
+		}
 	}
 
 	return nil

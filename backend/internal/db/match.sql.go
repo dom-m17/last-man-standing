@@ -9,33 +9,42 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/dom-m17/lms/backend/internal/models"
 )
 
-const createMatch = `-- name: CreateMatch :one
+const createUpdateMatch = `-- name: CreateUpdateMatch :one
 INSERT INTO matches (
-    id, home_team_id, away_team_id, matchday, match_date
+    id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, "status"
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6, $7, $8
 ) 
-ON CONFLICT (id) DO NOTHING
-RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, has_finished
+ON CONFLICT (id) DO UPDATE
+SET id = EXCLUDED.id 
+RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status
 `
 
-type CreateMatchParams struct {
-	ID         string    `json:"id"`
-	HomeTeamID string    `json:"home_team_id"`
-	AwayTeamID string    `json:"away_team_id"`
-	Matchday   int32     `json:"matchday"`
-	MatchDate  time.Time `json:"match_date"`
+type CreateUpdateMatchParams struct {
+	ID         string             `json:"id"`
+	HomeTeamID string             `json:"home_team_id"`
+	AwayTeamID string             `json:"away_team_id"`
+	Matchday   int32              `json:"matchday"`
+	MatchDate  time.Time          `json:"match_date"`
+	HomeGoals  sql.NullInt32      `json:"home_goals"`
+	AwayGoals  sql.NullInt32      `json:"away_goals"`
+	Status     models.MatchStatus `json:"status"`
 }
 
-func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (Match, error) {
-	row := q.db.QueryRowContext(ctx, createMatch,
+func (q *Queries) CreateUpdateMatch(ctx context.Context, arg CreateUpdateMatchParams) (Match, error) {
+	row := q.db.QueryRowContext(ctx, createUpdateMatch,
 		arg.ID,
 		arg.HomeTeamID,
 		arg.AwayTeamID,
 		arg.Matchday,
 		arg.MatchDate,
+		arg.HomeGoals,
+		arg.AwayGoals,
+		arg.Status,
 	)
 	var i Match
 	err := row.Scan(
@@ -46,13 +55,13 @@ func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (Match
 		&i.MatchDate,
 		&i.HomeGoals,
 		&i.AwayGoals,
-		&i.HasFinished,
+		&i.Status,
 	)
 	return i, err
 }
 
 const getMatch = `-- name: GetMatch :one
-SELECT id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, has_finished FROM matches
+SELECT id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status FROM matches
 WHERE id = $1
 `
 
@@ -67,7 +76,7 @@ func (q *Queries) GetMatch(ctx context.Context, id string) (Match, error) {
 		&i.MatchDate,
 		&i.HomeGoals,
 		&i.AwayGoals,
-		&i.HasFinished,
+		&i.Status,
 	)
 	return i, err
 }
@@ -81,20 +90,20 @@ SELECT
     match_date AS match_date,
     home_goals AS home_goals,
     away_goals AS away_goals,
-    has_finished AS has_finished
+    "status" AS "status"
 FROM matches
 WHERE matchday = $1
 `
 
 type GetMatchesByMatchdayRow struct {
-	MatchID     string        `json:"match_id"`
-	HomeTeamID  string        `json:"home_team_id"`
-	AwayTeamID  string        `json:"away_team_id"`
-	Matchday    int32         `json:"matchday"`
-	MatchDate   time.Time     `json:"match_date"`
-	HomeGoals   sql.NullInt32 `json:"home_goals"`
-	AwayGoals   sql.NullInt32 `json:"away_goals"`
-	HasFinished bool          `json:"has_finished"`
+	MatchID    string             `json:"match_id"`
+	HomeTeamID string             `json:"home_team_id"`
+	AwayTeamID string             `json:"away_team_id"`
+	Matchday   int32              `json:"matchday"`
+	MatchDate  time.Time          `json:"match_date"`
+	HomeGoals  sql.NullInt32      `json:"home_goals"`
+	AwayGoals  sql.NullInt32      `json:"away_goals"`
+	Status     models.MatchStatus `json:"status"`
 }
 
 func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]GetMatchesByMatchdayRow, error) {
@@ -114,7 +123,7 @@ func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]G
 			&i.MatchDate,
 			&i.HomeGoals,
 			&i.AwayGoals,
-			&i.HasFinished,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -127,46 +136,4 @@ func (q *Queries) GetMatchesByMatchday(ctx context.Context, matchday int32) ([]G
 		return nil, err
 	}
 	return items, nil
-}
-
-const updateMatch = `-- name: UpdateMatch :one
-UPDATE matches 
-SET
-    matchday = $2,
-    match_date = $3,
-    home_goals = $4,
-    away_goals = $5,
-    has_finished = "TRUE"
-WHERE id = $1
-RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, has_finished
-`
-
-type UpdateMatchParams struct {
-	ID        string        `json:"id"`
-	Matchday  int32         `json:"matchday"`
-	MatchDate time.Time     `json:"match_date"`
-	HomeGoals sql.NullInt32 `json:"home_goals"`
-	AwayGoals sql.NullInt32 `json:"away_goals"`
-}
-
-func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (Match, error) {
-	row := q.db.QueryRowContext(ctx, updateMatch,
-		arg.ID,
-		arg.Matchday,
-		arg.MatchDate,
-		arg.HomeGoals,
-		arg.AwayGoals,
-	)
-	var i Match
-	err := row.Scan(
-		&i.ID,
-		&i.HomeTeamID,
-		&i.AwayTeamID,
-		&i.Matchday,
-		&i.MatchDate,
-		&i.HomeGoals,
-		&i.AwayGoals,
-		&i.HasFinished,
-	)
-	return i, err
 }
