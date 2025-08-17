@@ -13,7 +13,8 @@ SELECT
     away_goals AS away_goals,
     "status" AS "status"
 FROM matches
-WHERE matchday = $1;
+WHERE matchday = $1
+ORDER BY match_date ASC;
 
 -- name: UpsertMatch :one
 INSERT INTO matches (

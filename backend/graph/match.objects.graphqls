@@ -12,7 +12,8 @@ type Match {
 
 enum MatchStatus {
   SCHEDULED
-  IN_PROGRESS
+  TIMED
+  IN_PLAY
   FINISHED
 }
 

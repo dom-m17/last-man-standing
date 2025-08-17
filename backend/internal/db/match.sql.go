@@ -46,6 +46,7 @@ SELECT
     "status" AS "status"
 FROM matches
 WHERE matchday = $1
+ORDER BY match_date ASC
 `
 
 type GetMatchesByMatchdayRow struct {

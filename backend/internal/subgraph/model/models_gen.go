@@ -21,6 +21,7 @@ type Competition struct {
 	Name          string     `json:"name"`
 	StartMatchday int32      `json:"startMatchday"`
 	Status        CompStatus `json:"status"`
+	Rounds        []*Round   `json:"rounds"`
 	CreatedAt     time.Time  `json:"createdAt"`
 	UpdatedAt     time.Time  `json:"updatedAt"`
 }
@@ -76,6 +77,14 @@ type Mutation struct {
 }
 
 type Query struct {
+}
+
+type Round struct {
+	ID            string       `json:"id"`
+	RoundNumber   int32        `json:"roundNumber"`
+	Competition   *Competition `json:"competition"`
+	Matchday      int32        `json:"matchday"`
+	EntryDeadline time.Time    `json:"entryDeadline"`
 }
 
 type Selection struct {
@@ -261,20 +270,22 @@ func (e EntryStatus) MarshalJSON() ([]byte, error) {
 type MatchStatus string
 
 const (
-	MatchStatusScheduled  MatchStatus = "SCHEDULED"
-	MatchStatusInProgress MatchStatus = "IN_PROGRESS"
-	MatchStatusFinished   MatchStatus = "FINISHED"
+	MatchStatusScheduled MatchStatus = "SCHEDULED"
+	MatchStatusTimed     MatchStatus = "TIMED"
+	MatchStatusInPlay    MatchStatus = "IN_PLAY"
+	MatchStatusFinished  MatchStatus = "FINISHED"
 )
 
 var AllMatchStatus = []MatchStatus{
 	MatchStatusScheduled,
-	MatchStatusInProgress,
+	MatchStatusTimed,
+	MatchStatusInPlay,
 	MatchStatusFinished,
 }
 
 func (e MatchStatus) IsValid() bool {
 	switch e {
-	case MatchStatusScheduled, MatchStatusInProgress, MatchStatusFinished:
+	case MatchStatusScheduled, MatchStatusTimed, MatchStatusInPlay, MatchStatusFinished:
 		return true
 	}
 	return false

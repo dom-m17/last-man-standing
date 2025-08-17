@@ -17,9 +17,12 @@ type Team struct {
 type CompStatus string
 
 const (
-	CompStatusOpen       CompStatus = "OPEN"
+	// Open is the status for competitions that have not yet started and are open to new entries
+	CompStatusOpen CompStatus = "OPEN"
+	// In Progress is the status for competitions that currently underway
 	CompStatusInProgress CompStatus = "IN_PROGRESS"
-	CompStatusComplete   CompStatus = "COMPLETE"
+	// Complete is the status for competitions that have finished
+	CompStatusComplete CompStatus = "COMPLETE"
 )
 
 type Competition struct {
@@ -61,10 +64,14 @@ type Match struct {
 type MatchStatus string
 
 const (
-	MatchStatusScheduled  MatchStatus = "SCHEDULED"
-	MatchStatusInProgress MatchStatus = "IN_PLAY"
-	MatchStatusFinished   MatchStatus = "FINISHED"
-	MatchStatusTimed      MatchStatus = "TIMED"
+	// Scheduled are matches that are in the future without a confirmed date/time
+	MatchStatusScheduled MatchStatus = "SCHEDULED"
+	// Timed are matches that are in the future and have a confirmed date/time
+	MatchStatusTimed MatchStatus = "TIMED"
+	// In Play are matches that are currently being played
+	MatchStatusInPlay MatchStatus = "IN_PLAY"
+	// Finished are matches that have been completed
+	MatchStatusFinished MatchStatus = "FINISHED"
 )
 
 // Entry models

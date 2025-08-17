@@ -31,3 +31,8 @@ func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*grap
 
 	return graphconverters.ConvertModelCompetitionToGraphCompetition(competition), nil
 }
+
+// GetCompetitions is the resolver for the getCompetitions field.
+func (r *queryResolver) GetCompetitions(ctx context.Context) ([]*graphmodels.Competition, error) {
+	panic(fmt.Errorf("not implemented: GetCompetitions - getCompetitions"))
+}

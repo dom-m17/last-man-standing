@@ -38,5 +38,7 @@ func (s *Service) PopulateTeams(ctx context.Context) error {
 		s.Querier.CreateTeam(ctx, makeCreateTeamParams(team))
 	}
 
+	fmt.Println("teams populated")
+
 	return nil
 }

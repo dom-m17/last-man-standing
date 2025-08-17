@@ -41,5 +41,7 @@ func (s *Service) PopulateMatches(ctx context.Context) error {
 		}
 	}
 
+	fmt.Println("matches populated")
+
 	return nil
 }

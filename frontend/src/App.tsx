@@ -5,12 +5,18 @@ import Header from "./components/Header";
 
 export default function App() {
   const [round, setRound] = useState(1);
+  const [competition, setCompetition] = useState(1);
 
   return (
     <main>
       <Header />
-      <CompetitionRound round={round} setRound={setRound} />
-      <MatchList round={round} />
+      <CompetitionRound
+        round={round}
+        setRound={setRound}
+        competition={competition}
+        setCompetition={setCompetition}
+      />
+      <MatchList roundNumber={round} competitionNumber={competition} />
     </main>
   );
 }

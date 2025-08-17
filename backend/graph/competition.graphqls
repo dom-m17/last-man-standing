@@ -1,5 +1,6 @@
 extend type Query {
   getCompetition(input: ID!): Competition!
+  getCompetitions: [Competition!]!
 }
 
 extend type Mutation {

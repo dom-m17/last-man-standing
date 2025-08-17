@@ -26,7 +26,9 @@ CREATE TABLE IF NOT EXISTS "teams" (
   "long_name" text UNIQUE NOT NULL,
   "short_name" text UNIQUE NOT NULL,
   "tla" text UNIQUE NOT NULL,
-  "crest_url" text
+  "crest_url" text,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE IF NOT EXISTS "competitions" (
@@ -60,7 +62,9 @@ CREATE TABLE IF NOT EXISTS "matches" (
   "match_date" timestamptz NOT NULL,
   "home_goals" int,
   "away_goals" int,
-  "status" match_status NOT NULL
+  "status" match_status NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE IF NOT EXISTS "entries" (
@@ -72,12 +76,15 @@ CREATE TABLE IF NOT EXISTS "entries" (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+--? Do rounds need statuses as well?
 CREATE TABLE IF NOT EXISTS "rounds" (
   "id" text DEFAULT concat('round_', uuid_generate_v4()) PRIMARY KEY,
   "round_number" text NOT NULL,
   "competition_id" text NOT NULL REFERENCES competitions,
   "matchday" int NOT NULL,
-  "entry_deadline" timestamptz NOT NULL
+  "entry_deadline" timestamptz NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE IF NOT EXISTS "selections" (
@@ -94,7 +101,9 @@ CREATE TABLE IF NOT EXISTS "selections" (
 CREATE TABLE IF NOT EXISTS "competition_matches" (
   "competition_id" text NOT NULL REFERENCES competitions,
   "match_id" text NOT NULL REFERENCES matches,
-  PRIMARY KEY ("competition_id", "match_id")
+  PRIMARY KEY ("competition_id", "match_id"),
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE INDEX ON "entries" ("user_id");

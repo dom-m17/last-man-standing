@@ -4,6 +4,7 @@ type Competition {
   name: String!
   startMatchday: Int!
   status: CompStatus!
+  rounds: [Round!]!
   createdAt: Time!
   updatedAt: Time!
 }

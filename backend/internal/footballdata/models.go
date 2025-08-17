@@ -69,7 +69,7 @@ func makeUpsertMatchParams(match Match) db.UpsertMatchParams {
 }
 
 func convertAPIGoalsToDBGoals(status string, goals int) sql.NullInt32 {
-	if status == string(models.MatchStatusInProgress) || status == string(models.MatchStatusFinished) {
+	if status == string(models.MatchStatusInPlay) || status == string(models.MatchStatusFinished) {
 		return sql.NullInt32{Int32: int32(goals), Valid: true}
 	}
 

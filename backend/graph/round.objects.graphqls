@@ -1,0 +1,7 @@
+type Round {
+  id: ID!
+  roundNumber: Int!
+  competition: Competition!
+  matchday: Int!
+  entryDeadline: Time!
+}
