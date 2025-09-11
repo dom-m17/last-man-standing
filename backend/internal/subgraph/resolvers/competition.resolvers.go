@@ -32,7 +32,12 @@ func (r *queryResolver) GetCompetition(ctx context.Context, input string) (*grap
 	return graphconverters.ConvertModelCompetitionToGraphCompetition(competition), nil
 }
 
-// GetCompetitions is the resolver for the getCompetitions field.
-func (r *queryResolver) GetCompetitions(ctx context.Context) ([]*graphmodels.Competition, error) {
-	panic(fmt.Errorf("not implemented: GetCompetitions - getCompetitions"))
+// ListCompetitions is the resolver for the listCompetitions field.
+func (r *queryResolver) ListCompetitions(ctx context.Context) ([]*graphmodels.Competition, error) {
+	competitions, err := r.CompetitionService.ListCompetitions(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("listing competition: %w", err)
+	}
+
+	return graphconverters.ConvertModelCompetitionsToGraphCompetitions(competitions), nil
 }

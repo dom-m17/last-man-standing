@@ -1,7 +1,18 @@
+# Types
 type Round {
   id: ID!
   roundNumber: Int!
   competition: Competition!
   matchday: Int!
+  status: RoundStatus!
   entryDeadline: Time!
+  CreatedAt: Time!
+  UpdatedAt: Time!
+}
+
+# Enums
+enum RoundStatus {
+  PENDING
+  IN_PLAY
+  FINISHED
 }

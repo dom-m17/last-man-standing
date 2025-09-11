@@ -100,23 +100,26 @@ type ComplexityRoot struct {
 	Query struct {
 		Empty                func(childComplexity int) int
 		GetCompetition       func(childComplexity int, input string) int
-		GetCompetitions      func(childComplexity int) int
 		GetEntry             func(childComplexity int, input string) int
 		GetMatch             func(childComplexity int, input string) int
 		GetMatchesByMatchday func(childComplexity int, input int32) int
 		GetSelection         func(childComplexity int, input string) int
 		GetTeam              func(childComplexity int, input string) int
 		GetUser              func(childComplexity int, input string) int
+		ListCompetitions     func(childComplexity int) int
 		ListTeams            func(childComplexity int) int
 		ListUsers            func(childComplexity int) int
 	}
 
 	Round struct {
 		Competition   func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
 		EntryDeadline func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Matchday      func(childComplexity int) int
 		RoundNumber   func(childComplexity int) int
+		Status        func(childComplexity int) int
+		UpdatedAt     func(childComplexity int) int
 	}
 
 	Selection struct {
@@ -176,7 +179,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Empty(ctx context.Context) (*bool, error)
 	GetCompetition(ctx context.Context, input string) (*graphmodels.Competition, error)
-	GetCompetitions(ctx context.Context) ([]*graphmodels.Competition, error)
+	ListCompetitions(ctx context.Context) ([]*graphmodels.Competition, error)
 	GetEntry(ctx context.Context, input string) (*graphmodels.Entry, error)
 	GetMatch(ctx context.Context, input string) (*graphmodels.Match, error)
 	GetMatchesByMatchday(ctx context.Context, input int32) ([]*graphmodels.Match, error)
@@ -522,13 +525,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.GetCompetition(childComplexity, args["input"].(string)), true
 
-	case "Query.getCompetitions":
-		if e.complexity.Query.GetCompetitions == nil {
-			break
-		}
-
-		return e.complexity.Query.GetCompetitions(childComplexity), true
-
 	case "Query.getEntry":
 		if e.complexity.Query.GetEntry == nil {
 			break
@@ -601,6 +597,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.GetUser(childComplexity, args["input"].(string)), true
 
+	case "Query.listCompetitions":
+		if e.complexity.Query.ListCompetitions == nil {
+			break
+		}
+
+		return e.complexity.Query.ListCompetitions(childComplexity), true
+
 	case "Query.listTeams":
 		if e.complexity.Query.ListTeams == nil {
 			break
@@ -621,6 +624,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Round.Competition(childComplexity), true
+
+	case "Round.CreatedAt":
+		if e.complexity.Round.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Round.CreatedAt(childComplexity), true
 
 	case "Round.entryDeadline":
 		if e.complexity.Round.EntryDeadline == nil {
@@ -649,6 +659,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Round.RoundNumber(childComplexity), true
+
+	case "Round.status":
+		if e.complexity.Round.Status == nil {
+			break
+		}
+
+		return e.complexity.Round.Status(childComplexity), true
+
+	case "Round.UpdatedAt":
+		if e.complexity.Round.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Round.UpdatedAt(childComplexity), true
 
 	case "Selection.createdAt":
 		if e.complexity.Selection.CreatedAt == nil {
@@ -921,7 +945,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../../graph/competition.graphqls", Input: `extend type Query {
   getCompetition(input: ID!): Competition!
-  getCompetitions: [Competition!]!
+  listCompetitions: [Competition!]!
 }
 
 extend type Mutation {
@@ -933,14 +957,14 @@ type Competition {
   id: ID!
   name: String!
   startMatchday: Int!
-  status: CompStatus!
+  status: CompetitionStatus!
   rounds: [Round!]!
   createdAt: Time!
   updatedAt: Time!
 }
 
 # Enums
-enum CompStatus {
+enum CompetitionStatus {
   OPEN
   IN_PROGRESS
   COMPLETE
@@ -1058,12 +1082,23 @@ type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../../graph/round.graphqls", Input: ``, BuiltIn: false},
-	{Name: "../../graph/round.objects.graphqls", Input: `type Round {
+	{Name: "../../graph/round.objects.graphqls", Input: `# Types
+type Round {
   id: ID!
   roundNumber: Int!
   competition: Competition!
   matchday: Int!
+  status: RoundStatus!
   entryDeadline: Time!
+  CreatedAt: Time!
+  UpdatedAt: Time!
+}
+
+# Enums
+enum RoundStatus {
+  PENDING
+  IN_PLAY
+  FINISHED
 }
 `, BuiltIn: false},
 	{Name: "../../graph/selection.graphqls", Input: `extend type Query {
@@ -1590,9 +1625,9 @@ func (ec *executionContext) _Competition_status(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(graphmodels.CompStatus)
+	res := resTmp.(graphmodels.CompetitionStatus)
 	fc.Result = res
-	return ec.marshalNCompStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompStatus(ctx, field.Selections, res)
+	return ec.marshalNCompetitionStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Competition_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1602,7 +1637,7 @@ func (ec *executionContext) fieldContext_Competition_status(_ context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type CompStatus does not have child fields")
+			return nil, errors.New("field of type CompetitionStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1655,8 +1690,14 @@ func (ec *executionContext) fieldContext_Competition_rounds(_ context.Context, f
 				return ec.fieldContext_Round_competition(ctx, field)
 			case "matchday":
 				return ec.fieldContext_Round_matchday(ctx, field)
+			case "status":
+				return ec.fieldContext_Round_status(ctx, field)
 			case "entryDeadline":
 				return ec.fieldContext_Round_entryDeadline(ctx, field)
+			case "CreatedAt":
+				return ec.fieldContext_Round_CreatedAt(ctx, field)
+			case "UpdatedAt":
+				return ec.fieldContext_Round_UpdatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Round", field.Name)
 		},
@@ -3376,8 +3417,8 @@ func (ec *executionContext) fieldContext_Query_getCompetition(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getCompetitions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getCompetitions(ctx, field)
+func (ec *executionContext) _Query_listCompetitions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_listCompetitions(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3390,7 +3431,7 @@ func (ec *executionContext) _Query_getCompetitions(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetCompetitions(rctx)
+		return ec.resolvers.Query().ListCompetitions(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3407,7 +3448,7 @@ func (ec *executionContext) _Query_getCompetitions(ctx context.Context, field gr
 	return ec.marshalNCompetition2ᚕᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getCompetitions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_listCompetitions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4311,6 +4352,50 @@ func (ec *executionContext) fieldContext_Round_matchday(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Round_status(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Round) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Round_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(graphmodels.RoundStatus)
+	fc.Result = res
+	return ec.marshalNRoundStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐRoundStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Round_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Round",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RoundStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Round_entryDeadline(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Round) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Round_entryDeadline(ctx, field)
 	if err != nil {
@@ -4343,6 +4428,94 @@ func (ec *executionContext) _Round_entryDeadline(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_Round_entryDeadline(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Round",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Round_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Round) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Round_CreatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Round_CreatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Round",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Round_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *graphmodels.Round) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Round_UpdatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Round_UpdatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Round",
 		Field:      field,
@@ -8303,7 +8476,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getCompetitions":
+		case "listCompetitions":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -8312,7 +8485,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getCompetitions(ctx, field)
+				res = ec._Query_listCompetitions(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8594,8 +8767,23 @@ func (ec *executionContext) _Round(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "status":
+			out.Values[i] = ec._Round_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "entryDeadline":
 			out.Values[i] = ec._Round_entryDeadline(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "CreatedAt":
+			out.Values[i] = ec._Round_CreatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "UpdatedAt":
+			out.Values[i] = ec._Round_UpdatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -9305,16 +9493,6 @@ func (ec *executionContext) unmarshalNChangeSelectionInput2githubᚗcomᚋdomᚑ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCompStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompStatus(ctx context.Context, v any) (graphmodels.CompStatus, error) {
-	var res graphmodels.CompStatus
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNCompStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompStatus(ctx context.Context, sel ast.SelectionSet, v graphmodels.CompStatus) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) marshalNCompetition2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetition(ctx context.Context, sel ast.SelectionSet, v graphmodels.Competition) graphql.Marshaler {
 	return ec._Competition(ctx, sel, &v)
 }
@@ -9371,6 +9549,16 @@ func (ec *executionContext) marshalNCompetition2ᚖgithubᚗcomᚋdomᚑm17ᚋlm
 		return graphql.Null
 	}
 	return ec._Competition(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCompetitionStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionStatus(ctx context.Context, v any) (graphmodels.CompetitionStatus, error) {
+	var res graphmodels.CompetitionStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCompetitionStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCompetitionStatus(ctx context.Context, sel ast.SelectionSet, v graphmodels.CompetitionStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNCreateCompetitionInput2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐCreateCompetitionInput(ctx context.Context, v any) (graphmodels.CreateCompetitionInput, error) {
@@ -9569,6 +9757,16 @@ func (ec *executionContext) marshalNRound2ᚖgithubᚗcomᚋdomᚑm17ᚋlmsᚋba
 		return graphql.Null
 	}
 	return ec._Round(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRoundStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐRoundStatus(ctx context.Context, v any) (graphmodels.RoundStatus, error) {
+	var res graphmodels.RoundStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRoundStatus2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐRoundStatus(ctx context.Context, sel ast.SelectionSet, v graphmodels.RoundStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNSelection2githubᚗcomᚋdomᚑm17ᚋlmsᚋbackendᚋinternalᚋsubgraphᚋmodelᚐSelection(ctx context.Context, sel ast.SelectionSet, v graphmodels.Selection) graphql.Marshaler {

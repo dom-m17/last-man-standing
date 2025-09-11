@@ -143,6 +143,49 @@ func (ns NullMatchStatus) Value() (driver.Value, error) {
 	return string(ns.MatchStatus), nil
 }
 
+type RoundStatus string
+
+const (
+	RoundStatusPENDING  RoundStatus = "PENDING"
+	RoundStatusINPLAY   RoundStatus = "IN_PLAY"
+	RoundStatusFINISHED RoundStatus = "FINISHED"
+)
+
+func (e *RoundStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = RoundStatus(s)
+	case string:
+		*e = RoundStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for RoundStatus: %T", src)
+	}
+	return nil
+}
+
+type NullRoundStatus struct {
+	RoundStatus RoundStatus `json:"round_status"`
+	Valid       bool        `json:"valid"` // Valid is true if RoundStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullRoundStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.RoundStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.RoundStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullRoundStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.RoundStatus), nil
+}
+
 type Competition struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -153,8 +196,10 @@ type Competition struct {
 }
 
 type CompetitionMatch struct {
-	CompetitionID string `json:"competition_id"`
-	MatchID       string `json:"match_id"`
+	CompetitionID string    `json:"competition_id"`
+	MatchID       string    `json:"match_id"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type Entry struct {
@@ -176,14 +221,19 @@ type Match struct {
 	HomeGoals sql.NullInt32      `json:"home_goals"`
 	AwayGoals sql.NullInt32      `json:"away_goals"`
 	Status    models.MatchStatus `json:"status"`
+	CreatedAt time.Time          `json:"created_at"`
+	UpdatedAt time.Time          `json:"updated_at"`
 }
 
 type Round struct {
-	ID            string    `json:"id"`
-	RoundNumber   string    `json:"round_number"`
-	CompetitionID string    `json:"competition_id"`
-	Matchday      int32     `json:"matchday"`
-	EntryDeadline time.Time `json:"entry_deadline"`
+	ID            string      `json:"id"`
+	RoundNumber   string      `json:"round_number"`
+	CompetitionID string      `json:"competition_id"`
+	Matchday      int32       `json:"matchday"`
+	Status        RoundStatus `json:"status"`
+	EntryDeadline time.Time   `json:"entry_deadline"`
+	CreatedAt     time.Time   `json:"created_at"`
+	UpdatedAt     time.Time   `json:"updated_at"`
 }
 
 type Selection struct {
@@ -203,6 +253,8 @@ type Team struct {
 	ShortName string         `json:"short_name"`
 	Tla       string         `json:"tla"`
 	CrestUrl  sql.NullString `json:"crest_url"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 type User struct {

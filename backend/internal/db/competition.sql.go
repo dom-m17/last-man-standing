@@ -56,3 +56,37 @@ func (q *Queries) GetCompetition(ctx context.Context, id string) (Competition, e
 	)
 	return i, err
 }
+
+const listCompetitions = `-- name: ListCompetitions :many
+SELECT id, name, start_matchday, status, created_at, updated_at FROM competitions
+`
+
+func (q *Queries) ListCompetitions(ctx context.Context) ([]Competition, error) {
+	rows, err := q.db.QueryContext(ctx, listCompetitions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Competition{}
+	for rows.Next() {
+		var i Competition
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.StartMatchday,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

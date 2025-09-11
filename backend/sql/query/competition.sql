@@ -2,6 +2,9 @@
 SELECT * FROM competitions
 WHERE id = $1;
 
+-- name: ListCompetitions :many
+SELECT * FROM competitions;
+
 -- name: CreateCompetition :one
 INSERT INTO competitions (
     name,

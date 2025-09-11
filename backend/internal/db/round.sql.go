@@ -10,7 +10,7 @@ import (
 )
 
 const getRound = `-- name: GetRound :one
-SELECT id, round_number, competition_id, matchday, entry_deadline FROM rounds
+SELECT id, round_number, competition_id, matchday, status, entry_deadline, created_at, updated_at FROM rounds
 WHERE id = $1
 `
 
@@ -22,7 +22,10 @@ func (q *Queries) GetRound(ctx context.Context, id string) (Round, error) {
 		&i.RoundNumber,
 		&i.CompetitionID,
 		&i.Matchday,
+		&i.Status,
 		&i.EntryDeadline,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

@@ -25,6 +25,7 @@ type Querier interface {
 	GetSelection(ctx context.Context, id string) (Selection, error)
 	GetTeam(ctx context.Context, id string) (Team, error)
 	GetUser(ctx context.Context, id string) (User, error)
+	ListCompetitions(ctx context.Context) ([]Competition, error)
 	ListTeams(ctx context.Context) ([]Team, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	UpdateEntry(ctx context.Context, arg UpdateEntryParams) (Entry, error)

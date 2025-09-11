@@ -32,8 +32,19 @@ func ConvertModelCompetitionToGraphCompetition(competition models.Competition) *
 		ID:            competition.ID,
 		Name:          competition.Name,
 		StartMatchday: int32(competition.StartMatchday),
-		Status:        graphmodels.CompStatus(competition.Status),
+		Status:        graphmodels.CompetitionStatus(competition.Status),
+		CreatedAt:     competition.CreatedAt,
+		UpdatedAt:     competition.UpdatedAt,
 	}
+}
+
+func ConvertModelCompetitionsToGraphCompetitions(competitions models.Competitions) []*graphmodels.Competition {
+	gCompetitions := make([]*graphmodels.Competition, len(competitions))
+	for i, comp := range competitions {
+		gCompetitions[i] = ConvertModelCompetitionToGraphCompetition(*comp)
+	}
+
+	return gCompetitions
 }
 
 // User Converters

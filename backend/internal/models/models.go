@@ -25,11 +25,15 @@ const (
 	CompStatusComplete CompStatus = "COMPLETE"
 )
 
+type Competitions []*Competition
+
 type Competition struct {
 	ID            string `json:"id"`
 	Name          string
 	StartMatchday int
 	Status        CompStatus
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 // User models

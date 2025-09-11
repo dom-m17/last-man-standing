@@ -17,13 +17,13 @@ type ChangeSelectionInput struct {
 }
 
 type Competition struct {
-	ID            string     `json:"id"`
-	Name          string     `json:"name"`
-	StartMatchday int32      `json:"startMatchday"`
-	Status        CompStatus `json:"status"`
-	Rounds        []*Round   `json:"rounds"`
-	CreatedAt     time.Time  `json:"createdAt"`
-	UpdatedAt     time.Time  `json:"updatedAt"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	StartMatchday int32             `json:"startMatchday"`
+	Status        CompetitionStatus `json:"status"`
+	Rounds        []*Round          `json:"rounds"`
+	CreatedAt     time.Time         `json:"createdAt"`
+	UpdatedAt     time.Time         `json:"updatedAt"`
 }
 
 type CreateCompetitionInput struct {
@@ -84,7 +84,10 @@ type Round struct {
 	RoundNumber   int32        `json:"roundNumber"`
 	Competition   *Competition `json:"competition"`
 	Matchday      int32        `json:"matchday"`
+	Status        RoundStatus  `json:"status"`
 	EntryDeadline time.Time    `json:"entryDeadline"`
+	CreatedAt     time.Time    `json:"CreatedAt"`
+	UpdatedAt     time.Time    `json:"UpdatedAt"`
 }
 
 type Selection struct {
@@ -153,50 +156,50 @@ type UpdateMatchInput struct {
 	MatchDate time.Time `json:"matchDate"`
 }
 
-type CompStatus string
+type CompetitionStatus string
 
 const (
-	CompStatusOpen       CompStatus = "OPEN"
-	CompStatusInProgress CompStatus = "IN_PROGRESS"
-	CompStatusComplete   CompStatus = "COMPLETE"
+	CompetitionStatusOpen       CompetitionStatus = "OPEN"
+	CompetitionStatusInProgress CompetitionStatus = "IN_PROGRESS"
+	CompetitionStatusComplete   CompetitionStatus = "COMPLETE"
 )
 
-var AllCompStatus = []CompStatus{
-	CompStatusOpen,
-	CompStatusInProgress,
-	CompStatusComplete,
+var AllCompetitionStatus = []CompetitionStatus{
+	CompetitionStatusOpen,
+	CompetitionStatusInProgress,
+	CompetitionStatusComplete,
 }
 
-func (e CompStatus) IsValid() bool {
+func (e CompetitionStatus) IsValid() bool {
 	switch e {
-	case CompStatusOpen, CompStatusInProgress, CompStatusComplete:
+	case CompetitionStatusOpen, CompetitionStatusInProgress, CompetitionStatusComplete:
 		return true
 	}
 	return false
 }
 
-func (e CompStatus) String() string {
+func (e CompetitionStatus) String() string {
 	return string(e)
 }
 
-func (e *CompStatus) UnmarshalGQL(v any) error {
+func (e *CompetitionStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = CompStatus(str)
+	*e = CompetitionStatus(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid CompStatus", str)
+		return fmt.Errorf("%s is not a valid CompetitionStatus", str)
 	}
 	return nil
 }
 
-func (e CompStatus) MarshalGQL(w io.Writer) {
+func (e CompetitionStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func (e *CompStatus) UnmarshalJSON(b []byte) error {
+func (e *CompetitionStatus) UnmarshalJSON(b []byte) error {
 	s, err := strconv.Unquote(string(b))
 	if err != nil {
 		return err
@@ -204,7 +207,7 @@ func (e *CompStatus) UnmarshalJSON(b []byte) error {
 	return e.UnmarshalGQL(s)
 }
 
-func (e CompStatus) MarshalJSON() ([]byte, error) {
+func (e CompetitionStatus) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
@@ -321,6 +324,63 @@ func (e *MatchStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e MatchStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type RoundStatus string
+
+const (
+	RoundStatusPending  RoundStatus = "PENDING"
+	RoundStatusInPlay   RoundStatus = "IN_PLAY"
+	RoundStatusFinished RoundStatus = "FINISHED"
+)
+
+var AllRoundStatus = []RoundStatus{
+	RoundStatusPending,
+	RoundStatusInPlay,
+	RoundStatusFinished,
+}
+
+func (e RoundStatus) IsValid() bool {
+	switch e {
+	case RoundStatusPending, RoundStatusInPlay, RoundStatusFinished:
+		return true
+	}
+	return false
+}
+
+func (e RoundStatus) String() string {
+	return string(e)
+}
+
+func (e *RoundStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RoundStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RoundStatus", str)
+	}
+	return nil
+}
+
+func (e RoundStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RoundStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RoundStatus) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

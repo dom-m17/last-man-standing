@@ -17,7 +17,7 @@ INSERT INTO teams (
     $1, $2, $3, $4, $5
 )
 ON CONFLICT (id) DO NOTHING
-RETURNING id, long_name, short_name, tla, crest_url
+RETURNING id, long_name, short_name, tla, crest_url, created_at, updated_at
 `
 
 type CreateTeamParams struct {
@@ -43,12 +43,14 @@ func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (Team, e
 		&i.ShortName,
 		&i.Tla,
 		&i.CrestUrl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getTeam = `-- name: GetTeam :one
-SELECT id, long_name, short_name, tla, crest_url
+SELECT id, long_name, short_name, tla, crest_url, created_at, updated_at
 FROM teams
 WHERE id = $1
 `
@@ -62,12 +64,14 @@ func (q *Queries) GetTeam(ctx context.Context, id string) (Team, error) {
 		&i.ShortName,
 		&i.Tla,
 		&i.CrestUrl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listTeams = `-- name: ListTeams :many
-SELECT id, long_name, short_name, tla, crest_url
+SELECT id, long_name, short_name, tla, crest_url, created_at, updated_at
 FROM teams
 `
 
@@ -86,6 +90,8 @@ func (q *Queries) ListTeams(ctx context.Context) ([]Team, error) {
 			&i.ShortName,
 			&i.Tla,
 			&i.CrestUrl,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

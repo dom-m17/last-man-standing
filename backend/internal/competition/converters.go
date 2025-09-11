@@ -11,5 +11,17 @@ func convertDBCompetitionToModelsCompetition(competition db.Competition) models.
 		Name:          competition.Name,
 		StartMatchday: int(competition.StartMatchday),
 		Status:        competition.Status,
+		CreatedAt:     competition.CreatedAt,
+		UpdatedAt:     competition.UpdatedAt,
 	}
+}
+
+func convertDBCompetitionsToModelsCompetitions(competitions []db.Competition) models.Competitions {
+	out := make(models.Competitions, len(competitions))
+	for i, competitiion := range competitions {
+		comp := convertDBCompetitionToModelsCompetition(competitiion)
+		out[i] = &comp
+	}
+
+	return out
 }

@@ -3,14 +3,14 @@ type Competition {
   id: ID!
   name: String!
   startMatchday: Int!
-  status: CompStatus!
+  status: CompetitionStatus!
   rounds: [Round!]!
   createdAt: Time!
   updatedAt: Time!
 }
 
 # Enums
-enum CompStatus {
+enum CompetitionStatus {
   OPEN
   IN_PROGRESS
   COMPLETE

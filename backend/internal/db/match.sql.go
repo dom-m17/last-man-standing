@@ -14,7 +14,7 @@ import (
 )
 
 const getMatch = `-- name: GetMatch :one
-SELECT id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status FROM matches
+SELECT id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status, created_at, updated_at FROM matches
 WHERE id = $1
 `
 
@@ -30,6 +30,8 @@ func (q *Queries) GetMatch(ctx context.Context, id string) (Match, error) {
 		&i.HomeGoals,
 		&i.AwayGoals,
 		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -106,7 +108,7 @@ SET home_team_id = EXCLUDED.home_team_id,
     home_goals = EXCLUDED.home_goals,
     away_goals = EXCLUDED.away_goals,
     "status" = EXCLUDED."status"
-RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status
+RETURNING id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, status, created_at, updated_at
 `
 
 type UpsertMatchParams struct {
@@ -141,6 +143,8 @@ func (q *Queries) UpsertMatch(ctx context.Context, arg UpsertMatchParams) (Match
 		&i.HomeGoals,
 		&i.AwayGoals,
 		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

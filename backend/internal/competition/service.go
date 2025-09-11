@@ -15,6 +15,7 @@ type Service struct {
 type ServiceInterface interface {
 	GetCompetition(ctx context.Context, competitionID string) (models.Competition, error)
 	CreateCompetition(ctx context.Context, input graphmodels.CreateCompetitionInput) (models.Competition, error)
+	ListCompetitions(ctx context.Context) (models.Competitions, error)
 }
 
 func NewService(querier db.Querier) *Service {

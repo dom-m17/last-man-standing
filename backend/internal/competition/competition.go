@@ -18,6 +18,15 @@ func (s *Service) GetCompetition(ctx context.Context, competitionID string) (mod
 	return convertDBCompetitionToModelsCompetition(competition), nil
 }
 
+func (s *Service) ListCompetitions(ctx context.Context) (models.Competitions, error) {
+	competitions, err := s.Querier.ListCompetitions(ctx)
+	if err != nil {
+		return models.Competitions{}, fmt.Errorf("listing competitions: %w", err)
+	}
+
+	return convertDBCompetitionsToModelsCompetitions(competitions), nil
+}
+
 func (s *Service) CreateCompetition(ctx context.Context, input graphmodels.CreateCompetitionInput) (models.Competition, error) {
 	competition, err := s.Querier.CreateCompetition(ctx, db.CreateCompetitionParams{
 		Name:          input.Name,
