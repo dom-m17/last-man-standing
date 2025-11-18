@@ -4,7 +4,7 @@ import styles from "./Header.module.css";
 const MenuButton = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Optional: close on Escape for accessibility
+  // Close on Escape for accessibility
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsOpen(false);
@@ -51,9 +51,6 @@ const MenuButton = () => {
         </a>
         <a href="#" className={styles.menuLink}>
           Rules
-        </a>
-        <a href="#" className={styles.menuLink}>
-          Logout
         </a>
       </nav>
     </>

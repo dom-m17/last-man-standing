@@ -73,19 +73,19 @@ func main() {
 
 	handlerWithCORS := cors.AllowAll().Handler(mux)
 
-	//! Temporary code to populate the DB
-	//! This will eventually be a cron job or called from the FE
+	// Temporary code to populate the DB
+	// This will eventually be a cron job or called from the FE
 	ctx := context.Background()
 	footballDataSvc := footballdata.New(querier)
-	// err = footballDataSvc.PopulateTeams(ctx)
-	// if err != nil {
-	// 	log.Printf("error populating teams: %v", err)
-	// }
-	footballDataSvc.PopulateMatches(ctx)
+
+	err = footballDataSvc.PopulateTeams(ctx)
+	if err != nil {
+		log.Printf("error populating teams: %v", err)
+	}
+	err = footballDataSvc.PopulateMatches(ctx)
 	if err != nil {
 		log.Printf("error populating matches: %v", err)
 	}
-	//!
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, handlerWithCORS))

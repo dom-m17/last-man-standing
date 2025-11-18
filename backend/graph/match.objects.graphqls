@@ -1,8 +1,8 @@
 # Types
 type Match {
   id: ID!
-  homeTeam: Team! @goField(forceResolver: true)
-  awayTeam: Team! @goField(forceResolver: true)
+  homeTeam: Team!
+  awayTeam: Team!
   matchday: Int!
   matchDate: Time!
   homeGoals: Int

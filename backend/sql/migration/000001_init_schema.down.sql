@@ -22,6 +22,8 @@ DROP TYPE IF EXISTS "entry_status";
 
 DROP TYPE IF EXISTS "match_status";
 
+DROP TYPE IF EXISTS "round_status";
+
 DROP EXTENSION IF EXISTS "uuid-ossp";
 
 DROP FUNCTION IF EXISTS updated_at_now () CASCADE;

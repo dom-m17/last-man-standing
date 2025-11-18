@@ -86,7 +86,8 @@ CREATE TABLE
     "competition_id" text NOT NULL REFERENCES competitions,
     "matchday" int NOT NULL,
     "status" round_status NOT NULL DEFAULT 'PENDING',
-    "entry_deadline" timestamptz NOT NULL,
+    --! This needs to be NOT NULL, keeping it this way for now for ease of development
+    "entry_deadline" timestamptz, 
     "created_at" timestamptz NOT NULL DEFAULT (now ()),
     "updated_at" timestamptz NOT NULL DEFAULT (now ())
   );

@@ -31,9 +31,12 @@ async function getCompetitions(): Promise<CompetitionRounds[]> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
-          query MyQuery {
-            getCompetitions() {
-              
+          query MyQuery{
+            listCompetitions {
+                id
+                  name
+                  startMatchday
+                  status
             }
           }
         `,
@@ -41,7 +44,7 @@ async function getCompetitions(): Promise<CompetitionRounds[]> {
     });
 
     const json = await result.json();
-    return json.data?.getCompetitions || [];
+    return json.data?.listCompetitions || [];
   } catch (err) {
     console.error("Error fetching competitions:", err);
     return [];

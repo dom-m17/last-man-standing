@@ -1,22 +1,28 @@
-import { useState } from "react";
-import CompetitionRound from "./components/CompetitionRound";
-import MatchList from "./components/MatchList";
 import Header from "./components/Header";
+import HomePage from "./pages/HomePage";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import SignUpPage from "./pages/SignUpPage";
+import NotFoundPage from "./pages/NotFoundPage";
+
+import "./index.css";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (
+      <>
+        <Header />
+        <Outlet />
+      </>
+    ),
+    errorElement: <NotFoundPage />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "signup", element: <SignUpPage /> },
+    ],
+  },
+]);
 
 export default function App() {
-  const [round, setRound] = useState(1);
-  const [competition, setCompetition] = useState(1);
-
-  return (
-    <main>
-      <Header />
-      <CompetitionRound
-        round={round}
-        setRound={setRound}
-        competition={competition}
-        setCompetition={setCompetition}
-      />
-      <MatchList roundNumber={round} competitionNumber={competition} />
-    </main>
-  );
+  return <RouterProvider router={router} />;
 }

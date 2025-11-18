@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    // "baseUrl": ".", // Apparently this is deprecated
     "paths": {
       "@/*": [
         "./src/*"

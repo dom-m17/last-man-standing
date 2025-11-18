@@ -1,64 +1,219 @@
 BEGIN;
 
--- This data should now always come from the API
--- Insert Teams
--- INSERT INTO teams (id, long_name, short_name, tla, crest_url) VALUES
--- ('1', 'Manchester United Football Club', 'Man United', 'MUN', 'https://example.com/crest/mun.png'),
--- ('2', 'Liverpool Football Club', 'Liverpool', 'LIV', 'https://example.com/crest/liv.png'),
--- ('3', 'Arsenal Football Club', 'Arsenal', 'ARS', 'https://example.com/crest/ars.png'),
--- ('4', 'Chelsea Football Club', 'Chelsea', 'CHE', 'https://example.com/crest/che.png'),
--- ('5', 'Tottenham Hotspur Football Club', 'Tottenham', 'TOT', 'https://example.com/crest/tot.png'),
--- ('6', 'Manchester City Football Club', 'Man City', 'MCI', 'https://example.com/crest/mci.png'),
--- ('7', 'Newcastle United Football Club', 'Newcastle', 'NEW', 'https://example.com/crest/new.png'),
--- ('8', 'West Ham United Football Club', 'West Ham', 'WHU', 'https://example.com/crest/whu.png'),
--- ('9', 'Leicester City Football Club', 'Leicester', 'LEI', 'https://example.com/crest/lei.png'),
--- ('10', 'Everton Football Club', 'Everton', 'EVE', 'https://example.com/crest/eve.png'),
--- ('11', 'Brighton & Hove Albion Football Club', 'Brighton', 'BHA', 'https://example.com/crest/bha.png'),
--- ('12', 'Aston Villa Football Club', 'Aston Villa', 'AVL', 'https://example.com/crest/avl.png'),
--- ('13', 'Wolverhampton Wanderers Football Club', 'Wolves', 'WOL', 'https://example.com/crest/wol.png'),
--- ('14', 'Crystal Palace Football Club', 'Crystal Palace', 'CRY', 'https://example.com/crest/cry.png');
+-- Clear data from tables
+DELETE FROM selections;
+
+DELETE FROM rounds;
+
+DELETE FROM entries;
+
+DELETE FROM competition_matches;
+
+DELETE FROM competitions;
+
+DELETE FROM users;
 
 -- Insert Users
-INSERT INTO users (username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team_id)
+INSERT INTO
+    users (
+        username,
+        hashed_password,
+        first_name,
+        last_name,
+        email,
+        phone_number,
+        date_of_birth,
+        favourite_team_id
+    )
 VALUES
-('jdoe', 'hashed_pw_123', 'John', 'Doe', 'jdoe@example.com', '07123456789', '1990-01-01', 61),
-('asmith', 'hashed_pw_456', 'Alice', 'Smith', 'asmith@example.com', '07234567890', '1992-02-02', 62);
+    (
+        'a.altman',
+        'hashed_pw_123',
+        'Alan',
+        'Altman',
+        'a.altman@example.com',
+        '07123456789',
+        '1990-01-01',
+        61
+    ),
+    (
+        'b.brown',
+        'hashed_pw_456',
+        'Bob',
+        'Brown',
+        'b.brown@example.com',
+        '07234567890',
+        '1992-02-02',
+        62
+    ),
+    (
+        'c.cromwell',
+        'hashed_pw_789',
+        'Chris',
+        'Cromwell',
+        'c.cromwell@example.com',
+        '07987654321',
+        '1980-11-29',
+        57
+    ),
+    (
+        'd.dixon',
+        'hashed_pw_abc',
+        'Dean',
+        'Dixon',
+        'd.dixon@example.com',
+        '07111213145',
+        '1999-06-12',
+        58
+    );
 
 -- Insert Competition
-INSERT INTO competitions (id, name, start_matchday, status)
+INSERT INTO
+    competitions (id, name, start_matchday, status)
 VALUES
-('comp_001', 'Premier League Predictor', 1, 'OPEN');
-
--- This data should now always come from the API
--- Insert Matches
--- INSERT INTO matches (id, home_team_id, away_team_id, matchday, match_date, home_goals, away_goals, has_finished)
--- VALUES
--- ('1001', '1', '2', '1', '2025-08-10 15:00:00+00', 2, 1, true),
--- ('1002', '3', '4', '1', '2025-08-11 15:00:00+00', 0, 0, true),
--- ('1003', '2', '3', '2', '2025-08-17 15:00:00+00', NULL, NULL, false),
--- ('1004', '4', '1', '2', '2025-08-18 15:00:00+00', NULL, NULL, false);
+    ('comp_001', 'Competition 1', 1, 'COMPLETED'),
+    ('comp_002', 'Competition 2', 5, 'IN_PROGRESS'),
+    ('comp_003', 'Competition 3', 10, 'OPEN');
 
 -- Link Matches to Competition
-INSERT INTO competition_matches (competition_id, match_id) VALUES
-('comp_001', '1001'),
-('comp_001', '1002'),
-('comp_001', '1003'),
-('comp_001', '1004');
+INSERT INTO
+    competition_matches (competition_id, match_id)
+VALUES
+    ('comp_001', 537785),
+    ('comp_001', 537786),
+    ('comp_001', 537787),
+    ('comp_001', 537789),
+    ('comp_001', 537790),
+    ('comp_001', 537791),
+    ('comp_001', 537788),
+    ('comp_001', 537792),
+    ('comp_001', 537793),
+    ('comp_001', 537794),
+    ('comp_001', 537804),
+    ('comp_001', 537802),
+    ('comp_001', 537795),
+    ('comp_001', 537798),
+    ('comp_001', 537799),
+    ('comp_001', 537797),
+    ('comp_001', 537796),
+    ('comp_001', 537800),
+    ('comp_001', 537801),
+    ('comp_001', 537803),
+    ('comp_001', 537808),
+    ('comp_001', 537805),
+    ('comp_001', 537811),
+    ('comp_001', 537813),
+    ('comp_001', 537814),
+    ('comp_001', 537810),
+    ('comp_001', 537807),
+    ('comp_001', 537812),
+    ('comp_001', 537809),
+    ('comp_001', 537806),
+    ('comp_001', 537817),
+    ('comp_001', 537815),
+    ('comp_001', 537816),
+    ('comp_001', 537820),
+    ('comp_001', 537821),
+    ('comp_001', 537823),
+    ('comp_001', 537824),
+    ('comp_001', 537818),
+    ('comp_001', 537819),
+    ('comp_001', 537822),
+    ('comp_001', 537831),
+    ('comp_001', 537827),
+    ('comp_001', 537829),
+    ('comp_001', 537833),
+    ('comp_001', 537834),
+    ('comp_001', 537832),
+    ('comp_001', 537830),
+    ('comp_001', 537825),
+    ('comp_001', 537826),
+    ('comp_001', 537828),
+    ('comp_002', 537831),
+    ('comp_002', 537827),
+    ('comp_002', 537829),
+    ('comp_002', 537833),
+    ('comp_002', 537834),
+    ('comp_002', 537832),
+    ('comp_002', 537830),
+    ('comp_002', 537825),
+    ('comp_002', 537826),
+    ('comp_002', 537828),
+    ('comp_002', 537837),
+    ('comp_002', 537836),
+    ('comp_002', 537838),
+    ('comp_002', 537840),
+    ('comp_002', 537841),
+    ('comp_002', 537843),
+    ('comp_002', 537844),
+    ('comp_002', 537835),
+    ('comp_002', 537842),
+    ('comp_002', 537839),
+    ('comp_002', 537845),
+    ('comp_002', 537851),
+    ('comp_002', 537847),
+    ('comp_002', 537852),
+    ('comp_002', 537849),
+    ('comp_002', 537846),
+    ('comp_002', 537850),
+    ('comp_002', 537853),
+    ('comp_002', 537854),
+    ('comp_002', 537848),
+    ('comp_002', 537862),
+    ('comp_002', 537856),
+    ('comp_002', 537857),
+    ('comp_002', 537858),
+    ('comp_002', 537861),
+    ('comp_002', 537855),
+    ('comp_002', 537859),
+    ('comp_002', 537863),
+    ('comp_002', 537860),
+    ('comp_002', 537864),
+    ('comp_002', 537871),
+    ('comp_002', 537869),
+    ('comp_002', 537873),
+    ('comp_002', 537872),
+    ('comp_002', 537868),
+    ('comp_002', 537865),
+    ('comp_002', 537866),
+    ('comp_002', 537867),
+    ('comp_002', 537874),
+    ('comp_002', 537870);
 
 -- Insert Entries
-INSERT INTO entries (id, user_id, competition_id, status)
-SELECT 'entry_001', id, 'comp_001', 'ACTIVE' FROM users WHERE username = 'jdoe';
-INSERT INTO entries (id, user_id, competition_id, status)
-SELECT 'entry_002', id, 'comp_001', 'ACTIVE' FROM users WHERE username = 'asmith';
+INSERT INTO
+    entries (id, user_id, competition_id, status)
+SELECT
+    'entry_001',
+    id,
+    'comp_001',
+    'ACTIVE'
+FROM
+    users
+WHERE
+    username = 'a.altman';
+
+INSERT INTO
+    entries (id, user_id, competition_id, status)
+SELECT
+    'entry_002',
+    id,
+    'comp_001',
+    'ACTIVE'
+FROM
+    users
+WHERE
+    username = 'b.brown';
 
 -- Insert Rounds
-INSERT INTO rounds (id, round_number, competition_id, matchday)
-VALUES 
-('round_001', 1, 'comp_001', 1),
-('round_002', 2, 'comp_001', 2),
-('round_003', 3, 'comp_001', 3);
+INSERT INTO
+    rounds (id, round_number, competition_id, matchday)
+VALUES
+    ('round_001', 1, 'comp_001', 1),
+    ('round_002', 2, 'comp_001', 2),
+    ('round_003', 3, 'comp_001', 3);
 
--- Broken, probably
+--! Broken
 -- Insert Selections
 -- INSERT INTO selections (id, entry_id, round_id, match_id, team_id, is_correct)
 -- VALUES
@@ -66,5 +221,4 @@ VALUES
 -- ('selection_002', 'entry_001', 'round_002', '1002', '3', false), -- John chose Arsenal, game drew
 -- ('selection_003', 'entry_002', 'round_001', '1001', '2', false), -- Alice chose Liverpool who lost
 -- ('selection_004', 'entry_002', 'round_002', '1002', '4', false); -- Alice chose Chelsea, game drew
-
 COMMIT;
