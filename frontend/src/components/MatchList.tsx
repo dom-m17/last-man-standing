@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
 import styles from "./MatchList.module.css";
+import { useQuery } from "@apollo/client/react";
+import { gql, TypedDocumentNode } from "@apollo/client";
 
 interface Team {
   id: string;
@@ -12,77 +13,51 @@ interface MatchType {
   awayTeam: Team;
 }
 
-interface Rounds {
+interface Competition {
   id: string;
-  roundNumber: number;
+  startMatchday: number;
+}
+
+interface CompetitionsQuery {
+  listCompetitions: Competition[];
+}
+
+interface GetMatchesByMatchdayQuery {
+  getMatchesByMatchday: MatchType[];
+}
+
+interface GetMatchesByMatchdayInput {
   matchday: number;
 }
 
-interface CompetitionRounds {
-  id: string;
-  startMatchday: number;
-  rounds: Rounds[];
-}
-
-async function getCompetitions(): Promise<CompetitionRounds[]> {
-  try {
-    const result = await fetch("http://localhost:8080/query", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          query MyQuery{
-            listCompetitions {
-                id
-                  name
-                  startMatchday
-                  status
-            }
-          }
-        `,
-      }),
-    });
-
-    const json = await result.json();
-    return json.data?.listCompetitions || [];
-  } catch (err) {
-    console.error("Error fetching competitions:", err);
-    return [];
+const GET_COMPETITIONS: TypedDocumentNode<CompetitionsQuery> = gql`
+  query MyQuery {
+    listCompetitions {
+      id
+      name
+      startMatchday
+    }
   }
-}
+`;
 
-// TODO: Abstract this - create a query builder function
-async function getMatchesByMatchday(matchday: number): Promise<MatchType[]> {
-  try {
-    const result = await fetch("http://localhost:8080/query", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          query MyQuery {
-            getMatchesByMatchday(input: ${matchday}) {
-              id
-              homeTeam {
-                id
-                longName
-              }
-              awayTeam {
-                id
-                longName
-              }
-            }
-          }
-        `,
-      }),
-    });
-
-    const json = await result.json();
-    return json.data?.getMatchesByMatchday || [];
-  } catch (err) {
-    console.error("Error fetching matches:", err);
-    return [];
+const GET_MATCHES_BY_MATCHDAY: TypedDocumentNode<
+  GetMatchesByMatchdayQuery,
+  GetMatchesByMatchdayInput
+> = gql`
+  query MyQuery($matchday: Int!) {
+    getMatchesByMatchday(input: $matchday) {
+      id
+      homeTeam {
+        id
+        longName
+      }
+      awayTeam {
+        id
+        longName
+      }
+    }
   }
-}
+`;
 
 interface MatchListProps {
   roundNumber: number;
@@ -93,34 +68,55 @@ export default function MatchList({
   roundNumber,
   competitionNumber,
 }: MatchListProps) {
-  const [matches, setMatches] = useState<MatchType[]>([]);
-  const [competitions, setCompetitions] = useState<CompetitionRounds[]>([]);
+  const { data: competitionsData, loading: competitionsLoading } =
+    useQuery(GET_COMPETITIONS);
 
-  useEffect(() => {
-    getCompetitions().then(setCompetitions);
-  }, []);
+  const currentCompetition =
+    competitionsData?.listCompetitions?.[competitionNumber - 1];
+  const matchday = currentCompetition
+    ? currentCompetition.startMatchday + roundNumber - 1
+    : undefined;
 
-  //! untested
-  useEffect(() => {
-    if (!competitions.length) return;
-    const matchday =
-      competitions[competitionNumber - 1].startMatchday + roundNumber - 1;
-    getMatchesByMatchday(matchday).then(setMatches);
-  }, [competitions, roundNumber, competitionNumber]);
+  const { data: matchesData, loading: matchesLoading } = useQuery(
+    GET_MATCHES_BY_MATCHDAY,
+    {
+      variables: { matchday: matchday! },
+      skip: !matchday,
+    }
+  );
+
+  const matches = matchesData?.getMatchesByMatchday || [];
+
+  if (competitionsLoading) {
+    return <div className={styles.MatchList}>Loading competitions...</div>;
+  }
+
+  if (matchesLoading) {
+    return <div className={styles.MatchList}>Loading matches...</div>;
+  }
+
+  if (!currentCompetition) {
+    return <div className={styles.MatchList}>Competition not found</div>;
+  }
 
   return (
     <div className={styles.MatchList}>
-      {matches.map((match) => (
-        <div key={match.id} className={styles.MatchItem}>
-          <span className={`${styles.TeamName} ${styles.Home}`}>
-            {match.homeTeam.longName}
-          </span>
-          <span>vs</span>
-          <span className={`${styles.TeamName} ${styles.Away}`}>
-            {match.awayTeam.longName}
-          </span>
-        </div>
-      ))}
+      <p>Matchweek: {currentCompetition.startMatchday + roundNumber - 1}</p>
+      {matches.length === 0 ? (
+        <p>No matches found for this matchday</p>
+      ) : (
+        matches.map((match) => (
+          <div key={match.id} className={styles.MatchItem}>
+            <span className={`${styles.TeamName} ${styles.Home}`}>
+              {match.homeTeam.longName}
+            </span>
+            <span>vs</span>
+            <span className={`${styles.TeamName} ${styles.Away}`}>
+              {match.awayTeam.longName}
+            </span>
+          </div>
+        ))
+      )}
     </div>
   );
 }

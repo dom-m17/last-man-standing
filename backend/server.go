@@ -78,10 +78,10 @@ func main() {
 	ctx := context.Background()
 	footballDataSvc := footballdata.New(querier)
 
-	err = footballDataSvc.PopulateTeams(ctx)
-	if err != nil {
-		log.Printf("error populating teams: %v", err)
-	}
+	// err = footballDataSvc.PopulateTeams(ctx)
+	// if err != nil {
+	// 	log.Printf("error populating teams: %v", err)
+	// }
 	err = footballDataSvc.PopulateMatches(ctx)
 	if err != nil {
 		log.Printf("error populating matches: %v", err)

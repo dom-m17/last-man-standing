@@ -15,7 +15,7 @@ type User {
 # Inputs
 input CreateUserInput {
   username: String!
-  hashedPassword: String!
+  hashedPassword: String! # TODO: Rename this to password, the backend will handle hashing it
   firstName: String!
   lastName: String!
   email: String!
