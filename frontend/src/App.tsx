@@ -2,6 +2,7 @@ import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import SignUpPage from "./pages/SignUpPage";
+import LogInPage from "./pages/LogInPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 import "./index.css";
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "signup", element: <SignUpPage /> },
+      { path: "login", element: <LogInPage /> },
     ],
   },
 ]);

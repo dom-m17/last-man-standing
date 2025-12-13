@@ -85,7 +85,7 @@ const CREATE_USER: TypedDocumentNode<
     createUser(
       input: {
         username: $username
-        hashedPassword: $password
+        password: $password
         firstName: $firstName
         lastName: $lastName
         email: $email

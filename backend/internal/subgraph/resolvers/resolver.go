@@ -3,6 +3,7 @@ package graphresolvers
 import (
 	"github.com/dom-m17/lms/backend/internal/competition"
 	"github.com/dom-m17/lms/backend/internal/entry"
+	"github.com/dom-m17/lms/backend/internal/logger"
 	"github.com/dom-m17/lms/backend/internal/match"
 	"github.com/dom-m17/lms/backend/internal/selection"
 	"github.com/dom-m17/lms/backend/internal/team"
@@ -20,4 +21,6 @@ type Resolver struct {
 	SelectionService   selection.ServiceInterface
 	TeamService        team.ServiceInterface
 	EntryService       entry.ServiceInterface
+
+	Logger logger.ServiceInterface
 }

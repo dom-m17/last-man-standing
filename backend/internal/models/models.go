@@ -86,3 +86,7 @@ const (
 	EntryStatusActive     EntryStatus = "ACTIVE"
 	EntryStatusWinner     EntryStatus = "WINNER"
 )
+
+// Refresh token models
+
+type RefreshToken struct{}

@@ -18,3 +18,15 @@ services:
     ports:
       # Entirely up to you what port you want to use while testing.
       - "5433:5432"
+  database:
+    image: postgres:17.4-alpine
+    container_name: lms-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - lms-postgres-data:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+
+volumes:
+  lms-postgres-data:

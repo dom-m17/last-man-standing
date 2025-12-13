@@ -225,15 +225,24 @@ type Match struct {
 	UpdatedAt time.Time          `json:"updated_at"`
 }
 
+type RefreshToken struct {
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	TokenHash string    `json:"token_hash"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Revoked   bool      `json:"revoked"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type Round struct {
-	ID            string      `json:"id"`
-	RoundNumber   string      `json:"round_number"`
-	CompetitionID string      `json:"competition_id"`
-	Matchday      int32       `json:"matchday"`
-	Status        RoundStatus `json:"status"`
-	EntryDeadline time.Time   `json:"entry_deadline"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at"`
+	ID            string       `json:"id"`
+	RoundNumber   string       `json:"round_number"`
+	CompetitionID string       `json:"competition_id"`
+	Matchday      int32        `json:"matchday"`
+	Status        RoundStatus  `json:"status"`
+	EntryDeadline sql.NullTime `json:"entry_deadline"`
+	CreatedAt     time.Time    `json:"created_at"`
+	UpdatedAt     time.Time    `json:"updated_at"`
 }
 
 type Selection struct {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -18,8 +17,9 @@ import (
 	"github.com/dom-m17/lms/backend/internal/competition"
 	"github.com/dom-m17/lms/backend/internal/db"
 	"github.com/dom-m17/lms/backend/internal/entry"
-	"github.com/dom-m17/lms/backend/internal/footballdata"
+	"github.com/dom-m17/lms/backend/internal/logger"
 	"github.com/dom-m17/lms/backend/internal/match"
+	token "github.com/dom-m17/lms/backend/internal/refresh-token"
 	"github.com/dom-m17/lms/backend/internal/selection"
 	"github.com/dom-m17/lms/backend/internal/subgraph"
 	graphresolvers "github.com/dom-m17/lms/backend/internal/subgraph/resolvers"
@@ -49,10 +49,14 @@ func main() {
 		Resolvers: &graphresolvers.Resolver{
 			TeamService:        team.NewService(querier),
 			CompetitionService: competition.NewService(querier),
-			UserService:        user.NewService(querier),
-			MatchService:       match.NewService(querier),
-			SelectionService:   selection.NewService(querier),
-			EntryService:       entry.NewService(querier),
+			UserService: user.NewService(
+				querier,
+				token.NewService(querier),
+			),
+			MatchService:     match.NewService(querier),
+			SelectionService: selection.NewService(querier),
+			EntryService:     entry.NewService(querier),
+			Logger:           logger.NewService(),
 		},
 	}))
 
@@ -75,17 +79,17 @@ func main() {
 
 	// Temporary code to populate the DB
 	// This will eventually be a cron job or called from the FE
-	ctx := context.Background()
-	footballDataSvc := footballdata.New(querier)
+	// ctx := context.Background()
+	// footballDataSvc := footballdata.New(querier)
 
 	// err = footballDataSvc.PopulateTeams(ctx)
 	// if err != nil {
 	// 	log.Printf("error populating teams: %v", err)
 	// }
-	err = footballDataSvc.PopulateMatches(ctx)
-	if err != nil {
-		log.Printf("error populating matches: %v", err)
-	}
+	// err = footballDataSvc.PopulateMatches(ctx)
+	// if err != nil {
+	// 	log.Printf("error populating matches: %v", err)
+	// }
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, handlerWithCORS))

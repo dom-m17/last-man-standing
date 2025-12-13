@@ -93,8 +93,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id string) (User, error) {
 
 const getUser = `-- name: GetUser :one
 SELECT id, username, hashed_password, first_name, last_name, email, phone_number, date_of_birth, favourite_team_id, created_at, updated_at FROM users
-WHERE id = $1 
-LIMIT 1
+WHERE id = $1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
@@ -113,6 +112,24 @@ func (q *Queries) GetUser(ctx context.Context, id string) (User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, username, hashed_password FROM users
+WHERE username = $1
+`
+
+type GetUserByUsernameRow struct {
+	ID             string `json:"id"`
+	Username       string `json:"username"`
+	HashedPassword string `json:"hashed_password"`
+}
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
+	var i GetUserByUsernameRow
+	err := row.Scan(&i.ID, &i.Username, &i.HashedPassword)
 	return i, err
 }
 

@@ -1,13 +1,16 @@
 BEGIN;
 
-CREATE OR REPLACE FUNCTION updated_at_now()
-RETURNS TRIGGER AS
+CREATE
+OR REPLACE FUNCTION updated_at_now () RETURNS TRIGGER AS
 $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
+BEGIN NEW.updated_at = now ();
+
+RETURN NEW;
+
 END;
-$$ LANGUAGE plpgsql;
+
+$$ 
+LANGUAGE plpgsql;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -50,7 +53,7 @@ CREATE TABLE
     "email" text UNIQUE NOT NULL,
     "phone_number" text UNIQUE,
     "date_of_birth" DATE NOT NULL,
-    "favourite_team_id" text REFERENCES teams,
+    "favourite_team_id" text REFERENCES teams ON DELETE CASCADE,
     "created_at" timestamptz NOT NULL DEFAULT (now ()),
     "updated_at" timestamptz NOT NULL DEFAULT (now ())
   );
@@ -58,8 +61,8 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS "matches" (
     "id" text PRIMARY KEY,
-    "home_team_id" text NOT NULL REFERENCES teams,
-    "away_team_id" text NOT NULL REFERENCES teams,
+    "home_team_id" text NOT NULL REFERENCES teams ON DELETE CASCADE,
+    "away_team_id" text NOT NULL REFERENCES teams ON DELETE CASCADE,
     "matchday" int NOT NULL,
     "match_date" timestamptz NOT NULL,
     "home_goals" int,
@@ -73,7 +76,7 @@ CREATE TABLE
   IF NOT EXISTS "entries" (
     "id" text DEFAULT concat ('entry_', uuid_generate_v4 ()) PRIMARY KEY,
     "user_id" text NOT NULL REFERENCES users,
-    "competition_id" text NOT NULL REFERENCES competitions,
+    "competition_id" text NOT NULL REFERENCES competitions ON DELETE CASCADE,
     "status" entry_status NOT NULL DEFAULT 'ACTIVE',
     "created_at" timestamptz NOT NULL DEFAULT (now ()),
     "updated_at" timestamptz NOT NULL DEFAULT (now ())
@@ -83,11 +86,11 @@ CREATE TABLE
   IF NOT EXISTS "rounds" (
     "id" text DEFAULT concat ('round_', uuid_generate_v4 ()) PRIMARY KEY,
     "round_number" text NOT NULL,
-    "competition_id" text NOT NULL REFERENCES competitions,
+    "competition_id" text NOT NULL REFERENCES competitions ON DELETE CASCADE,
     "matchday" int NOT NULL,
     "status" round_status NOT NULL DEFAULT 'PENDING',
     --! This needs to be NOT NULL, keeping it this way for now for ease of development
-    "entry_deadline" timestamptz, 
+    "entry_deadline" timestamptz,
     "created_at" timestamptz NOT NULL DEFAULT (now ()),
     "updated_at" timestamptz NOT NULL DEFAULT (now ())
   );
@@ -95,10 +98,10 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS "selections" (
     "id" text DEFAULT concat ('selection_', uuid_generate_v4 ()) PRIMARY KEY,
-    "entry_id" text NOT NULL REFERENCES entries,
-    "round_id" text NOT NULL REFERENCES rounds,
-    "match_id" text NOT NULL REFERENCES matches,
-    "team_id" text NOT NULL REFERENCES teams,
+    "entry_id" text NOT NULL REFERENCES entries ON DELETE CASCADE,
+    "round_id" text NOT NULL REFERENCES rounds ON DELETE CASCADE,
+    "match_id" text NOT NULL REFERENCES matches ON DELETE CASCADE,
+    "team_id" text NOT NULL REFERENCES teams ON DELETE CASCADE,
     "is_correct" bool,
     "created_at" timestamptz NOT NULL DEFAULT (now ()),
     "updated_at" timestamptz NOT NULL DEFAULT (now ())
@@ -106,11 +109,21 @@ CREATE TABLE
 
 CREATE TABLE
   IF NOT EXISTS "competition_matches" (
-    "competition_id" text NOT NULL REFERENCES competitions,
+    "competition_id" text NOT NULL REFERENCES competitions ON DELETE CASCADE,
     "match_id" text NOT NULL REFERENCES matches,
     PRIMARY KEY ("competition_id", "match_id"),
     "created_at" timestamptz NOT NULL DEFAULT (now ()),
     "updated_at" timestamptz NOT NULL DEFAULT (now ())
+  );
+
+CREATE TABLE
+  IF NOT EXISTS "refresh_tokens" (
+    "id" text DEFAULT concat ('refresh_token_', uuid_generate_v4 ()) PRIMARY KEY,
+    "user_id" text NOT NULL REFERENCES users ON DELETE CASCADE,
+    "token_hash" TEXT NOT NULL,
+    "expires_at" timestamptz NOT NULL DEFAULT (now () + interval '30 day'),
+    "revoked" BOOLEAN NOT NULL DEFAULT FALSE,
+    "created_at" timestamptz NOT NULL DEFAULT NOW ()
   );
 
 CREATE INDEX ON "entries" ("user_id");
@@ -125,13 +138,28 @@ CREATE UNIQUE INDEX ON "selections" ("entry_id", "team_id");
 
 COMMENT ON COLUMN "matches"."matchday" IS 'between 1 and 38';
 
-CREATE TRIGGER teams BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
-CREATE TRIGGER competitions BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
-CREATE TRIGGER users BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
-CREATE TRIGGER matches BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
-CREATE TRIGGER entries BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
-CREATE TRIGGER rounds BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
-CREATE TRIGGER selections BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
-CREATE TRIGGER competition_matches BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
+CREATE TRIGGER teams_updated_at BEFORE
+UPDATE ON teams FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
+
+CREATE TRIGGER competitions_updated_at BEFORE
+UPDATE ON competitions FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
+
+CREATE TRIGGER users_updated_at BEFORE
+UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
+
+CREATE TRIGGER matches_updated_at BEFORE
+UPDATE ON matches FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
+
+CREATE TRIGGER entries_updated_at BEFORE
+UPDATE ON entries FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
+
+CREATE TRIGGER rounds_updated_at BEFORE
+UPDATE ON rounds FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
+
+CREATE TRIGGER selections_updated_at BEFORE
+UPDATE ON selections FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
+
+CREATE TRIGGER competition_matches_updated_at BEFORE
+UPDATE ON competition_matches FOR EACH ROW EXECUTE PROCEDURE updated_at_now ();
 
 COMMIT;

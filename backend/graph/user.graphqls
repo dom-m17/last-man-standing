@@ -7,4 +7,6 @@ extend type Mutation {
   createUser(input: CreateUserInput!): User!
   deleteUser(input: ID!): User!
   updateUser(input: UpdateUserInput!): User!
+
+  login(input: LoginInput!): LoginResponse!
 }

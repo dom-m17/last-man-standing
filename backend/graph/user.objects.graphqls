@@ -15,7 +15,7 @@ type User {
 # Inputs
 input CreateUserInput {
   username: String!
-  hashedPassword: String! # TODO: Rename this to password, the backend will handle hashing it
+  password: String!
   firstName: String!
   lastName: String!
   email: String!
@@ -35,4 +35,14 @@ input UpdateUserInput {
   favouriteTeam: ID
 }
 
+input LoginInput {
+  username: String!
+  password: String!
+}
+
 # Responses
+
+type LoginResponse {
+  user: User!
+  accessToken: String!
+}

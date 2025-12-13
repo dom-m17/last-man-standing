@@ -3,8 +3,11 @@ package user
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/dom-m17/lms/backend/internal/db"
 	"github.com/dom-m17/lms/backend/internal/models"
@@ -31,11 +34,17 @@ func (s *Service) ListUsers(ctx context.Context) (models.Users, error) {
 }
 
 func (s *Service) CreateUser(ctx context.Context, input graphmodels.CreateUserInput) (*models.User, error) {
-	//TODO: Validation, hashing, casing, etc (ie any logic needed before inserting to DB)
+	//TODO: Validation, casing, etc (ie any logic needed before inserting to DB)
 	dob, _ := time.Parse("2006-01-02", input.DateOfBirth)
+
+	hashedPassword, err := hashPassword(input.Password)
+	if err != nil {
+		return &models.User{}, fmt.Errorf("hashing password: %w", err)
+	}
+
 	user, err := s.Querier.CreateUser(ctx, db.CreateUserParams{
 		Username:       input.Username,
-		HashedPassword: input.HashedPassword,
+		HashedPassword: string(hashedPassword),
 		FirstName:      input.FirstName,
 		LastName:       input.LastName,
 		Email:          input.Email,
@@ -111,4 +120,34 @@ func (s *Service) UpdateUser(ctx context.Context, input graphmodels.UpdateUserIn
 	}
 
 	return convertDBUserToModelsUser(user), nil
+}
+
+// LMS-45
+func (s *Service) Login(ctx context.Context, input graphmodels.LoginInput) (*models.User, string, string, error) {
+	user, err := s.Querier.GetUserByUsername(ctx, input.Username)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &models.User{}, "", "", fmt.Errorf("no user exists with that username")
+		}
+		return &models.User{}, "", "", fmt.Errorf("getting user by username: %w", err)
+	}
+
+	if !checkPassword(input.Password, user.HashedPassword) {
+		return &models.User{}, "", "", errors.New("password is incorrect")
+	}
+	// create refresh token
+	s.Querier.CreateRefreshToken(ctx, db.CreateRefreshTokenParams{
+		UserID:    user.ID,
+		TokenHash: s.RefreshToken.CreateRefreshToken(),
+	})
+
+	// create access token
+	// use golang jwt?
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"foo": "bar",
+		"nbf": time.Date(2015, 10, 10, 12, 0, 0, 0, time.UTC).Unix(),
+	})
+
+	// return access token, refresh token and success
+	return nil, token.Raw, "", nil
 }

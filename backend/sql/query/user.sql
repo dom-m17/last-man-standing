@@ -1,7 +1,6 @@
 -- name: GetUser :one
 SELECT * FROM users
-WHERE id = $1 
-LIMIT 1;
+WHERE id = $1;
 
 -- name: CreateUser :one
 INSERT INTO users (
@@ -38,3 +37,7 @@ SET
   favourite_team_id = $8
 WHERE id = $1
 RETURNING *;
+
+-- name: GetUserByUsername :one
+SELECT id, username, hashed_password FROM users
+WHERE username = $1;

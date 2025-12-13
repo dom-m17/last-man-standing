@@ -43,14 +43,14 @@ type CreateSelectionInput struct {
 }
 
 type CreateUserInput struct {
-	Username       string  `json:"username"`
-	HashedPassword string  `json:"hashedPassword"`
-	FirstName      string  `json:"firstName"`
-	LastName       string  `json:"lastName"`
-	Email          string  `json:"email"`
-	PhoneNumber    *string `json:"phoneNumber,omitempty"`
-	DateOfBirth    string  `json:"dateOfBirth"`
-	FavouriteTeam  *string `json:"favouriteTeam,omitempty"`
+	Username      string  `json:"username"`
+	Password      string  `json:"password"`
+	FirstName     string  `json:"firstName"`
+	LastName      string  `json:"lastName"`
+	Email         string  `json:"email"`
+	PhoneNumber   *string `json:"phoneNumber,omitempty"`
+	DateOfBirth   string  `json:"dateOfBirth"`
+	FavouriteTeam *string `json:"favouriteTeam,omitempty"`
 }
 
 type Entry struct {
@@ -60,6 +60,16 @@ type Entry struct {
 	Status      EntryStatus  `json:"status"`
 	CreatedAt   time.Time    `json:"createdAt"`
 	UpdatedAt   time.Time    `json:"updatedAt"`
+}
+
+type LoginInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	User        *User  `json:"user"`
+	AccessToken string `json:"accessToken"`
 }
 
 type Match struct {
